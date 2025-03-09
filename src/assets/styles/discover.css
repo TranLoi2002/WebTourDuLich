@@ -1,0 +1,53 @@
+.discorver_container{
+    position: relative;
+    /*margin: 50px 100px;*/
+    padding : 50px 100px;
+    background-color: rgba(152, 192, 232, 0.25);
+}
+.discorver_container h2{
+    text-align: center;
+    font-size: 2em;
+}
+.discover_content{
+    display: grid;
+    grid-template-columns: repeat(2 , 30%);
+    margin-top: 50px;
+    justify-content: center;
+    column-gap: 300px;
+    row-gap: 50px;
+}
+.details_discover{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+.details_discover:nth-child(1):hover,
+.details_discover:nth-child(3):hover{
+    border: 1px solid #e0d9d9;
+    box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+    transform: scale(1.2);
+    transform-origin: left;
+}
+.details_discover:nth-child(2):hover,
+.details_discover:nth-child(4):hover{
+    border: 1px solid #e0d9d9;
+    box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+    transform: scale(1.2);
+    transform-origin: right;
+}
+.share , .get , .receive ,.flight{
+    display: flex;
+    align-items: center;
+    gap : 10px;
+    font-size: 1.4em;
+    font-weight: 700;
+}
+.details_discover p{
+    font-style: normal;
+    margin-top: 10px;
+    line-height: 30px;
+}
