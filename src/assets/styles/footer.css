@@ -116,3 +116,39 @@
     gap : 10px;
     color:#777E90;
 }
+
+@media (min-width: 441px) and (max-width: 794px) {
+    .footer_container{
+        padding-top: 20px;
+        height: 500px;
+    }
+    .footer_content{
+        flex-direction: column;
+        gap : 50px;
+    }
+    .footer_infor{
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+    .footer_infor .logo_infor{
+        justify-content: center;
+    }
+    .footer_service,
+    .footer_support,
+    .footer_business{
+        align-items: center;
+        text-align: center;
+    }
+    .footer_service ul li,
+    .footer_support ul li,
+    .footer_business ul li{
+        gap: 10px;
+    }
+    .footer_socials{
+        margin: 0 20px;
+    }
+    .footer_infor p {
+        margin: 25px;
+    }
+}

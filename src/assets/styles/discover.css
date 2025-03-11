@@ -51,3 +51,32 @@
     margin-top: 10px;
     line-height: 30px;
 }
+
+@media (min-width: 441px) and (max-width: 794px) {
+    .discorver_container{
+        padding: 50px 50px;
+    }
+    .discover_content{
+        grid-template-columns: repeat(1 , 100%);
+        column-gap: 0px;
+        row-gap: 50px;
+    }
+    .details_discover{
+        justify-content: center;
+    }
+    .share , .get , .receive ,.flight{
+        font-size: 1.2em;
+    }
+    .details_discover p{
+        font-size: 1em;
+    }
+
+    .details_discover:nth-child(1):hover,
+    .details_discover:nth-child(3):hover,
+    .details_discover:nth-child(2):hover,
+    .details_discover:nth-child(4):hover {
+        border: none;
+        box-shadow: none;
+        transform: none;
+    }
+}

@@ -1,4 +1,50 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 const DetailTour = ({ match }) => {
+
+    const navigate = useNavigate();
+
+    // State lưu số lượng khách và tổng tiền
+    const [adults, setAdults] = useState(0);
+    const [children, setChildren] = useState(0);
+    const [babies, setBabies] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [discountCode, setDiscountCode] = useState("");
+
+    // Cập nhật số lượng người lớn
+    const addAdult = () => setAdults(adults + 1);
+    const minusAdult = () => setAdults(Math.max(0, adults - 1));
+
+    // Cập nhật số lượng trẻ em
+    const addChild = () => setChildren(children + 1);
+    const minusChild = () => setChildren(Math.max(0, children - 1));
+
+    // Cập nhật số lượng em bé
+    const addBaby = () => setBabies(babies + 1);
+    const minusBaby = () => setBabies(Math.max(0, babies - 1));
+
+    // Kiểm tra mã giảm giá (giả định)
+    const checkGiamGia = () => {
+        if (discountCode === "DISCOUNT10") {
+            setTotalPrice(totalPrice * 0.9);
+        }
+    };
+
+    // Khi nhấn "BOOK NOW", chuyển đến trang xác nhận
+    const handleSubmit = () => {
+        navigate("/confirmbooking", {
+            state: {
+                tour: "Luxury Beach Resort",
+                adults,
+                children,
+                babies,
+                totalPrice,
+                discountCode,
+            },
+        });
+    };
+
     return (
         <div className="detail_container">
             <div className="detail_content">
@@ -193,16 +239,7 @@ const DetailTour = ({ match }) => {
                     </div>
 
                     <div className="book_container">
-                        <div className="book_contact">
-                            <label for="">
-                                <i className="fa-solid fa-phone"></i>
-                                <span>Free call over the internet</span>
-                            </label>
-                            <label for="">
-                                <i className="fa-solid fa-envelope"></i>
-                                <span>Submit a support request now</span>
-                            </label>
-                        </div>
+
                         <div className="book_now">
                             <h2>Trip summary</h2>
                             <p>All-Inclusive Tour
@@ -226,55 +263,59 @@ const DetailTour = ({ match }) => {
 
                             </div>
                             <div className="infor_booking">
-                                <label for="">
+                                <label>
                                     <h4>Passenger</h4>
-                                    <span id="totalPer">0 person</span>
+                                    <span>{adults + children + babies} person</span>
                                 </label>
-                                <label for="">
+
+                                <label>
                                     <h4>Adult</h4>
                                     <div className="discrea">
-                                        <i className="fa-solid fa-minus" onclick="minusAdult()"></i>
-                                        <span id="Adult">0</span>
-                                        <i className="fa-solid fa-plus" onclick="addAdult()"></i>
+                                        <i className="fa-solid fa-minus" onClick={minusAdult}></i>
+                                        <span>{adults}</span>
+                                        <i className="fa-solid fa-plus" onClick={addAdult}></i>
                                     </div>
                                 </label>
-                                <label for="">
+
+                                <label>
                                     <h4>Children</h4>
                                     <div className="discrea">
-                                        <i className="fa-solid fa-minus" onclick="minusChild()"></i>
-                                        <span id="Chil">0</span>
-                                        <i className="fa-solid fa-plus" onclick="addChild()"></i>
+                                        <i className="fa-solid fa-minus" onClick={minusChild}></i>
+                                        <span>{children}</span>
+                                        <i className="fa-solid fa-plus" onClick={addChild}></i>
                                     </div>
                                 </label>
-                                <label for="">
+
+                                <label>
                                     <h4>Baby</h4>
                                     <div className="discrea">
-                                        <i className="fa-solid fa-minus" onclick="minusBaby()"></i>
-                                        <span id="bby">0</span>
-                                        <i className="fa-solid fa-plus" onclick="addBaby()"></i>
+                                        <i className="fa-solid fa-minus" onClick={minusBaby}></i>
+                                        <span>{babies}</span>
+                                        <i className="fa-solid fa-plus" onClick={addBaby}></i>
                                     </div>
                                 </label>
-                                <label for="">
-                                    <h4>Private room surcharge</h4>
-                                    <div className="discrea_check">
-                                        <input type="radio" id="private"/>
-                                        <span>$1600</span>
-                                    </div>
-                                </label>
-                                <label for="" className="discount">
+
+                                <label className="discount">
                                     <h4>Discount Code</h4>
                                     <div className="discrea">
-                                        <input type="text" placeholder="Add Code" id="sale"/>
-                                        <button onclick="checkGiamGia()">Apply</button>
+                                        <input
+                                            type="text"
+                                            placeholder="Add Code"
+                                            value={discountCode}
+                                            onChange={(e) => setDiscountCode(e.target.value)}
+                                        />
+                                        <button onClick={checkGiamGia}>Apply</button>
                                     </div>
                                 </label>
-                                <label for="" className="total">
+
+                                <label className="total">
                                     <h4>TOTAL</h4>
                                     <div className="discrea_total">
-                                        <span id="totalMoney">0</span>
+                                        <span>${totalPrice}</span>
                                     </div>
                                 </label>
-                                <button className="book_submit" id="loadPayMent">BOOK NOW</button>
+
+                                <button className="book_submit" onClick={handleSubmit}>BOOK NOW</button>
                             </div>
                         </div>
                     </div>

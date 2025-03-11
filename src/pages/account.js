@@ -8,9 +8,14 @@ const Account = () => {
         setActiveSection('security');
     }
 
+    const changeSectionFavouritesTour = () => {
+        setActiveSection('favourites')
+    }
+
     const changeSectionMyTour = () => {
         setActiveSection('mytour');
     }
+
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -22,17 +27,29 @@ const Account = () => {
                 <div className="acc_content">
                     <div className="acc_left">
                         <div className="card_select">
-                            <label for="" className="choice_acc" style={{backgroundColor: activeSection ==='account' ? '#EBF1FF' : ''}} onClick={() => setActiveSection('account')}>
+                            <label htmlFor="" className="choice_acc"
+                                   style={{backgroundColor: activeSection === 'account' ? '#EBF1FF' : ''}}
+                                   onClick={() => setActiveSection('account')}>
                                 <i className="fa-regular fa-user"></i>
-                                <span  >Account Setting</span>
+                                <span>Account Setting</span>
                             </label>
-                            <label for="" className="choice_pri" style={{backgroundColor: activeSection ==='security' ? '#EBF1FF' : ''}} onClick={changeSectionSecurity}>
+                            <label htmlFor="" className="choice_pri"
+                                   style={{backgroundColor: activeSection === 'security' ? '#EBF1FF' : ''}}
+                                   onClick={changeSectionSecurity}>
                                 <i className="fa-solid fa-lock"></i>
-                                <span >Privacy & Security</span>
+                                <span>Privacy & Security</span>
                             </label>
-                            <label for="tour" className="choice_tr" style={{backgroundColor: activeSection ==='mytour' ? '#EBF1FF' : ''}} onClick={changeSectionMyTour}>
+                            <label htmlFor="" className="choice_tr"
+                                   style={{backgroundColor: activeSection === 'mytour' ? '#EBF1FF' : ''}}
+                                   onClick={changeSectionMyTour}>
                                 <i className="fa-solid fa-plane tour"></i>
-                                <span >My tour</span>
+                                <span>My tour</span>
+                            </label>
+                            <label htmlFor="" className="choice_favourite"
+                                   style={{backgroundColor: activeSection === 'favourites' ? '#EBF1FF' : ''}}
+                                   onClick={changeSectionFavouritesTour}>
+                                <i className="fa-solid fa-heart tour"></i>
+                                <span>Favourite tour</span>
                             </label>
                         </div>
                     </div>
@@ -280,6 +297,24 @@ const Account = () => {
                                         <th>Departure</th>
                                         <th>Duration</th>
                                         <th>Place of departure</th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                                <button id="btnDel">delete All</button>
+                            </div>
+
+                        )}
+
+                        {activeSection === 'favourites' && (
+                            <div className="tbl-trip" id="tbl">
+                                <div className="acc_title">
+                                    <h2>My tour</h2>
+                                </div>
+                                <table id="tbl-tour">
+                                    <thead>
+                                    <tr>
+                                        <th>Name tour</th>
+                                        <th>Tour Code</th>
                                     </tr>
                                     </thead>
                                 </table>

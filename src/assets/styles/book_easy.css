@@ -112,30 +112,7 @@
 .booking_prices span{
     font-weight: 600;
 }
-/*.booking_slides {*/
-/*    display: flex;*/
-/*    justify-content:center;*/
-/*    align-items:center;*/
-/*    gap : 30px;*/
-/*    margin: 30px 0;*/
-/*}*/
-/*.booking_slides a {*/
-/*    text-decoration: none;*/
-/*    font-weight: 500;*/
-/*    color : #333;*/
-/*    animation: slide 4s infinite;*/
-/*}*/
-/*.booking_slides i{*/
-/*    !* background-color: ; *!*/
-/*    padding: 5px;*/
-/*    border-radius: 50%;*/
-/*}*/
-/*.booking_slides i:hover{*/
-/*    background-color: rgb(212, 184, 119);*/
-/*}*/
-/*.booking_slides a span{*/
-/*    color : blue;*/
-/*}*/
+
 .booking_steps{
     display: flex;
     flex-direction: column;
@@ -252,4 +229,17 @@
     outline: none;
     color: #fff;
     background:grey;
+}
+
+@media (min-width: 441px) and (max-width: 794px) {
+    .booking_guide_container {
+        display: flex;
+        flex-direction: column;
+        padding : 40px;
+    }
+    .booking_steps{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
 }

@@ -5,7 +5,7 @@
     justify-content: center;
     background-image: linear-gradient( to bottom,transparent , rgb(232, 236, 247));
     width: 100%;
-    padding : 60px 0;
+    /*padding : 60px 0;*/
 }
 .adver-container{
     padding-top: 60px;
@@ -21,7 +21,7 @@
     line-height: 30px;
 }
 .adver-items{
-    margin-top: 70px;
+    margin: 70px 0 70px 0;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -81,3 +81,36 @@
 .adver-item .learn-more:hover{
     letter-spacing: 0.05em;
 }
+
+
+@media (min-width: 441px) and (max-width: 794px) {
+    .adver-items{
+        margin : 2rem 2rem 2rem 2rem;
+        width: 90%;
+        flex-direction: column;
+
+        gap: 20px;
+    }
+    .adver-item{
+        width: 100%;
+    }
+    .adver-item p{
+        text-align: center;
+    }
+    .adver-item .learn-more{
+        justify-content: center;
+    }
+    .adver-header {
+        font-size: 1.6rem;
+    }
+    .adver-sub-header {
+        margin-top: 16px;
+        font-size: 0.9rem;
+    }
+    .adver-container {
+        padding: 60px 50px 0 50px;
+    }
+
+}
+
+

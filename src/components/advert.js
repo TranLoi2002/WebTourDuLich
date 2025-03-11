@@ -1,3 +1,10 @@
+import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
+import Modal from 'react-modal';
+import CreateTripModal from '../components/createTripModal';
+import {Button} from '@mui/material'
+
+
 import imageMain1 from "../assets/images/image_main_1.png";
 import imageMain2 from "../assets/images/image_main_2.png";
 import imageMain3 from "../assets/images/image_main_3.png";
@@ -9,6 +16,14 @@ import brand_5 from "../assets/images/cheapflight_brand05.png";
 import brand_6 from "../assets/images/momondo_brand06.png";
 
 const Advert = () => {
+
+    const navigate = useNavigate();
+    const handleFocus = () => {
+        navigate('/things_to_do');
+    }
+
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+
     return (
         <div className="adver">
             <div className="header_infor">
@@ -27,17 +42,24 @@ const Advert = () => {
 
                 <div className="header_infor_details">
                     <div className="intro_details" data-aos="zoom-in-up">
-                        <h2>Travel Planning Made</h2>
-                        <span>Easy</span>
+                        <h2>Travel Planning Made<span>Easy</span></h2>
+
                         <img src="../image/wave.png" alt="" className="wave"/>
                     </div>
-                    <p>We make it easy to plan and book your next trip with <br/> a Day by Day itinerary</p>
+                    <p>We make it easy to plan and book your next trip with a Day by Day itinerary</p>
                     <div className="input_details">
                         <label htmlFor="" className="search_plan">
-                            <input type="text" placeholder="Plan a Trip"/>
-                            <i id="searchTour" className="fa-solid fa-arrow-right"></i>
-                            <img src="../image/eliment_left.png" alt=""/>
+                            <input type="text" placeholder="Plan a Trip" onFocus={handleFocus}/>
+
+                            {/*<img src="../image/eliment_left.png" alt=""/>*/}
+                            <button variant="contained" onClick={() => setModalIsOpen(true)} className="btn_create_trip">
+                                Create trip
+                                <i className="fa-solid fa-arrow-right"></i>
+                            </button>
+                            <CreateTripModal open={modalIsOpen} handleClose={() => setModalIsOpen(false)}/>
+
                         </label>
+
                     </div>
                     <div className="feedback_details">
                         <h5>Our customers say</h5>

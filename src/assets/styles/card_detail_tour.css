@@ -383,12 +383,12 @@
 .book_now{
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
     border: 1px solid #555;
     padding: 15px;
     position: sticky;
     top: 80px;
     border-radius: 5px;
+    width: 400px;
 }
 .infor_book{
     display: flex;
