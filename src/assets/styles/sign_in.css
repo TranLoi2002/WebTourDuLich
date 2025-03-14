@@ -66,8 +66,9 @@ body::-webkit-scrollbar-thumb:hover {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 2rem;
     width: 100%;
+    padding: 2rem 0 0 0;
 }
 .sign-in-left .form_sign_in label{
     width: 100%;

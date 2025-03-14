@@ -3,6 +3,7 @@
     flex-wrap: wrap;
     flex-direction: column;
     align-content: center;
+    padding : 5rem 5rem 0 5rem;
 }
 .title{
     margin-top: 128px;
@@ -50,12 +51,42 @@
     margin-left: 10px;
 }
 
+.horizontal-tour-layout{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /*gap: 10px;*/
+    padding: 2rem 0 2rem 0;
+    height: 100%;
+    border-bottom: 1px solid #ccc;
+}
+.horizontal-tour-layout .hoz_title,
+.grid-tour-layout .grid_title
+{
+
+    font-size: 1.8rem;
+}
+
+.horizontal-tour-layout .swiper-tour-layout{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 2rem;
+}
+
+
+
+
 .card-tour{
-    margin-top: 42px;
+    margin-top: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 60px 40px -7px;
     overflow:hidden;
     padding-bottom: 20px;
     border-radius: 20px 20px 10px 10px;
+
+    width: 400px;
+    height: 100%;
 }
 .card-tour img{
     border-top-left-radius: 20px;
@@ -501,5 +532,73 @@
 .book_submit:hover{
     background-color: blue;
 }
+
+.reviews_customer{
+    display: flex;
+    flex-direction: column;
+    box-shadow:0 2px 5px #555;
+    padding: 40px;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+.reviews_customer h3{
+    font-size: 1.5em;
+}
+.reviews_customer .review{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px 0 20px 0;
+    padding: 20px 0 20px 0;
+    border-bottom: 1px solid #cdc7c7;
+
+}
+.reviews_customer .review .review_header{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.reviews_customer .review .review_header .review_avt{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.reviews_customer .review .review_header .review_avt img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.reviews_customer .review .review_header .review_infor{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex:1;
+}
+.reviews_customer .review .review_content{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.reviews_customer .review .review_content p{
+    line-height: 25px;
+}
+.reviews_customer .review .review_content .review_icon{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.reviews_customer .review .review_content .review_icon .review_icon_like{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+
+
+
 
 

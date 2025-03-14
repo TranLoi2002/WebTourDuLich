@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Modal from 'react-modal';
 import CreateTripModal from '../components/createTripModal';
 import {Button} from '@mui/material'
+
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Autoplay, Navigation, Pagination} from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 
 import imageMain1 from "../assets/images/image_main_1.png";
@@ -14,6 +20,8 @@ import brand_3 from "../assets/images/trivago_brand03.png";
 import brand_4 from "../assets/images/trainline_brand04.png";
 import brand_5 from "../assets/images/cheapflight_brand05.png";
 import brand_6 from "../assets/images/momondo_brand06.png";
+
+const images = [imageMain1, imageMain2, imageMain3];
 
 const Advert = () => {
 
@@ -27,17 +35,22 @@ const Advert = () => {
     return (
         <div className="adver">
             <div className="header_infor">
-                <div className="header_adds">
-                    <div id="header_image_main">
-                        <div className="slide-wrapper">
-                            <div className="slide"><img src={imageMain1} alt="slider_image_homepage_1"/>
-                            </div>
-                            <div className="slide"><img src={imageMain2} alt="slider_image_homepage_2"/>
-                            </div>
-                            <div className="slide"><img src={imageMain3} alt="slider_image_homepage_3"/>
-                            </div>
-                        </div>
-                    </div>
+                <div className="slider-container">
+                    <Swiper
+                        spaceBetween={30}
+                        centeredSlides={true}
+                        autoplay={{delay: 3000, disableOnInteraction: false}}
+                        navigation={true}
+                        pagination={{clickable: true}}  // pagination
+                        modules={[Autoplay, Navigation, Pagination]}
+                        className="slider"
+                    >
+                        {images.map((img, index) => (
+                            <SwiperSlide key={index}>
+                                <img src={img} alt={`slide-${index}`} className="slide-image"/>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </div>
 
                 <div className="header_infor_details">
@@ -52,7 +65,8 @@ const Advert = () => {
                             <input type="text" placeholder="Plan a Trip" onFocus={handleFocus}/>
 
                             {/*<img src="../image/eliment_left.png" alt=""/>*/}
-                            <button variant="contained" onClick={() => setModalIsOpen(true)} className="btn_create_trip">
+                            <button variant="contained" onClick={() => setModalIsOpen(true)}
+                                    className="btn_create_trip">
                                 Create trip
                                 <i className="fa-solid fa-arrow-right"></i>
                             </button>
@@ -125,7 +139,7 @@ const Advert = () => {
                             <br/>for travel.</p>
                         <p className="learn-more">Learn more
                             <i className="fa-solid fa-arrow-right"></i>
-                            </p>
+                        </p>
                     </div>
                 </a>
 
@@ -152,7 +166,7 @@ const Advert = () => {
                 </a>
             </div>
         </div>
-);
+    );
 }
 
 export default Advert;

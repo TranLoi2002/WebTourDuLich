@@ -1,8 +1,13 @@
-import React from "react";
+import React , {useState} from "react";
 import { useLocation } from "react-router-dom";
 import { Box, Typography, TextField, Button } from "@mui/material";
 
 const ConfirmBooking = () => {
+    const [selectBtnPayment , setSelectBtnPayment] = useState(null);
+    const handleSelectedPayment = (btn) => {
+        setSelectBtnPayment(btn);
+    }
+
     const { state } = useLocation();
 
     return (
@@ -25,10 +30,39 @@ const ConfirmBooking = () => {
                 <TextField fullWidth label="Email" type="email" variant="outlined" sx={{ mb: 2 }} />
                 <TextField fullWidth label="Phone Number" type="tel" variant="outlined" sx={{ mb: 2 }} />
                 <TextField fullWidth label="Address" variant="outlined" sx={{ mb: 2 }} />
+
+                <Typography variant="h6" sx={{mb : 2}}>Payment Method</Typography>
+                <Box sx={{display:'flex',flexDirection:'column',gap:'16px', marginBottom:'2rem',pl:3}}>
+                    <Button
+                        sx={{ justifyContent: 'flex-start', backgroundColor: selectBtnPayment === 'credit' ? 'green' : 'inherit', color : selectBtnPayment === 'credit' ? 'white' : 'inherit' }}
+                        fullWidth
+                        onClick={() => handleSelectedPayment('credit')}
+                    >
+                        Credit Card
+                    </Button>
+                    <Button
+                        sx={{ justifyContent: 'flex-start', backgroundColor: selectBtnPayment === 'paypal' ? 'green' : 'inherit', color : selectBtnPayment === 'paypal' ? 'white' : 'inherit' }}
+                        fullWidth
+                        onClick={() => handleSelectedPayment('paypal')}
+                    >
+                        Paypal
+                    </Button>
+                    <Button
+                        sx={{ justifyContent: 'flex-start', backgroundColor: selectBtnPayment === 'checkin' ? 'green' : 'inherit' , color : selectBtnPayment === 'checkin' ? 'white' : 'inherit' }}
+                        fullWidth
+                        onClick={() => handleSelectedPayment('checkin')}
+                    >
+                        Pay check in
+                    </Button>
+                </Box>
+
+
                 <Button variant="contained" color="primary" fullWidth>
                     Confirm Booking
                 </Button>
             </Box>
+
+
         </Box>
     );
 };

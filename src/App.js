@@ -28,14 +28,16 @@ import './assets/styles/help.css'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import Home from "./pages/home";
-import Sign_In from "./pages/auth/sign_in";
-import Sign_Up from "./pages/auth/sign_up";
-import Things_to_do from "./pages/things_to_do";
+import SignIn from "./pages/auth/sign_in";
+import SignUp from "./pages/auth/sign_up";
+import ForgotPassword from "./pages/auth/forgotPassword";
+import ResetPassword from "./pages/auth/resetPassword";
+import ThingsToDo from "./pages/things_to_do";
 import ResultTour from "./pages/resultTour";
 import ConfirmBooking from './pages/confirmBooking';
-import Show_tours from "./pages/tour/show";
-import Detail_tour from "./pages/tour/detail";
-import Show_blogs from "./pages/blog/show";
+import ShowTours from "./pages/tour/show";
+import DetailTour from "./pages/tour/detail"
+import ShowBlogs from "./pages/blog/show";
 // import Detail_blog from "./pages/blog/detail";
 import Account from "./pages/account";
 import FAQ from './pages/FAQ'
@@ -59,17 +61,19 @@ function App() {
               <Routes>
                   <Route path="/" element={<Home/>}/>
                   {/*auth*/}
-                  <Route path="/auth/sign_in" element={<Sign_In/>}/>
-                  <Route path="/auth/sign_up" element={<Sign_Up/>}/>
+                  <Route path="/auth/sign_in" element={<SignIn/>}/>
+                  <Route path="/auth/sign_up" element={<SignUp/>}/>
+                  <Route path="/auth/forgotpassword" element={<ForgotPassword/>}/>
+                    <Route path="/auth/resetpassword" element={<ResetPassword/>}/>
                   {/*option*/}
-                  <Route path="/things_to_do" element={<Things_to_do/>}/>
+                  <Route path="/things_to_do" element={<ThingsToDo/>}/>
                   <Route path="/resulttour" element={<ResultTour/>}/>
                     <Route path="/confirmbooking" element={<ConfirmBooking/>}/>
                   {/*option - tours*/}
-                  <Route path="/tours" element={<Show_tours/>}/>
-                  <Route path="/tours/detail_tour" element={<Detail_tour/>}/>
+                  <Route path="/tours" element={<ShowTours/>}/>
+                  <Route path="/tours/detailtour" element={<DetailTour/>}/>
                     {/*option - blog*/}
-                  <Route path="/blogs" element={<Show_blogs/>}/>
+                  <Route path="/blogs" element={<ShowBlogs/>}/>
                   {/*<Route path="/blogs/detail_blog" element={<Detail_blog/>}/>*/}
                   {/*account*/}
                   <Route path="/account" element={<Account/>}/>

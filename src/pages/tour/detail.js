@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
 
-const DetailTour = ({ match }) => {
+const DetailTour = ({match}) => {
 
     const navigate = useNavigate();
 
@@ -202,6 +202,7 @@ const DetailTour = ({ match }) => {
                                 Palace, the summer retreat of the royal court in the 17th century. You will also stop by
                                 four important temples of exquisite designs before heading back to Bangkok.</p>
                         </div>
+
                         <div className="notes">
                             <h3>If you have any notes, please tell us!</h3>
                             <div className="select_notes">
@@ -235,6 +236,96 @@ const DetailTour = ({ match }) => {
                                 <textarea name="" id="" cols="30" rows="10"
                                           placeholder="Please enter your messages"></textarea>
                             </div>
+                        </div>
+
+                        <div className="reviews_customer">
+                            <h3>Customer Reviews</h3>
+
+                            <div className="review">
+                                <div className="review_header">
+                                    <div className="review_avt">
+                                        <img src="https://picsum.photos/600" alt=""/>
+                                    </div>
+                                    <div className="review_infor">
+                                        <div>
+                                            <h4>John Doe</h4>
+                                            <p className="review_place">Bangkok, Thailand</p>
+                                        </div>
+                                        <div>
+                                            <p className="review_date">June 24, 2023</p>
+                                            <p className="review_time">12:00 PM</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="review_content">
+                                    <div className="review_star">
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-regular fa-star-half-stroke"></i>
+                                    </div>
+                                    <p className="review_detail_content">The tour was great, the guide was very
+                                        knowledgeable
+                                        and friendly. The food was delicious and the boat was very comfortable. I
+                                        would recommend this tour to anyone visiting Bangkok.
+                                    </p>
+                                    <div className="review_icon">
+                                        <div className="review_icon_like">
+                                            <i className="fa-solid fa-thumbs-up"></i>
+                                            <i className="fa-solid fa-thumbs-down"></i>
+                                        </div>
+                                        <div>
+                                            <i className="fa-solid fa-ellipsis-vertical"></i>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div className="review">
+                                <div className="review_header">
+                                    <div className="review_avt">
+                                        <img src="https://picsum.photos/600" alt=""/>
+                                    </div>
+                                    <div className="review_infor">
+                                        <div>
+                                            <h4>John Doe</h4>
+                                            <p className="review_place">Bangkok, Thailand</p>
+                                        </div>
+                                        <div>
+                                            <p className="review_date">June 24, 2023</p>
+                                            <p className="review_time">12:00 PM</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="review_content">
+                                    <div className="review_star">
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-solid fa-star"></i>
+                                        <i className="fa-regular fa-star-half-stroke"></i>
+                                    </div>
+                                    <p className="review_detail_content">The tour was great, the guide was very
+                                        knowledgeable
+                                        and friendly. The food was delicious and the boat was very comfortable. I
+                                        would recommend this tour to anyone visiting Bangkok.
+                                    </p>
+                                    <div className="review_icon">
+                                        <div className="review_icon_like">
+                                            <i className="fa-solid fa-thumbs-up"></i>
+                                            <i className="fa-solid fa-thumbs-down"></i>
+                                        </div>
+                                        <div>
+                                            <i className="fa-solid fa-ellipsis-vertical"></i>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -433,7 +524,7 @@ const DetailTour = ({ match }) => {
             {/*    </div>*/}
             {/*</div>*/}
         </div>
-);
+    );
 }
 
 export default DetailTour;

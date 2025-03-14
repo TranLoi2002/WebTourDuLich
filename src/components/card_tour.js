@@ -8,7 +8,7 @@ const CardTour = ({ tour }) => {
             <div className="img-tour">
                 <img src={img_tour_1} alt="" className="tour"/>
                     <div className="price">
-                        <a href="" className="price-sale">From $40</a>
+                        <Link to="" className="price-sale">-40%</Link>
                     </div>
             </div>
             <p>Thailands Ayutthaya Temples Cruise from BangKok</p>
@@ -19,7 +19,7 @@ const CardTour = ({ tour }) => {
                 </div>
                 <div className="duration">Duration: 9 hours</div>
             </div>
-            <Link to="/tours/detail_tour" className="price-tour">Tours Price $61</Link>
+            <Link to="/tours/detailtour" className="price-tour">Tours Price $66</Link>
         </div>
     );
 }
