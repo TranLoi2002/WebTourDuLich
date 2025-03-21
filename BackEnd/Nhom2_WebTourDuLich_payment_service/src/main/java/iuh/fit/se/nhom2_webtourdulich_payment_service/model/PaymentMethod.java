@@ -3,32 +3,27 @@ package iuh.fit.se.nhom2_webtourdulich_payment_service.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Payment")
-public class Payment {
+@Table(name = "Payment_Method")
+public class PaymentMethod {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long bookingId;
+    private String paymentMethodName;
+    private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "paymentMethodId")
-    private PaymentMethod paymentMethod;
-
-    private double paymentAmount;
-    private Date paymentDate;
-    private String paymentStatus;
+    @OneToMany(mappedBy = "paymentMethod")
+    private List<Payment> payments;
 
 }
