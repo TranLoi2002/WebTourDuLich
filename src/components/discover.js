@@ -5,36 +5,42 @@ import imgFeatures_04 from '../assets/images/Features_04.png';
 
 const Discover = () => {
     return (
-        <div className="discorver_container">
-            <h2 data-aos="fade-up">Discover our Features</h2>
-            <div className="discover_content">
-                <div className="details_discover" data-aos="fade-right">
-                    <div className="share">
+
+        <div className="relative py-[50px] px-[100px] bg-cyan-50">
+            <h2 data-aos="fade-up" className="text-center text-4xl font-bold ">Discover our Features</h2>
+
+            <div className="grid grid-cols-[repeat(2,_30%)] mt-[50px] justify-center gap-x-[300px] gap-y-[50px]">
+                <div
+                    className="group details_discover"
+                    data-aos="fade-right">
+                    <div className="flex items-center gap-[10px] text-xl font-bold">
                         <img src={imgFeatures_01} alt=""/>
-                            <span>Share Your Travel Plan</span>
+                        <span>Share Your Travel Plan</span>
                     </div>
-                    <p>Ticket is an ultra-convenient way to buy your train or bus ticket online in seconds.</p>
+                    <p className="font-normal mr-[10px] leading-[30px]">Ticket is an ultra-convenient way to buy your train or bus ticket online in seconds.</p>
                 </div>
-                <div className="details_discover" data-aos="fade-left">
-                    <div className="get">
+                <div className="group details_discover" data-aos="fade-left">
+                    <div className="flex items-center gap-[10px] text-xl font-bold">
                         <img src={imgFeatures_02} alt=""/>
-                            <span>Get Monthly Tour</span>
+                        <span>Get Monthly Tour</span>
                     </div>
-                    <p>Our Get Monthly Tours marketing package will help get more clients in your photography business.</p>
+                    <p className="font-normal mr-[10px] leading-[30px]">Our Get Monthly Tours marketing package will help get more clients in your photography
+                        business.</p>
                 </div>
-                <div className="details_discover" data-aos="fade-right">
-                    <div className="receive">
+                <div className="group details_discover" data-aos="fade-right">
+                    <div className="flex items-center gap-[10px] text-xl font-bold">
                         <img src={imgFeatures_03} alt=""/>
-                            <span>Receive Ticket</span>
+                        <span>Receive Ticket</span>
                     </div>
-                    <p>The Receive plan Ticket will allow you to travel freely. You will be able to get in any location.</p>
+                    <p className="font-normal mr-[10px] leading-[30px]">The Receive plan Ticket will allow you to travel freely. You will be able to get in any
+                        location.</p>
                 </div>
-                <div className="details_discover" data-aos="fade-left">
-                    <div className="flight">
+                <div className="group details_discover" data-aos="fade-left">
+                    <div className="flex items-center gap-[10px] text-xl font-bold">
                         <img src={imgFeatures_04} alt=""/>
-                            <span>Flight Booking</span>
+                        <span>Flight Booking</span>
                     </div>
-                    <p>Flight Booking is an ultra-convenient way to buy your train or bus ticket in seconds.</p>
+                    <p className="font-normal mr-[10px] leading-[30px]">Flight Booking is an ultra-convenient way to buy your train or bus ticket in seconds.</p>
                 </div>
             </div>
         </div>

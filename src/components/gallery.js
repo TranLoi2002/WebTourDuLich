@@ -12,22 +12,22 @@ const Gallery = ({ images }) => {
     };
 
     return (
-        <div className="gallery">
+        <div className="py-[3rem] px-[8rem]">
             <div>
-                <h3>Popular Destination</h3>
+                <h3 className="text-4xl font-bold mb-[2rem]">Popular Destination</h3>
             </div>
 
             <Masonry
                 breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
+                className="flex ml-[-30px] w-auto"
+                columnClassName="pl-[30px] bg-clip-padding"
             >
                 {images.map((image, index) => (
-                    <div key={index} className="masonry-item">
+                    <div key={index} className="mb-[30px] relative">
                         <Link to={`/tours/${image.location}`}>
-                            <img src={image.src} alt={image.alt} className="masonry-img" />
+                            <img src={image.src} alt={image.alt} className="w-full block rounded-xl" />
                             <div className="masonry-content">
-                                <h3>{image.location}</h3>
+                                <h3 className="text-[1rem] m-0 text-white">{image.location}</h3>
                             </div>
                         </Link>
                     </div>

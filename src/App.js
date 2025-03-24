@@ -7,7 +7,7 @@ import {BrowserRouter as Router, Route, Routes, useLocation} from "react-router-
 import Header from "./components/header";
 import Footer from "./components/footer";
 
-// import './index.css';
+import './index.css';
 import './assets/styles/header.css'
 import './assets/styles/advert.css'
 import './assets/styles/book_easy.css'
