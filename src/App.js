@@ -6,6 +6,7 @@ import {BrowserRouter as Router, Route, Routes, useLocation} from "react-router-
 
 import Header from "./components/header";
 import Footer from "./components/footer";
+import NotFound from "./pages/404";
 
 import './index.css';
 import './assets/styles/header.css'
@@ -54,44 +55,46 @@ function App() {
     // Kiểm tra nếu đường dẫn hiện tại không nằm trong mảng hiddenFooterPaths
     const showFooter = !hiddenFooterPaths.includes(location.pathname);
 
-  return (
-      <div className="App">
-          <Header/>
-          <main style={{flexGrow: 1,paddingBottom:'50px'}}>
-              <Routes>
-                  <Route path="/" element={<Home/>}/>
-                  {/*auth*/}
-                  <Route path="/auth/sign_in" element={<SignIn/>}/>
-                  <Route path="/auth/sign_up" element={<SignUp/>}/>
-                  <Route path="/auth/forgotpassword" element={<ForgotPassword/>}/>
+    return (
+        <div className="App">
+            <Header/>
+            <main style={{flexGrow: 1, paddingBottom: '50px'}}>
+                <Routes>
+                    <Route path="/" element={<Home/>}/>
+                    {/*auth*/}
+                    <Route path="/auth/sign_in" element={<SignIn/>}/>
+                    <Route path="/auth/sign_up" element={<SignUp/>}/>
+                    <Route path="/auth/forgotpassword" element={<ForgotPassword/>}/>
                     <Route path="/auth/resetpassword" element={<ResetPassword/>}/>
-                  {/*option*/}
-                  <Route path="/things_to_do" element={<ThingsToDo/>}/>
-                  <Route path="/resulttour" element={<ResultTour/>}/>
+                    {/*option*/}
+                    <Route path="/thingstodo" element={<ThingsToDo/>}/>
+                    <Route path="/resulttour" element={<ResultTour/>}/>
                     <Route path="/confirmbooking" element={<ConfirmBooking/>}/>
-                  {/*option - tours*/}
-                  <Route path="/tours" element={<ShowTours/>}/>
-                  <Route path="/tours/detailtour" element={<DetailTour/>}/>
+                    {/*option - tours*/}
+                    <Route path="/tours" element={<ShowTours/>}/>
+                    <Route path="/tours/detailtour" element={<DetailTour/>}/>
                     {/*option - blog*/}
-                  <Route path="/blogs" element={<ShowBlogs/>}/>
-                  {/*<Route path="/blogs/detail_blog" element={<Detail_blog/>}/>*/}
-                  {/*account*/}
-                  <Route path="/account" element={<Account/>}/>
-                  {/*FAQ - Help*/}
-                  <Route path="/faq" element={<FAQ/>}/>
-                  <Route path="/help" element={<Help/>}/>
+                    <Route path="/blogs" element={<ShowBlogs/>}/>
+                    {/*<Route path="/blogs/detail_blog" element={<Detail_blog/>}/>*/}
+                    {/*account*/}
+                    <Route path="/account" element={<Account/>}/>
+                    {/*FAQ - Help*/}
+                    <Route path="/faq" element={<FAQ/>}/>
+                    <Route path="/help" element={<Help/>}/>
+                    {/*404*/}
+                    <Route path="*" element={<NotFound/>}/>
 
-              </Routes>
-          </main>
-          {showFooter && <Footer/>}
-      </div>
-  );
+                </Routes>
+            </main>
+            {showFooter && <Footer/>}
+        </div>
+    );
 }
 
 export default function AppWithRouter() {
     return (
         <Router>
-            <App />
+            <App/>
         </Router>
     );
 }

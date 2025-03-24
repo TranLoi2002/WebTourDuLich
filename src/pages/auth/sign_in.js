@@ -23,7 +23,7 @@ const Sign_In = () => {
                         </a>
 
                     </div>
-                    <h2>Welcome Back</h2>
+                    <h2 className="text-2xl">Welcome Back</h2>
                     <h3 style={{fontSize:'1rem',fontWeight:'normal',color:'lightgray'}}>Please enter your details.</h3>
                     <Box className="form_sign_in">
                         <TextField id="email" label="Email" variant="outlined" fullWidth/>

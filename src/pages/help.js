@@ -3,19 +3,19 @@ import {Link} from 'react-router-dom'
 
 const Help = () => {
     return (
-        <div className="help_container">
-            <div className="help_content">
-                <div className="top_help">
-                    <h2>Need help? </h2>
-                    <p>We're here for you 24/7.</p>
-                    <span>Support in approx. 30s</span>
-                    <div className="select_help">
-                        <Link to="/" className="search">Search Bookings</Link>
-                        <Link to="/auth/sign_in" target="_blank" className="Sign">Sign In or Register</Link>
+        <div className="">
+            <div className="bg-primary py-[100px] px-[200px] flex items-center">
+                <div className="flex flex-col relative">
+                    <h2 className="text-7xl text-white text-shadow-xl">Need help? </h2>
+                    <p className="text-xl text-white ">We're here for you 24/7.</p>
+                    <span className="text-[1em] leading-5 font-bold text-white pt-5">Support in approx. 30s</span>
+                    <div className="flex items-center gap-[15px] pt-5">
+                        <Link to="/" className="py-[8px] px-[15px] rounded-lg border-2 outline-none font-bold text-xl text-white bg-transparent">Search Bookings</Link>
+                        <Link to="/auth/sign_in" target="_blank" className="py-[8px] px-[15px] rounded-lg border-2 outline-none text-xl font-bold text-primary bg-white">Sign In or Register</Link>
                     </div>
                     <label for="" className="search_box">
                         <i className="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" placeholder="What can we help with you?"/>
+                        <input type="text" placeholder="What can we help with you?" />
                     </label>
                 </div>
                 <div className="image_adds">
@@ -23,11 +23,11 @@ const Help = () => {
                 </div>
             </div>
 
-            <div className="service-help">
-                <div className="service_chat">
-                    <h2>Service Chat</h2>
-                    <div className="service-select">
-                        <ul>
+            <div className="flex flex-col bg-white">
+                <div className="mx-[200px] my-[20px] shadow-xl rounded-lg p-5">
+                    <h2 className="text-xl">Service Chat</h2>
+                    <div className="relative mt-[20px]">
+                        <ul className="flex items-center gap-[10px]">
                             <li>
                                 <a href="">
                                     <i className="fa-solid fa-plane"></i>
@@ -59,7 +59,7 @@ const Help = () => {
                             </li>
                         </ul>
                     </div>
-                    <div className="service_ques">
+                    <div className="grid grid-cols-2 gap-[10px] mt-[20px] service_ques">
                         <label for="">
                             <span>How do I change my ticket?</span>
                             <i className="fa-solid fa-angle-right"></i>
@@ -77,9 +77,9 @@ const Help = () => {
                             <i className="fa-solid fa-angle-right"></i>
                         </label>
                     </div>
-                    <h3 className="faq">Flights FAQ Topics</h3>
-                    <div className="faq-select">
-                        <ul>
+                    <h3 className="leading-5 my-5">Flights FAQ Topics</h3>
+                    <div className="relative faq-select">
+                        <ul className="flex gap-[10px]">
                             <li>
                                 <a href="#">Hot topics</a>
                             </li>
@@ -102,14 +102,14 @@ const Help = () => {
                     </div>
 
                 </div>
-                <div className="infor_adds">
+                <div className="flex flex-col gap-[10px] shadow-xl mx-[200px] py-[20px] rounded-lg p-5 infor_adds">
                     <h2>Airtrav.com Service Guarantee</h2>
                     <span>Trip Planner says your 50% discount on airtrav and hotel up to 80% off.
                     <a href="#">Learn more</a>
                 </span>
                 </div>
-                <div className="details_help">
-                    <div className="help_left">
+                <div className="my-[20px] mx-[200px] shadow-xl rounded-lg py-[20px] px-[60px] flex items-center gap-[50px]">
+                    <div className="help_left bg-primary text-white flex flex-col items-center gap-[20px] rounded-lg py-[50px] px-[50px]">
                         <h2 style={{color:'white'}}>Help Information</h2>
                         <span>Fill in the form or drop an email</span>
                         <label for="">
@@ -126,7 +126,7 @@ const Help = () => {
                         </label>
 
                     </div>
-                    <div className="help_right">
+                    <div className="flex flex-col gap-[20px] help_right">
                         <label for="" className="infor_name">
                             <label for="">
                                 <span>Fisrt Name</span>
@@ -147,8 +147,8 @@ const Help = () => {
                             <textarea name="" id="" cols="30" rows="7" placeholder="Sure, Follow all instraction..."></textarea>
                         </label>
 
-                        <div className="select_help_btn">
-                            <button type="submit" id="send">Send</button>
+                        <div className="">
+                            <button type="submit" id="send" className="outline-none border-none bg-primary text-white py-[10px] px-[30px] font-bold text-xl rounded-lg">Send</button>
                         </div>
                     </div>
 

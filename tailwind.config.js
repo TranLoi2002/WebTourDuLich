@@ -11,6 +11,7 @@ module.exports = {
       fontFamily: {
         sans: ['"Poppins"', 'sans-serif'],
         serif: ['"Merriweather"', 'serif'],
+        code: ['source-code-pro', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace']
       },
     },
   },

@@ -61,7 +61,7 @@ const Header = () => {
                         <li className="relative list-none">
                             <Link
                                 className="link_target flex justify-between items-center mx-5 text-gray-800 relative text-[1.1rem]"
-                                to="/tours" title="click to details page">Things to do</Link>
+                                to="/thingstodo" title="click to details page">Things to do</Link>
                         </li>
                         <li className="relative list-none">
                             <Link
@@ -151,7 +151,7 @@ const Header = () => {
                             <li className="relative list-none">
                                 <Link
                                     className="link_target flex justify-between items-center mx-5 text-gray-800 relative text-sm"
-                                    to="/tours" title="click to details page">Things to do</Link>
+                                    to="/thingstodo" title="click to details page">Things to do</Link>
                             </li>
                             <li className="relative list-none">
                                 <Link

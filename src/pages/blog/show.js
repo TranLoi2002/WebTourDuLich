@@ -1,21 +1,26 @@
+import {Link} from 'react-router-dom'
+
+
 import adds_header from '../../assets/images/adds_header.jpg';
 import image_1 from '../../assets/images/image_1.jpg';
 
 const Show = () => {
     return (
         <div className="tour-page">
-
-            <div className="blog_content">
-                <h3>The Airtrav Blog</h3>
-                <h5>9 Ways to Flight Booking of the Airtrav website</h5>
-                <div className="top_blog">
-                    <h4>Tour Planning</h4>
-                    <span>Jun 20,2020</span>
+            <div className="flex flex-col mt-[100px] mx-[200px] justify-center">
+                <h3 className="text-[2em]">The Airtrav Blog</h3>
+                <h5 className="text-[#828080] leading-5 border-b-2 pb-[25px] text-[1.5em]">9 Ways to Flight Booking of the Airtrav website</h5>
+                <div className="flex justify-between my-[15px] mx-0">
+                    <h4 className="text-[#58c270] bg-[#EEF9F2] text-[0.8em] py-[8px] px-[10px] rounded-lg">Tour Planning</h4>
+                    <span className="text-[#9d9c9c] font-bold">Jun 20,2020</span>
                 </div>
-                <div className="adds_blog">
-                    <img src={adds_header} alt=""/>
+                <div className="flex flex-col">
+                    <div className="w-full h-[500px] rounded-2xl overflow-hidden">
+                        <img src={adds_header} alt="" className="object-cover w-full h-full"/>
+                    </div>
+
                     {/*<img src="image/adds_header.jpg" alt=""/>*/}
-                    <p id="paragraph" style={{lineHeight: '30px'}}>
+                    <p id="paragraph" className="leading-6 mt-[15px]">
                         <b style={{fontSize: '1.3em'}}>Airtrav is a popular travel website that offers a wide range of
                             flight booking options to its customers. Here are 9 ways to book flights on
                             Airtrav:</b><br/>
@@ -49,103 +54,53 @@ const Show = () => {
                     </p>
                 </div>
 
-                <div className="card_blogs">
-                    <div className="card">
-                        <div className="image_adds">
-                            <img src={image_1} alt=""/>
+                <div className="flex flex-col gap-[25px] mt-[50px]">
+                    <div className="flex gap-[20px] border-b-2 pb-[30px]">
+                        <div className="w-[30%] h-[300px] rounded-lg overflow-hidden">
+                            <img src={image_1} alt="" className="w-full h-full object-cover"/>
                         </div>
-                        <div className="card_content">
-                            <div className="status">
-                                <span>Hotel Booking</span>
-                                <h4>Jun 20,2021</h4>
+                        <div className="flex flex-col items-start flex-1 w-[70%]">
+                            <div className="flex items-center">
+                                <span className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Hotel Booking</span>
+                                <h4 className="text-[#9d9c9c] font-bold">Jun 20,2021</h4>
                             </div>
-                            <h2>
-                                <a target="_blank" href="https://www.smartertravel.com/best-travel-planning-apps/"
-                                   rel="noopener">
+                            <h2 className="leading-6">
+                                <Link target="_blank" to="https://www.smartertravel.com/best-travel-planning-apps/"
+                                   rel="noopener" className="text-gray-400">
                                     Top 20 Trip Planning System By Airtrav
-                                </a>
+                                </Link>
                             </h2>
-                            <p>Being a Human Resource Manager, it is your responsibility to understand the needs of
+                            <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility to understand the needs of
                                 industries have different types of workforce, but they do have one thing in common -
                                 business travel.</p>
                         </div>
                     </div>
-                    <div className="card">
-                        <div className="image_adds">
-                            <img src="image/image_1.jpg" alt=""/>
+                    <div className="flex gap-[20px] border-b-2 pb-[30px]">
+                        <div className="w-[30%] h-[300px] rounded-lg overflow-hidden">
+                            <img src={image_1} alt="" className="w-full h-full object-cover"/>
                         </div>
-                        <div className="card_content">
-                            <div className="status">
-                                <span>Car Booking</span>
-                                <h4>Dec 20,2020</h4>
+                        <div className="flex flex-col items-start flex-1 w-[70%]">
+                            <div className="flex items-center">
+                                <span className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Car Booking</span>
+                                <h4 className="text-[#9d9c9c] font-bold">Dec 20,2020</h4>
                             </div>
                             <h2>
-                                <a target="_blank" href="https://www.travelandleisure.com/travel-tips" rel="noopener">
+                                <Link className="text-gray-400" target="_blank" to="https://www.travelandleisure.com/travel-tips" rel="noopener">
                                     Booking System By Airtrav Website
-                                </a>
+                                </Link>
                             </h2>
-                            <p>Being a Human Resource Manager, it is your responsibility to understand the needs of
+                            <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility to understand the needs of
                                 industries have different types of workforce, but they do have one thing in common -
                                 business travel.</p>
                         </div>
                     </div>
-                    <div className="card">
-                        <div className="image_adds">
-                            <img src="image/image_3.jpg" alt=""/>
-                        </div>
-                        <div className="card_content">
-                            <div className="status">
-                                <span>Car Booking</span>
-                                <h4>Sep 20,2021</h4>
-                            </div>
-                            <h2>
-                                <a target="_blank" href="https://www.smartertravel.com/best-car-rental-booking-sites/"
-                                   rel="noopener">
-                                    Top 16 Car Booking System By Airtrav
-                                </a>
-                            </h2>
-                            <p>Being a Human Resource Manager, it is your responsibility to understand the needs of industries have different types of workforce, but they do have one thing in common - business travel.</p>
-                        </div>
-                    </div>
-                    <div className="card">
-                        <div className="image_adds">
-                            <img src="image/image_2.jpg" alt=""/>
-                        </div>
-                        <div className="card_content">
-                            <div className="status">
-                                <span>Flight Booking</span>
-                                <h4>Oct 20,2021</h4>
-                            </div>
-                            <h2>
-                                <a target="_blank" href="">
-                                    5 days Trip Planning System Airtrav
-                                </a>
-                            </h2>
-                            <p>Being a Human Resource Manager, it is your responsibility to understand the needs of industries have different types of workforce, but they do have one thing in common - business travel.</p>
-                        </div>
-                    </div>
-                    <div className="card">
-                        <div className="image_adds">
-                            <img src="image/image_4.jpg" alt=""/>
-                        </div>
-                        <div className="card_content">
-                            <div className="status">
-                                <span>Flight Booking</span>
-                                <h4>Apr 20,2021</h4>
-                            </div>
-                            <h2>
-                                <a target="_blank" href="https://www.washingtonpost.com/sf/style/2016/04/29/around-the-world-in-20-days/"  rel="noopener">
-                                    20 days Trip Planning System Airtrav
-                                </a>
-                            </h2>
-                            <p>Being a Human Resource Manager, it is your responsibility to understand the needs of industries have different types of workforce, but they do have one thing in common - business travel.</p>
-                        </div>
-                    </div>
+
+
                 </div>
             </div>
 
-            <div className="select_btn_more">
-                <button type="button" id="seeMore">See more</button>
+            <div className="flex items-center justify-center">
+                <button type="button" id="seeMore" className="py-[15px] px-[30px] outline-none border-none bg-primary text-white rounded-2xl w-[180px] text-xl mt-[50px]">See more</button>
             </div>
         </div>
     )
