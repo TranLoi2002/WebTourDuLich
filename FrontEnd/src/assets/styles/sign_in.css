@@ -1,0 +1,194 @@
+body{
+    font-family: 'Poppins',sans-serif;
+    overflow-x: hidden;
+}
+body::-webkit-scrollbar {
+    width: 10px;
+}
+body::-webkit-scrollbar-track {
+    background-color: #fff;
+}
+body::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+body::-webkit-scrollbar-thumb:hover {
+    background-color: #3B71FE;
+}
+
+.image_main_login {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../../assets/images/bgc_main.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(80%) blur(2px);
+    z-index: -1;
+}
+
+.card-sign-in {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10; /* Đảm bảo card nằm trên ảnh */
+    background-color: white; /* Màu nền của card */
+    /*padding: 20px;*/
+    border-radius: 8px; /* Viền bo tròn của card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng bóng đổ */
+    width: 500px;
+    display: flex;
+    flex-direction: row;
+}
+.sign-in-left{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding:1rem 4rem 0 4rem;
+    width: 100%;
+}
+.sign-in-brand a{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    gap:5px;
+    margin-bottom: 30px;
+    font-weight:700;
+    color: #3B71FE;
+}
+.form_sign_in{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    padding: 2rem 0 0 0;
+}
+.sign-in-left .form_sign_in label{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 0;
+}
+.form_sign_in label input{
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+.form_sign_in label input:focus{
+    border: 2px solid #3B71FE;
+}
+.form_sign_in .section_remem_forgot{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.form_sign_in button{
+    width: 100%;
+    padding: 15px 20px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #3B71FE;
+    color: white;
+    cursor: pointer;
+    outline: none;
+}
+.sign-in-choice{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.sign-in-choice .sign-in-btn{
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+    width: calc(50% - 5px);
+}
+.sign-in-choice .sign-in-button{
+    cursor: pointer;
+    outline: none;
+    border:0.5px solid lightgray;
+    border-radius: 5px;
+    background-color: white;
+    width:100%;
+    padding: 10px;
+}
+.sign-in-choice .sign-in-button i{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    text-align: center;
+}
+.sign-in-ques{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 15px 0;
+}
+
+.sign-in-or {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sign-in-or::before,
+.sign-in-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: #cbcacab9;
+    width: 300px;
+    z-index:99;
+    position: absolute;
+    left: 100px;
+}
+.sign-in-or span{
+    padding: 10px;
+    background-color: #fff;
+    color: #a8a3a3d1;
+    z-index: 999;
+}
+
+/*.sign-in-image {*/
+/*    width: 50%;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    !*align-items: center;*!*/
+/*}*/
+
+/*.sign-in-image img {*/
+/*    max-width: 100%;*/
+/*    height: auto;*/
+/*    border-radius: 8px;*/
+/*}*/
+
+h2, h3 {
+    color: #333;
+}
+
+
+.error{
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 100;
+}
