@@ -1,10 +1,10 @@
-package iuh.fit.se.nhom2_webtourdulich;
+package iuh.fit.se;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Nhom2WebTourDuLichApplicationTests {
+class BookingServiceApplicationTests {
 
     @Test
     void contextLoads() {

@@ -1,13 +1,13 @@
-package iuh.fit.se.nhom2_webtourdulich;
+package iuh.fit.se;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Nhom2WebTourDuLichApplication {
+public class BookingServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Nhom2WebTourDuLichApplication.class, args);
+        SpringApplication.run(BookingServiceApplication.class, args);
     }
 
 }
