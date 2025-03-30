@@ -3,11 +3,13 @@ import iuh.fit.se.dto.BookingResponseDTO;
 import iuh.fit.se.entity.Booking;
 import iuh.fit.se.entity.BookingStatus;
 import iuh.fit.se.entity.Participant;
+import iuh.fit.se.exception.BookingException;
 import iuh.fit.se.exception.BookingNotFoundException;
 import iuh.fit.se.exception.InvalidBookingStatusException;
 import iuh.fit.se.repository.BookingRepository;
 import iuh.fit.se.service.BookingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,19 +26,25 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDTO createBooking(Booking bookingRequest) {
-        // 1. Thiết lập thông tin cơ bản
-        bookingRequest.setBookingDate(LocalDateTime.now());
-        bookingRequest.setBookingStatus(BookingStatus.PENDING);
+        if (!canUserBookingService(bookingRequest.getTourId(), bookingRequest.getUserId())) {
+            throw new BookingException("User already has an active booking for this tour",
+                    HttpStatus.CONFLICT,
+                    "BOOKING_003");
+        }
+        Booking existingCancelled = bookingRepository.findBookingByTourIdAndUserId(
+                bookingRequest.getTourId(),
+                bookingRequest.getUserId()
+        );
 
-        // 2. Đảm bảo mỗi participant được gán booking
+        Booking bookingToSave = existingCancelled != null ? existingCancelled : bookingRequest;
+        bookingToSave.setBookingDate(LocalDateTime.now());
+        bookingToSave.setBookingStatus(BookingStatus.PENDING);
         if (bookingRequest.getParticipants() != null) {
             for (Participant participant : bookingRequest.getParticipants()) {
-                participant.setBooking(bookingRequest); // Quan trọng: gán booking
+                participant.setBooking(bookingRequest);
             }
         }
-
-        // 3. Lưu booking (sẽ tự lưu participants nhờ cascade)
-        Booking savedBooking = bookingRepository.save(bookingRequest);
+        Booking savedBooking = bookingRepository.save(bookingToSave);
         return convertToResponseDTO(savedBooking);
     }
     private BookingResponseDTO convertToResponseDTO(Booking booking) {
@@ -92,15 +100,16 @@ public class BookingServiceImpl implements BookingService {
                     BookingStatus.CANCELLED
             );
         }
-
         booking.setBookingStatus(BookingStatus.CANCELLED);
 //        booking.setCancellationReason(reason);
         bookingRepository.save(booking);
     }
-
     @Override
-    public List<Booking> getBookingByUserID(Long id) {
-        return List.of();
+    public boolean canUserBookingService(Long serviceId, Long userId) {
+        Booking existingBooking = bookingRepository.findBookingByTourIdAndUserId(serviceId, userId);
+        return existingBooking == null
+                || existingBooking.getBookingStatus() == BookingStatus.CANCELLED;
     }
+
 
 }

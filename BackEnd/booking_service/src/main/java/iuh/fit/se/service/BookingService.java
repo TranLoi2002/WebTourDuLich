@@ -14,6 +14,6 @@ public interface BookingService {
     List<Booking> getAllBookings();
     Booking updateBookingStatus(Long id, BookingStatus status);
     void cancelBooking(Long id, String reason);
-    List<Booking> getBookingByUserID(Long id);
+    boolean canUserBookingService(Long bookingId,Long userId);
 
 }

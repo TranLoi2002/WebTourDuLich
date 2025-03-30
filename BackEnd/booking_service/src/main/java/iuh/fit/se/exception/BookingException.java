@@ -11,8 +11,6 @@ public class BookingException extends RuntimeException {
         this.httpStatus = httpStatus;
         this.errorCode = errorCode;
     }
-
-    // Getter methods
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }
