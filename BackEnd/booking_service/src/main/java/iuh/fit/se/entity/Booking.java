@@ -1,8 +1,11 @@
 package iuh.fit.se.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,6 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Booking {
 
     @Id
@@ -23,12 +29,14 @@ public class Booking {
     @Column(nullable = false)
     private Long tourId;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "booking_participants",
-            joinColumns = @JoinColumn(name = "booking_id"))
-    @Column(name = "participant_info")
-    private List<String> participants;
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Participant> participants = new ArrayList<>();
+
+    // Phương thức helper để đồng bộ quan hệ hai chiều
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setBooking(this);
+    }
 
     @Column(nullable = false)
     private String customerName;

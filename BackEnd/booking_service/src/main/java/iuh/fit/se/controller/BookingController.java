@@ -1,6 +1,5 @@
 package iuh.fit.se.controller;
-
-import iuh.fit.se.dto.BookingDTO;
+import iuh.fit.se.dto.BookingResponseDTO;
 import iuh.fit.se.entity.Booking;
 import iuh.fit.se.entity.BookingStatus;
 import iuh.fit.se.service.BookingService;
@@ -17,11 +16,15 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<Booking> createBooking(@RequestBody BookingDTO request) {
-        Booking booking = bookingService.createBooking(request);
-        return ResponseEntity.ok(booking);
-    }
+    public ResponseEntity<BookingResponseDTO> createBooking(@RequestBody Booking bookingRequest) {
+        // Đảm bảo participants có tham chiếu tới booking
+        if (bookingRequest.getParticipants() != null) {
+            bookingRequest.getParticipants().forEach(p -> p.setBooking(bookingRequest));
+        }
 
+        BookingResponseDTO response = bookingService.createBooking(bookingRequest);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<Booking> getBooking(@PathVariable Long id) {
         Booking booking = bookingService.getBooking(id);

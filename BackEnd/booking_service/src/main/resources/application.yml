@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3306/tour_booking_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    url: jdbc:mariadb://localhost:3306/tour_booking_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8mb4&connectionCollation=utf8mb4_unicode_ci
     username: root
     password: root
     driver-class-name: org.mariadb.jdbc.Driver
@@ -8,11 +8,18 @@ spring:
       connection-timeout: 30000
       maximum-pool-size: 10
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.MariaDB106Dialect  # Sử dụng dialect phiên bản cụ thể
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         connection:
-          characterEncoding: utf8
+          characterEncoding: utf8mb4
           useUnicode: true
+          CharSet: utf8mb4
+    show-sql: true  # Bật log SQL để debug
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

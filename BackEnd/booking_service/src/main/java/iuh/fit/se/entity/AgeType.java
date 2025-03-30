@@ -1,4 +1,4 @@
-package iuh.fit.se.dto;
+package iuh.fit.se.entity;
 
 public enum AgeType {
     CHILD,
