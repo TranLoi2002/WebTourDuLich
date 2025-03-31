@@ -12,8 +12,9 @@ public interface BookingService {
     BookingResponseDTO createBooking(Booking request);
     Booking getBooking(Long id);
     List<Booking> getAllBookings();
-    Booking updateBookingStatus(Long id, BookingStatus status);
-    void cancelBooking(Long id, String reason);
+    BookingResponseDTO updateBookingStatus(Long id, BookingStatus status);
+    BookingResponseDTO cancelBooking(Long id, String reason);
     boolean canUserBookingService(Long bookingId,Long userId);
+
 
 }

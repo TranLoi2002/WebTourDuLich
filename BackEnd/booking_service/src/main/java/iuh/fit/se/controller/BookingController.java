@@ -17,11 +17,9 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingResponseDTO> createBooking(@RequestBody Booking bookingRequest) {
-        // Đảm bảo participants có tham chiếu tới booking
         if (bookingRequest.getParticipants() != null) {
             bookingRequest.getParticipants().forEach(p -> p.setBooking(bookingRequest));
         }
-
         BookingResponseDTO response = bookingService.createBooking(bookingRequest);
         return ResponseEntity.ok(response);
     }
@@ -38,10 +36,10 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Booking> updateStatus(
+    public ResponseEntity<BookingResponseDTO> updateStatus(
             @PathVariable Long id,
             @RequestParam BookingStatus status) {
-        Booking updatedBooking = bookingService.updateBookingStatus(id, status);
+        BookingResponseDTO updatedBooking = bookingService.updateBookingStatus(id, status);
         return ResponseEntity.ok(updatedBooking);
     }
 

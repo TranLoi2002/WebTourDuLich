@@ -29,10 +29,11 @@ public class Booking {
     @Column(nullable = false)
     private Long tourId;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Participant> participants = new ArrayList<>();
 
-    // Phương thức helper để đồng bộ quan hệ hai chiều
+
+
     public void addParticipant(Participant participant) {
         participants.add(participant);
         participant.setBooking(this);
@@ -54,6 +55,30 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus;
 
+    @Column(nullable = false)
+    private LocalDateTime updatedAt; // Thêm trường updatedAt
+
+    @Column
+    private LocalDateTime paymentDueTime; // Thời hạn thanh toán
+
     @Transient
     private String notes;
+
+    // Phương thức tiện ích để kiểm tra xem có cần hiển thị thời hạn thanh toán không
+    @Transient
+    public boolean isPaymentDueTimeRelevant() {
+        return bookingStatus == BookingStatus.PENDING;
+    }
+
+    // PrePersist và PreUpdate để tự động cập nhật thời gian
+    @PrePersist
+    protected void onCreate() {
+        bookingDate = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

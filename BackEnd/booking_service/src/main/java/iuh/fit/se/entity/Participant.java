@@ -33,7 +33,7 @@ public class Participant {
     @Enumerated(EnumType.STRING)
     private AgeType ageType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
