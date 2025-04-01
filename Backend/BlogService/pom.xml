@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>iuh.fit.se</groupId>
-    <artifactId>CatalogService</artifactId>
+    <artifactId>BlogService</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>CatalogService</name>
-    <description>CatalogService</description>
+    <name>BlogService</name>
+    <description>BlogService</description>
     <url/>
     <licenses>
         <license/>
@@ -55,6 +55,8 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -78,7 +80,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
     </dependencies>
 
