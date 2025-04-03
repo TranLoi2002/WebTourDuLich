@@ -1,6 +1,5 @@
 package iuh.fit.se.catalogservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -12,20 +11,15 @@ import java.util.List;
 @Data
 @Getter
 @Setter
-@Table(name = "locations")
-public class Location {
+@Table(name = "tour_types")
+public class TourType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String description;
-    private String imageUrl;
 
-    @Enumerated(EnumType.STRING)
-    private LocationType type;
-    private String detailAddress;
-
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToMany(mappedBy = "tourType", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Tour> tours;
 }

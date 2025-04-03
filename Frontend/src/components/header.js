@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import Modal from 'react-modal';
 import logo from '../assets/images/logo.png';
 import user_avt from '../assets/images/user_header.png';
@@ -47,6 +47,16 @@ const Header = () => {
         setShowUserMenu(false);
     };
 
+    const location = useLocation();
+    let headerClass = '';
+    if (location.pathname === '/thingstodo') {
+        headerClass = 'things_to_do_header';
+    } else if (location.pathname === '/tours') {
+        headerClass = 'tours_header';
+    } else if (location.pathname === '/blogs') {
+        headerClass = 'blogs_header';
+    }
+
     return (
         <header>
             <div
@@ -56,7 +66,7 @@ const Header = () => {
                     <span className="font-extrabold text-[20px] leading-[25px] ml-2 text-primary">Airtrav</span>
                 </Link>
 
-                <div className="nav_select flex">
+                <div className={`nav_select ${headerClass} flex`}>
                     <ul className="relative flex justify-center items-center">
                         <li className="relative list-none">
                             <Link

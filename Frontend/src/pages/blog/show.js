@@ -9,9 +9,11 @@ const Show = () => {
         <div className="tour-page">
             <div className="flex flex-col mt-[100px] mx-[200px] justify-center">
                 <h3 className="text-[2em]">The Airtrav Blog</h3>
-                <h5 className="text-[#828080] leading-5 border-b-2 pb-[25px] text-[1.5em]">9 Ways to Flight Booking of the Airtrav website</h5>
+                <h5 className="text-[#828080] leading-5 border-b-2 pb-[25px] text-[1.5em]">9 Ways to Flight Booking of
+                    the Airtrav website</h5>
                 <div className="flex justify-between my-[15px] mx-0">
-                    <h4 className="text-[#58c270] bg-[#EEF9F2] text-[0.8em] py-[8px] px-[10px] rounded-lg">Tour Planning</h4>
+                    <h4 className="text-[#58c270] bg-[#EEF9F2] text-[0.8em] py-[8px] px-[10px] rounded-lg">Tour
+                        Planning</h4>
                     <span className="text-[#9d9c9c] font-bold">Jun 20,2020</span>
                 </div>
                 <div className="flex flex-col">
@@ -54,53 +56,113 @@ const Show = () => {
                     </p>
                 </div>
 
-                <div className="flex flex-col gap-[25px] mt-[50px]">
-                    <div className="flex gap-[20px] border-b-2 pb-[30px]">
-                        <div className="w-[30%] h-[300px] rounded-lg overflow-hidden">
-                            <img src={image_1} alt="" className="w-full h-full object-cover"/>
-                        </div>
-                        <div className="flex flex-col items-start flex-1 w-[70%]">
-                            <div className="flex items-center">
-                                <span className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Hotel Booking</span>
-                                <h4 className="text-[#9d9c9c] font-bold">Jun 20,2021</h4>
+                <div className="flex gap-4">
+                    <div className="flex flex-col gap-[25px] mt-[50px] w-[70%]">
+                        <div className="flex gap-[20px] border-b-2 pb-[30px]">
+                            <div className="w-[30%] h-[200px] rounded-lg overflow-hidden">
+                                <img src={image_1} alt="" className="w-full h-full object-cover"/>
                             </div>
-                            <h2 className="leading-6">
-                                <Link target="_blank" to="https://www.smartertravel.com/best-travel-planning-apps/"
-                                   rel="noopener" className="text-gray-400">
-                                    Top 20 Trip Planning System By Airtrav
-                                </Link>
-                            </h2>
-                            <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility to understand the needs of
-                                industries have different types of workforce, but they do have one thing in common -
-                                business travel.</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-[20px] border-b-2 pb-[30px]">
-                        <div className="w-[30%] h-[300px] rounded-lg overflow-hidden">
-                            <img src={image_1} alt="" className="w-full h-full object-cover"/>
-                        </div>
-                        <div className="flex flex-col items-start flex-1 w-[70%]">
-                            <div className="flex items-center">
-                                <span className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Car Booking</span>
-                                <h4 className="text-[#9d9c9c] font-bold">Dec 20,2020</h4>
+                            <div className="flex flex-col items-start flex-1 w-[70%]">
+                                <div className="flex items-center">
+                                <span
+                                    className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Hotel Booking</span>
+                                    <h4 className="text-[#9d9c9c] font-bold">Jun 20,2021</h4>
+                                </div>
+                                <h2 className="leading-6">
+                                    <Link to="/blogs/detail_blog" className="text-gray-400">
+                                        Top 20 Trip Planning System By Airtrav
+                                    </Link>
+                                </h2>
+                                <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility
+                                    to
+                                    understand the needs of
+                                    industries have different types of workforce, but they do have one thing in common -
+                                    business travel.</p>
                             </div>
-                            <h2>
-                                <Link className="text-gray-400" target="_blank" to="https://www.travelandleisure.com/travel-tips" rel="noopener">
-                                    Booking System By Airtrav Website
-                                </Link>
-                            </h2>
-                            <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility to understand the needs of
-                                industries have different types of workforce, but they do have one thing in common -
-                                business travel.</p>
                         </div>
-                    </div>
+                        <div className="flex gap-[20px] border-b-2 pb-[30px]">
+                            <div className="w-[30%] h-[200px] rounded-lg overflow-hidden">
+                                <img src={image_1} alt="" className="w-full h-full object-cover"/>
+                            </div>
+                            <div className="flex flex-col items-start flex-1 w-[70%]">
+                                <div className="flex items-center">
+                                <span
+                                    className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Car Booking</span>
+                                    <h4 className="text-[#9d9c9c] font-bold">Dec 20,2020</h4>
+                                </div>
+                                <h2>
+                                    <Link className="text-gray-400" to="/blogs/detail_blog" >
+                                        Booking System By Airtrav Website
+                                    </Link>
+                                </h2>
+                                <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility
+                                    to
+                                    understand the needs of
+                                    industries have different types of workforce, but they do have one thing in common -
+                                    business travel.</p>
+                            </div>
+                        </div>
 
 
+                    </div>
+                    <div className="flex flex-col gap-[25px] mt-[50px] w-[30%] ml-16">
+                        <h2 className="text-xl font-bold ">Blog communicate</h2>
+                        <div>
+                            <div className="flex gap-[20px] border-b-2 pb-[30px]">
+                                <div className="flex flex-col items-start flex-1 w-[70%]">
+                                    <div className="flex items-center">
+                                        <h4 className="text-[#9d9c9c] font-bold">Jun 20,2021</h4>
+                                    </div>
+                                    <h2 className="leading-6">
+                                        <Link target="_blank"
+                                              to="https://www.smartertravel.com/best-travel-planning-apps/"
+                                              rel="noopener" className="text-gray-400">
+                                            Top 20 Trip Planning System By Airtrav
+                                        </Link>
+                                    </h2>
+                                    <p className="mt-4 leading-4">Being a Human Resource Manager, it is your
+                                        responsibility
+                                        to
+                                        understand the needs of
+                                        industries have different types of workforce, but they do have one thing in
+                                        common -
+                                        business travel.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-[20px] border-b-2 pb-[30px]">
+
+                                <div className="flex flex-col items-start flex-1 w-[70%]">
+                                    <div className="flex items-center">
+                                        <h4 className="text-[#9d9c9c] font-bold">Dec 20,2020</h4>
+                                    </div>
+                                    <h2>
+                                        <Link className="text-gray-400" target="_blank"
+                                              to="https://www.travelandleisure.com/travel-tips" rel="noopener">
+                                            Booking System By Airtrav Website
+                                        </Link>
+                                    </h2>
+                                    <p className="mt-4 leading-4">Being a Human Resource Manager, it is your
+                                        responsibility
+                                        to
+                                        understand the needs of
+                                        industries have different types of workforce, but they do have one thing in
+                                        common -
+                                        business travel.</p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
                 </div>
+
             </div>
 
             <div className="flex items-center justify-center">
-                <button type="button" id="seeMore" className="py-[15px] px-[30px] outline-none border-none bg-primary text-white rounded-2xl w-[180px] text-xl mt-[50px]">See more</button>
+                <button type="button" id="seeMore"
+                        className="py-[15px] px-[30px] outline-none border-none bg-primary text-white rounded-2xl w-[180px] text-xl mt-[50px]">See
+                    more
+                </button>
             </div>
         </div>
     )

@@ -37,9 +37,11 @@ public class LocationServiceImpl implements LocationService {
         return locationRepository.findById(id)
                 .map(existingLocation -> {
                     existingLocation.setName(location.getName());
-                    existingLocation.setAddress(location.getAddress());
-                    existingLocation.setCity(location.getCity());
-                    existingLocation.setCountry(location.getCountry());
+                    existingLocation.setImageUrl(location.getImageUrl());
+                    existingLocation.setDescription(location.getDescription());
+                    existingLocation.setDetailAddress(location.getDetailAddress());
+                    existingLocation.setType(location.getType());
+
                     return locationRepository.save(existingLocation);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Location not found"));

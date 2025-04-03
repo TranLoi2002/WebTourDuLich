@@ -39,10 +39,10 @@ import ConfirmBooking from './pages/confirmBooking';
 import ShowTours from "./pages/tour/show";
 import DetailTour from "./pages/tour/detail"
 import ShowBlogs from "./pages/blog/show";
-// import Detail_blog from "./pages/blog/detail";
 import Account from "./pages/account";
-import FAQ from './pages/FAQ'
-import Help from './pages/help'
+import FAQ from './pages/FAQ';
+import Help from './pages/help';
+import BlogDetail from "./pages/blog/detail";
 
 
 function App() {
@@ -75,7 +75,7 @@ function App() {
                     <Route path="/tours/detailtour" element={<DetailTour/>}/>
                     {/*option - blog*/}
                     <Route path="/blogs" element={<ShowBlogs/>}/>
-                    {/*<Route path="/blogs/detail_blog" element={<Detail_blog/>}/>*/}
+                    <Route path="/blogs/detail_blog" element={<BlogDetail/>}/>
                     {/*account*/}
                     <Route path="/account" element={<Account/>}/>
                     {/*FAQ - Help*/}

@@ -52,6 +52,19 @@ public class TourServiceImpl implements TourService {
                     existingTour.setCurrentParticipants(tour.getCurrentParticipants());
                     existingTour.setThumbnail(tour.getThumbnail());
                     existingTour.setImages(tour.getImages());
+
+                    existingTour.setTourCode(tour.getTourCode());
+                    existingTour.setHightlight(tour.getHightlight());
+                    existingTour.setNotes(tour.getNotes());
+                    existingTour.setPlaceOfDeparture(tour.getPlaceOfDeparture());
+                    existingTour.setDiscount(tour.getDiscount());
+
+                    if(tour.getTourType() != null) {
+                        existingTour.setTourType(tour.getTourType());
+                    } else {
+                        throw new IllegalArgumentException("Tour type must not be null");
+                    }
+
                     if (tour.getLocation() != null) {
                         existingTour.setLocation(tour.getLocation());
                     } else {

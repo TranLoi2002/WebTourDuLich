@@ -19,9 +19,26 @@ public class Tour {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // định danh riêng cho tour - dùng để tra cứu (có thể trùng)
+    private String tourCode;
     private String title;
     private String description;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tour_highlights", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "highlight")
+    private List<String> hightlight;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tour_notes", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "note")
+    private List<String> notes;
+
     private Double price;
+    private int discount;
+
+    private String placeOfDeparture;
     private String duration;
     private Date startDate;
     private Date endDate;
@@ -37,4 +54,8 @@ public class Tour {
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
+
+    @ManyToOne
+    @JoinColumn(name = "tour_type_id", nullable = false)
+    private TourType tourType;
 }

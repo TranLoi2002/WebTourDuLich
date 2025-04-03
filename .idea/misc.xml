@@ -7,6 +7,8 @@
         <option value="$PROJECT_DIR$/Backend/API-Gateway/pom.xml" />
         <option value="$PROJECT_DIR$/Backend/ReviewService/pom.xml" />
         <option value="$PROJECT_DIR$/Backend/CatalogService/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/BlogService/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/DiscoveryService/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
