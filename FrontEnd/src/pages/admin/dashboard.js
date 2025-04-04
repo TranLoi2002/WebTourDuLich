@@ -2,29 +2,10 @@ import React, { useEffect, useState } from 'react';
 import AdminNavbar from '../../components/adminNavbar';
 import AdminSidebar from '../../components/adminSidebar';
 import Modal from '../../components/modal';
-import  {getAllBookings} from '../../api/booking.api';
-function Dashboard() {
-  const [bookings,setBookings] = useState([]);
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getAllBookings();
-        setBookings(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu:", error);
-      }
-    };
 
-    fetchData(); 
-  }, []);
- 
-  
-  
-  
-  
-  
+import BookingTable from '../../components/bookingTable';
+function Dashboard() {
+
   // const [isModalOpen, setIsModalOpen] = useState(false);
 
   // const openModal = () => {
@@ -36,14 +17,18 @@ function Dashboard() {
   // };
 
   return (
-    <div className='h-fit flex-column'>
+    <div className='h-fit flex-column '>
       <div>
-        <AdminNavbar/>
+        <AdminNavbar />
       </div>
       <div className='fixed flex w-full h-full'>
         <div>
-          <AdminSidebar/>
+          <AdminSidebar />
         </div>
+        <div className='container'>
+          <BookingTable/>
+        </div>
+       
         {/* <div className='p-12 w-full h-full items-center'>
           <button 
             onClick={openModal}
