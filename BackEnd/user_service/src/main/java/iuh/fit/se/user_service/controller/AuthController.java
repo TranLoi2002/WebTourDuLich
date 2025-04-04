@@ -36,14 +36,38 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         String token = authService.login(loginRequest);
-        return ResponseEntity.ok(token);
+        // Tạo cookie chứa token
+        Cookie jwtCookie = new Cookie("jwtToken", token);
+        jwtCookie.setHttpOnly(true); // Cookie chỉ có thể được truy cập bởi server, không thể truy cập qua JavaScript
+        jwtCookie.setSecure(true); // Chỉ gửi cookie qua HTTPS (bỏ qua nếu đang test local với HTTP)
+        jwtCookie.setPath("/"); // Cookie có hiệu lực trên toàn bộ domain
+        jwtCookie.setMaxAge(24 * 60 * 60); // Thời gian sống của cookie: 24 giờ
+        jwtCookie.setAttribute("SameSite", "Strict"); // Bảo vệ chống CSRF
+
+        // Thêm cookie vào response
+        response.addCookie(jwtCookie);
+
+        // Trả về thông báo thành công (không cần trả token trong body nữa)
+        return ResponseEntity.ok("Đăng nhập thành công");
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         String token = authService.register(registerRequest);
-        return ResponseEntity.ok(token);
+        // Tạo cookie chứa token
+        Cookie jwtCookie = new Cookie("jwtToken", token);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(24 * 60 * 60);
+        jwtCookie.setAttribute("SameSite", "Strict");
+
+        // Thêm cookie vào response
+        response.addCookie(jwtCookie);
+
+        // Trả về thông báo thành công
+        return ResponseEntity.ok("Đăng ký thành công");
     }
 }
