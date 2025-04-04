@@ -29,18 +29,18 @@ function BookingTable() {
   // Áp dụng bộ lọc
   useEffect(() => {
     let results = bookings;
-    
+
     if (searchTerm) {
-      results = results.filter(booking => 
+      results = results.filter(booking =>
         booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.id.toString().includes(searchTerm))
     }
-    
+
     if (statusFilter !== 'ALL') {
       results = results.filter(booking => booking.bookingStatus === statusFilter);
     }
-    
+
     if (paymentFilter !== 'ALL') {
       if (paymentFilter === 'PENDING') {
         results = results.filter(booking => booking.paymentDueTimeRelevant);
@@ -48,7 +48,7 @@ function BookingTable() {
         results = results.filter(booking => !booking.paymentDueTimeRelevant);
       }
     }
-    
+
     setFilteredBookings(results);
   }, [searchTerm, statusFilter, paymentFilter, bookings]);
 
@@ -63,12 +63,11 @@ function BookingTable() {
   const handleStatusUpdate = async () => {
     try {
       await updateBookingStatus(selectedBooking.id, newStatus);
-      
+
       // Cập nhật lại danh sách bookings
-      const updatedBookings = bookings.map(booking => 
+      const updatedBookings = bookings.map(booking =>
         booking.id === selectedBooking.id ? { ...booking, bookingStatus: newStatus } : booking
       );
-      
       setBookings(updatedBookings);
       setFilteredBookings(updatedBookings);
       setIsModalOpen(false);
@@ -79,8 +78,8 @@ function BookingTable() {
 
   return (
     <div className="p-4">
-       {/* Thanh tìm kiếm và bộ lọc */}
-       <div className="mb-4 flex flex-col md:flex-row gap-4">
+      {/* Thanh tìm kiếm và bộ lọc */}
+      <div className="mb-4 flex flex-col md:flex-row gap-4">
         {/* Ô tìm kiếm */}
         <div className="flex-1">
           <label htmlFor="search" className="sr-only">Search</label>
@@ -148,8 +147,8 @@ function BookingTable() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredBookings.map((booking) => (
-              <tr 
-                key={booking.id} 
+              <tr
+                key={booking.id}
                 onClick={() => handleBookingClick(booking)}
                 className="cursor-pointer hover:bg-gray-50"
               >
@@ -196,11 +195,14 @@ function BookingTable() {
         </table>
       </div>
 
-      {/* Hiển thị khi không có kết quả (giữ nguyên như cũ) */}
+      {/* Hiển thị khi không có kết quả*/}
       {filteredBookings.length === 0 && (
         <div className="text-center py-8">
-          {/* ... (giữ nguyên phần no results) ... */}
-        </div>
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">Không tìm thấy booking nào</h3>
+          <p className="mt-1 text-sm text-gray-500">Hãy thử thay đổi tiêu chí tìm kiếm hoặc bộ lọc</p>        </div>
       )}
 
       {/* Modal hiển thị chi tiết booking */}
@@ -210,7 +212,7 @@ function BookingTable() {
             <div className="p-6">
               <div className="flex justify-between items-start">
                 <h3 className="text-lg font-medium text-gray-900">Booking Details - ID: {selectedBooking.id}</h3>
-                <button 
+                <button
                   onClick={() => setIsModalOpen(false)}
                   className="text-gray-400 hover:text-gray-500"
                 >
@@ -250,7 +252,7 @@ function BookingTable() {
                 <div>
                   <h4 className="font-medium text-gray-900">Payment Information</h4>
                   <p className="mt-1 text-sm text-gray-500">
-                    <span className="font-medium">Status:</span> 
+                    <span className="font-medium">Status:</span>
                     <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                       ${selectedBooking.bookingStatus === 'CONFIRMED' ? 'bg-green-100 text-green-800' : ''}
                       ${selectedBooking.bookingStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' : ''}
@@ -261,7 +263,7 @@ function BookingTable() {
                   {selectedBooking.paymentDueTimeRelevant ? (
                     <>
                       <p className="text-sm text-gray-500">
-                        <span className="font-medium">Payment Due:</span> 
+                        <span className="font-medium">Payment Due:</span>
                         <span className="ml-2 font-medium text-amber-600">
                           {new Date(selectedBooking.paymentDueTime).toLocaleString()}
                         </span>
@@ -269,9 +271,9 @@ function BookingTable() {
                       <p className="text-xs text-amber-500">Payment required before this time</p>
                     </>
                   )
-                   : (
-                    <p className="text-sm text-red-600 font-medium"> </p>
-                  )}
+                    : (
+                      <p className="text-sm text-red-600 font-medium"> </p>
+                    )}
                 </div>
 
                 <div>
