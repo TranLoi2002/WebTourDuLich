@@ -15,6 +15,6 @@ public interface BookingService {
     BookingResponseDTO updateBookingStatus(Long id, BookingStatus status);
     BookingResponseDTO cancelBooking(Long id, String reason);
     boolean canUserBookingService(Long bookingId,Long userId);
-
+    List<Booking> getAllBookingByUser(Long userId);
 
 }

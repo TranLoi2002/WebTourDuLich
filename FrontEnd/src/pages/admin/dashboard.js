@@ -1,18 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminNavbar from '../../components/adminNavbar';
 import AdminSidebar from '../../components/adminSidebar';
 import Modal from '../../components/modal';
-
+import  {getAllBookings} from '../../api/booking.api';
 function Dashboard() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bookings,setBookings] = useState([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllBookings();
+        setBookings(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      }
+    };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+    fetchData(); 
+  }, []);
+ 
+  
+  
+  
+  
+  
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  // const openModal = () => {
+  //   setIsModalOpen(true);
+  // };
+
+  // const closeModal = () => {
+  //   setIsModalOpen(false);
+  // };
 
   return (
     <div className='h-fit flex-column'>
@@ -23,7 +44,7 @@ function Dashboard() {
         <div>
           <AdminSidebar/>
         </div>
-        <div className='p-12 w-full h-full items-center'>
+        {/* <div className='p-12 w-full h-full items-center'>
           <button 
             onClick={openModal}
             className='bg-blue-950 text-red-50 p-3 hover:bg-red-500 rounded'
@@ -48,7 +69,7 @@ function Dashboard() {
               </button>
             </div>
           </Modal>
-        </div>
+        </div> */}
       </div>
     </div>
   );

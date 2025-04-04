@@ -182,6 +182,11 @@ public class BookingServiceImpl implements BookingService {
                 || existingBooking.getBookingStatus() == BookingStatus.CANCELLED;
     }
 
+    @Override
+    public List<Booking> getAllBookingByUser(Long userId) {
+        return List.of();
+    }
+
 //    @Override
 //    public List<BookingResponseDTO> getBookingsByUser(Long userId) {
 //        return bookingRepository.findByUserId(userId).stream()
