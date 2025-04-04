@@ -17,7 +17,9 @@ function BookingTable() {
       try {
         const response = await getAllBookings();
         setBookings(response.data);
+        setFilteredBookings();
         setFilteredBookings(response.data);
+
         console.log(response.data)
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
