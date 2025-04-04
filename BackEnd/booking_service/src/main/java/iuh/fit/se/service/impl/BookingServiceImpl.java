@@ -128,30 +128,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDTO updateBookingStatus(Long id, BookingStatus newStatus) {
         Booking booking = getBooking(id);
-
-        // Validate status transition
         if (booking.getBookingStatus() == BookingStatus.CANCELLED && newStatus != BookingStatus.CANCELLED) {
             throw new InvalidBookingStatusException(
                     booking.getBookingStatus(),
                     newStatus);
         }
-
         booking.setBookingStatus(newStatus);
         booking.setUpdatedAt(LocalDateTime.now());
-
-        // Clear payment due time if paid or cancelled
         if (newStatus != BookingStatus.PENDING) {
             booking.setPaymentDueTime(null);
         }
 
         Booking updatedBooking = bookingRepository.save(booking);
-
-//        // Send payment confirmation if status changed to PAID
-//        if (newStatus == BookingStatus.PAID) {
-//            String qrCode = qrCodeService.generateQRCode("BOOKING-" + id);
-//            emailService.sendPaymentConfirmation(updatedBooking, qrCode);
-//        }
-
         return convertToResponseDTO(updatedBooking);
     }
 

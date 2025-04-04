@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { handleApiError, formatSuccessResponse } from '../utils/apiErrorHandler';
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL =  "http://localhost:8080/api";
 
 export const getAllBookings = async () => {
     try {
@@ -9,7 +9,8 @@ export const getAllBookings = async () => {
     } catch (error) {
       return handleApiError(error);
     }
-  };
+};
+
 // export const createBooking = (bookingRequest) => {
 //     return axios.post(API_URL, bookingRequest);
 // };
@@ -20,11 +21,11 @@ export const getAllBookings = async () => {
 
 
 
-// export const updateBookingStatus = (id, status) => {
-//     return axios.patch(`${API_URL}/${id}/status`, null, {
-//         params: { status }
-//     });
-// };
+export const updateBookingStatus = (id, status) => {
+    return axios.patch(`${API_BASE_URL}/${id}/status`, null, {
+        params: { status }
+    });
+};
 
 // export const cancelBooking = (id, reason) => {
 //     return axios.post(`${API_URL}/${id}/cancel`, null, {
