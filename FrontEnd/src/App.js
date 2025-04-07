@@ -84,7 +84,6 @@ function App() {
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/help" element={<Help />} />
                     {/* Admin Routes */}
-                    <Route path="/admin" element={<Dashboard />} />
                     <Route path="/admin/dashboard" element={<Dashboard />} />
                 </Routes>
             </main>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AdminNavbar from '../../components/admin/adminNavbar';
 import BookingTable from '../../components/admin/bookingTable';
 import TourTable from '../../components/admin/tourTable';
-// import UserTable from '../../components/admin/userTable';
+import UserTable from '../../components/admin/userTable';
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('booking');
@@ -13,8 +13,8 @@ function Dashboard() {
       //   return <BookingTable />;
       case 'tour':
         return <TourTable />;
-      // case 'user':
-      //   return <UserTable />;
+      case 'user':
+        return <UserTable />;
       default:
         return <BookingTable />;
     }
@@ -27,8 +27,8 @@ function Dashboard() {
       </div>
       <div className='fixed flex w-full h-full'>
         <div>
-          <div className="top-0 left-0 z-40 w-64 h-screen pt-8 bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
-            <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+          <div className="top-0 left-0 z-40 w-64 h-screen pt-8 border-r  sm:translate-x-0 bg-gray-800 border-gray-700" aria-label="Sidebar">
+            <div className="h-full px-3 pb-4 overflow-y-auto bg-gray-800">
               <ul className="space-y-2 font-medium">
               <li>
                   <dvi className="text-white font-bold text-xl">

@@ -1,9 +1,6 @@
 import {Link} from "react-router-dom";
 import Checkbox from "@mui/material/Checkbox"
-
-import imageMain from '../../assets/images/bgc_main.jpg';
 import logo from '../../assets/images/logo.png'
-import imageWomen from '../../assets/images/women.jpg'
 
 import {TextField, Box, Button} from "@mui/material";
 

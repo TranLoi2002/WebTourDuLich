@@ -6,8 +6,9 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
-    </parent>    <groupId>iuh.fit</groupId>
+        <version>3.4.4</version>
+    </parent>
+    <groupId>iuh.fit</groupId>
     <artifactId>se</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>booking_service</name>
