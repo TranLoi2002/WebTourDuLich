@@ -10,26 +10,25 @@ import java.util.List;
 
 @Service
 public class PaymentMethodServiceImpl implements PaymentMethodService {
-    @Autowired
-    private PaymentMethodRepository paymentMethodRepository;
+
 
     @Override
     public List<PaymentMethod> getAllPaymentMethods() {
-        return paymentMethodRepository.findAll();
+        return null;
     }
 
     @Override
-    public PaymentMethod getPaymentMethodById(Long id) {
-        return paymentMethodRepository.findById(id).orElse(null);
+    public PaymentMethod getPaymentMethodById(Long methodId) {
+        return null;
     }
 
     @Override
-    public RefundMethod createPaymentMethod(RefundMethod refundMethod) {
-        return paymentMethodRepository.save(refundMethod);
+    public void addPaymentMethod(PaymentMethod method) {
+
     }
 
     @Override
     public void deletePaymentMethod(Long id) {
-        paymentMethodRepository.deleteById(id);
+
     }
 }

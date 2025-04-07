@@ -1,5 +1,7 @@
 package iuh.fit.se.payment_service.controller;
 
+import iuh.fit.se.payment_service.dto.RefundResponseDTO;
+import iuh.fit.se.payment_service.entity.Refund;
 import iuh.fit.se.payment_service.service.RefundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +15,8 @@ public class RefundController {
     private RefundService refundService;
 
     @PostMapping
-    public ResponseEntity<RefundResponseDTO> createRefund(@RequestBody RefundRequestDTO refundRequest) {
-        RefundResponseDTO response = refundService.createRefund(refundRequest);
+    public ResponseEntity<RefundResponseDTO> createRefund(@RequestBody Refund refundRequest) {
+        RefundResponseDTO response = refundService.processRefund(refundRequest);
         return ResponseEntity.ok(response);
     }
 

@@ -1,64 +1,39 @@
 package iuh.fit.se.payment_service.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Table(name = "payments")
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long paymentId; // Payment_ID (PK)
 
-    private Double amount;
+//    @ManyToOne
+//    @JoinColumn(name = "booking_id", nullable = false)
+//    private Booking booking; // Booking_ID (FK)
 
-    private String currency;
+    @ManyToOne
+    @JoinColumn(name = "payment_method_id", nullable = false)
+    private PaymentMethod paymentMethod; // Payment_Method_ID (FK)
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date paymentDate;
+    private Double amount; // Payment_Amount
+    private LocalDateTime paymentDate; // Payment_Date
+    private String status; // Payment_Status
 
-    private String method;
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public Date getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(Date paymentDate) {
-        this.paymentDate = paymentDate;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
+    public Payment(Double amount, String processed) {
     }
 }

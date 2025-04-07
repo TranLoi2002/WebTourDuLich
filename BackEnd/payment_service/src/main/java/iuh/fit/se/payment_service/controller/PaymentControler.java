@@ -1,6 +1,7 @@
 package iuh.fit.se.payment_service.controller;
 
 import iuh.fit.se.payment_service.dto.PaymentResponseDTO;
+import iuh.fit.se.payment_service.entity.Payment;
 import iuh.fit.se.payment_service.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,8 @@ public class PaymentControler {
     private PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<PaymentResponseDTO> createPayment(@RequestBody PaymentRequestDTO paymentRequest) {
-        PaymentResponseDTO response = paymentService.createPayment(paymentRequest);
+    public ResponseEntity<PaymentResponseDTO> createPayment(@RequestBody Payment paymentRequest) {
+        PaymentResponseDTO response = paymentService.processPayment(paymentRequest);
         return ResponseEntity.ok(response);
     }
 

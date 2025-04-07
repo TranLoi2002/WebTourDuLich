@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RefundResponseDTO {
-    private Long id;
-    private Long paymentId;
-    private double refundAmount;
-    private String status;
-    private String processedAt;
+    private String refundId;            // Unique identifier for the refund
+    private String paymentId;           // Corresponding payment ID for the refund
+    private String status;               // Status of the refund (e.g., SUCCESS, FAILED)
+    private double refundedAmount;      // Amount refunded
+    private String currency;            // Currency of the refund
+    private String message;
 }

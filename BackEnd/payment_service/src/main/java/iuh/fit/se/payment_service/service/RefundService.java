@@ -10,20 +10,10 @@ import java.util.Optional;
 
 @Service
 public interface RefundService {
-    @Autowired
-    private RefundRepository refundRepository;
+    RefundResponseDTO initiateRefund(Refund request);
+    RefundResponseDTO getRefundStatus(Long refundId);
 
-    public RefundResponseDTO processRefund(Refund refund) {
-        Refund savedRefund = refundRepository.save(refund);
-        return new RefundResponseDTO(savedRefund.getId(), savedRefund.getAmount(), savedRefund.getStatus());
-    }
+    RefundResponseDTO getRefundById(Long id);
 
-    public RefundResponseDTO getRefundById(Long id) {
-        Optional<Refund> refund = refundRepository.findById(id);
-        if (refund.isPresent()) {
-            return new RefundResponseDTO(refund.get().getId(), refund.get().getAmount(), refund.get().getStatus());
-        } else {
-            throw new RefundNotFoundException("Refund not found for id: " + id);
-        }
-    }
+    RefundResponseDTO processRefund(Refund refundRequest);
 }

@@ -8,9 +8,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentResponseDTO {
-    private Long id;
-    private double amount;
-    private String currency;
-    private String status;
-    private String createdAt;
+    private String paymentId;         // Unique identifier for the payment
+    private String transactionId;      // Identifier for the transaction
+    private String status;             // Status of the payment (e.g., SUCCESS, FAILED)
+    private double amount;             // Amount paid
+    private String currency;           // Currency of the payment
+    private String message;
+
+    public PaymentResponseDTO(Long paymentId, String paymentSuccessful) {
+    }
 }

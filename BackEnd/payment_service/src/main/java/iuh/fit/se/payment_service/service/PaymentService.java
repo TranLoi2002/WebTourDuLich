@@ -10,20 +10,9 @@ import java.util.Optional;
 
 @Service
 public interface PaymentService {
-    @Autowired
-    private PaymentRepository paymentRepository;
+    void initiatePayment(Payment request);
+    PaymentResponseDTO processPayment(Payment request);
+    PaymentResponseDTO getPaymentStatus(Long paymentId);
 
-    public default PaymentResponseDTO makePayment(Payment payment) {
-        Payment savedPayment = paymentRepository.save(payment);
-        return new PaymentResponseDTO(savedPayment.getId(), savedPayment.getAmount(), savedPayment.getStatus());
-    }
-
-    public PaymentResponseDTO getPaymentById(Long id) {
-        Optional<Payment> payment = paymentRepository.findById(id);
-        if (payment.isPresent()) {
-            return new PaymentResponseDTO(payment.get().getId(), payment.get().getAmount(), payment.get().getStatus());
-        } else {
-            throw new PaymentNotFoundException("Payment not found for id: " + id);
-        }
-    }
+    PaymentResponseDTO getPaymentById(Long id);
 }

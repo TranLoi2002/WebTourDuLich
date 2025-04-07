@@ -9,18 +9,9 @@ import java.util.List;
 
 @Service
 public interface PaymentMethodService {
-    @Autowired
-    private PaymentMethodRepository paymentMethodRepository;
+    List<PaymentMethod> getAllPaymentMethods();
+    PaymentMethod getPaymentMethodById(Long methodId);
+    void addPaymentMethod(PaymentMethod method);
 
-    public List<PaymentMethod> getAllPaymentMethods() {
-        return paymentMethodRepository.findAll();
-    }
-
-    public PaymentMethod savePaymentMethod(PaymentMethod paymentMethod) {
-        return paymentMethodRepository.save(paymentMethod);
-    }
-
-    public PaymentMethod getPaymentMethodById(Long id) {
-        return paymentMethodRepository.findById(id).orElseThrow(() -> new RuntimeException("Payment method not found for id: " + id));
-    }
+    void deletePaymentMethod(Long id);
 }

@@ -1,56 +1,34 @@
 package iuh.fit.se.payment_service.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Table(name = "refunds")
 public class Refund {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long refundId; // Khóa chính
 
-    private Double amount;
+//    @ManyToOne
+//    @JoinColumn(name = "booking_id", nullable = false)
+//    private Booking booking; // Khóa ngoại liên kết tới bảng Bookings
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundDate;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_id", nullable = false)
-    private Payment payment;
+    private Double refundAmount;
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    private String refundReason;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
-
-    public Date getRefundDate() {
-        return refundDate;
-    }
-
-    public void setRefundDate(Date refundDate) {
-        this.refundDate = refundDate;
-    }
-
-    public Payment getPayment() {
-        return payment;
-    }
-
-    public void setPayment(Payment payment) {
-        this.payment = payment;
-    }
 }
