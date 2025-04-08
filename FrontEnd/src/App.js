@@ -41,6 +41,7 @@ import Account from "./pages/account";
 import FAQ from './pages/FAQ';
 import Help from './pages/help';
 import Dashboard from "./pages/admin/dashboard";
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
     useEffect(() => {
@@ -84,7 +85,12 @@ function App() {
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/help" element={<Help />} />
                     {/* Admin Routes */}
-                    <Route path="/admin/dashboard" element={<Dashboard />} />
+                    <Route path="/admin/dashboard" element={
+                        <PrivateRoute role="ADMIN">
+                            <Dashboard />
+                        </PrivateRoute>
+                    } />
+
                 </Routes>
             </main>
             {showFooterOnAdmin && <Footer />}

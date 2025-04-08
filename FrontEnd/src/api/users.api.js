@@ -1,18 +1,27 @@
-// user.api.js
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000";
 
-// SIGNUP
+// SIGN UP
 export const signup = async (user) => {
-    const response = await axios.post(`${API_BASE_URL}/api/auth/signup`, user, {
-        withCredentials: true,
-    });
-    return response.data;
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/signup`, user, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong" };
+    }
 };
-//LOGIN
-export const loginUser = (loginData) => {
-    return axios.post(`${API_BASE_URL}/api/auth/login`, loginData, {
-      withCredentials: true, // Nếu dùng cookie
-    });
-  };
+
+// LOGIN
+export const login = async (loginData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/login`, loginData, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong" };
+    }
+};
