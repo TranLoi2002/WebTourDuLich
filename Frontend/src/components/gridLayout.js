@@ -13,8 +13,8 @@ const GridLayout = ({ tours, itemsPerPage, title }) => {
 
     return (
         <div className="grid-tour-layout" style={{width:'100%'}}>
-            <div>
-                <h3 className="grid_title">{title}</h3>
+            <div className="mt-6">
+                <h3 className="font-bold text-2xl">{title}</h3>
             </div>
             <Grid container spacing={4} style={{ width: '100%' }}>
                 {selectedTours.map((tour, index) => (

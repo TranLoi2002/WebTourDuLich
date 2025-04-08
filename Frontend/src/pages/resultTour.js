@@ -21,9 +21,9 @@ const mockTours = [
 
 const ResultTour = () => {
     const { state } = useLocation();
+    const [selectedLocation, setSelectedLocation] = useState(state?.selectedLocation?.display_name || "");
+    const [tours, setTours] = useState([]);
 
-    // Dùng useState để có thể chỉnh sửa bộ lọc
-    const [location, setLocation] = useState(state?.location || "");
     const [checkIn, setCheckIn] = useState(state?.checkIn || "");
     const [checkOut, setCheckOut] = useState(state?.checkOut || "");
     const [guests, setGuests] = useState(state?.guests || 1);
@@ -44,7 +44,7 @@ const ResultTour = () => {
             <Box sx={{ width: "25%", pr: 3 }}>
                 <Typography variant="h6" sx={{fontWeight:'bold',paddingBottom:'20px'}}>Filters by:</Typography>
                 <TextField fullWidth label="Location" variant="outlined"
-                           value={location} onChange={(e) => setLocation(e.target.value)}
+                           value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}
                            sx={{ mb: 2 }}
                 />
                 <TextField fullWidth label="Check-in" type="date"
@@ -114,7 +114,7 @@ const ResultTour = () => {
                         </Card>
                     ))
                 ) : (
-                    <Typography>No tours found within budget.</Typography>
+                    <Typography>No tours found with your details.</Typography>
                 )}
             </Box>
         </Box>

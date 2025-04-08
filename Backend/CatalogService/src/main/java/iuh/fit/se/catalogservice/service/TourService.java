@@ -11,4 +11,5 @@ public interface TourService {
     Tour saveTour(Tour tour);
     Tour updateTour(Long id, Tour tour);
     void deleteTour(Long id);
+    List<Tour> getToursByTourTypeId(Long tourTypeId);
 }

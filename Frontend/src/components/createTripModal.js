@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Modal,
     Box,
@@ -8,9 +8,13 @@ import {
     MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import LocationSearch from "./LocationSearch";
 
 const CreateTripModal = ({ open, handleClose }) => {
     const [location, setLocation] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState(null);
+
+
     const [checkIn, setCheckIn] = useState("");
     const [checkOut, setCheckOut] = useState("");
     const [guests, setGuests] = useState(1);
@@ -22,9 +26,10 @@ const CreateTripModal = ({ open, handleClose }) => {
     const navigate = useNavigate();
     const handleSubmit = () => {
         navigate("/resulttour", {
-            state: { location, checkIn, checkOut, guests, rooms, budget },
+            state: { selectedLocation, checkIn, checkOut, guests, rooms, budget },
         });
     };
+
 
     return (
         <Modal open={open} onClose={handleClose}>
@@ -45,14 +50,7 @@ const CreateTripModal = ({ open, handleClose }) => {
                 </Typography>
 
                 {/* Location */}
-                <TextField
-                    fullWidth
-                    label="Location"
-                    variant="outlined"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    sx={{ mb: 2 }}
-                />
+                <LocationSearch onLocationSelect={setSelectedLocation} />
 
                 {/* Check-in & Check-out Dates */}
                 <Box sx={{ display: "flex", gap: 2, mb: 2 }}>

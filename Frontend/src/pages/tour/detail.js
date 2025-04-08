@@ -1,9 +1,14 @@
-import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {getDetailTour} from "../../api/tour.api";
 
-const DetailTour = ({match}) => {
+
+const DetailTour = () => {
+
+    const {id} = useParams();
 
     const navigate = useNavigate();
+    const [tour, setTour] = useState(null);
 
     // State lưu số lượng khách và tổng tiền
     const [adults, setAdults] = useState(0);
@@ -45,11 +50,31 @@ const DetailTour = ({match}) => {
         });
     };
 
+    useEffect(() => {
+        const fetchTourDetails = async () => {
+            try {
+                const response = await getDetailTour(id);
+                setTour(response);
+                // console.log(response); // Log the tour details to the console
+            } catch (error) {
+                console.error("Error fetching tour details:", error);
+            }
+        };
+
+        fetchTourDetails();
+    }, [id]);
+
+    if (!tour) {
+        return <div>Loading...</div>;
+    }
+
+
+
     return (
         <div className="detail_container">
             <div className="detail_content">
                 <div className="title_content">
-                    <h2>Travel Information</h2>
+                    <h2>Information - {tour.title}</h2>
                 </div>
                 <div className="trip_main">
                     <div className="trip_infor">
@@ -201,6 +226,7 @@ const DetailTour = ({match}) => {
                                 surrounded by the rivers of Chao Phraya, Pa Sak, and Lop Buri. Visit the Bang Pa-in
                                 Palace, the summer retreat of the royal court in the 17th century. You will also stop by
                                 four important temples of exquisite designs before heading back to Bangkok.</p>
+                            
                         </div>
 
                         <div className="notes">
@@ -523,6 +549,8 @@ const DetailTour = ({match}) => {
             {/*        </form>*/}
             {/*    </div>*/}
             {/*</div>*/}
+
+
         </div>
     );
 }

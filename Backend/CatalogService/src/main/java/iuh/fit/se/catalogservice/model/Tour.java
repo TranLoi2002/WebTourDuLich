@@ -1,6 +1,7 @@
 package iuh.fit.se.catalogservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -20,7 +21,6 @@ public class Tour {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // định danh riêng cho tour - dùng để tra cứu (có thể trùng)
     private String tourCode;
     private String title;
     private String description;
@@ -46,16 +46,18 @@ public class Tour {
     private Integer currentParticipants;
     private String thumbnail;
 
-    @ElementCollection(fetch = FetchType.EAGER) // Đảm bảo lấy dữ liệu luôn
-    @CollectionTable(name = "tour_images", joinColumns = @JoinColumn(name = "tour_id")) // Bảng chứa danh sách ảnh
-    @Column(name = "image_url") // Chỉ định tên cột cho ảnh
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tour_images", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "image_url")
     private List<String> images;
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
+    @JsonManagedReference
     private Location location;
 
     @ManyToOne
     @JoinColumn(name = "tour_type_id", nullable = false)
+    @JsonManagedReference
     private TourType tourType;
 }

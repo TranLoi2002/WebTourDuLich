@@ -3,6 +3,7 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+import ceoimage from "../assets/images/ceoimg.png"
 
 const BookEasy = () => {
 
@@ -164,7 +165,7 @@ const BookEasy = () => {
                         go, and create a packing list”</i></p>
                 </div>
                 <div className="flex gap-[20px] items-center">
-                    <img src="../image/avatar.png" alt=""/>
+                    <img src={ceoimage} alt=""/>
                     <div className="flex flex-col gap-[10px]">
                         <h3>Steve Jobs</h3>
                         <span className="text-gray-500 opacity-[0.7] tracking-wider">Co-Founder and CEO</span>

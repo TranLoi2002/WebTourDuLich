@@ -14,6 +14,8 @@ import "swiper/css/pagination";
 import imageMain1 from "../assets/images/image_main_1.png";
 import imageMain2 from "../assets/images/image_main_2.png";
 import imageMain3 from "../assets/images/image_main_3.png";
+import waveimg from "../assets/images/wave.png";
+import element_left from "../assets/images/eliment_left.png";
 import brand_1 from "../assets/images/brand01.png";
 import brand_2 from "../assets/images/booking_brand02.png";
 import brand_3 from "../assets/images/trivago_brand03.png";
@@ -21,13 +23,14 @@ import brand_4 from "../assets/images/trainline_brand04.png";
 import brand_5 from "../assets/images/cheapflight_brand05.png";
 import brand_6 from "../assets/images/momondo_brand06.png";
 
+
 const images = [imageMain1, imageMain2, imageMain3];
 
 const Advert = () => {
 
     const navigate = useNavigate();
     const handleFocus = () => {
-        navigate('/things_to_do');
+        navigate('/thingstodo');
     }
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -55,10 +58,10 @@ const Advert = () => {
 
                 <div className="header_infor_details">
                     <div className="flex items-center flex-wrap mt-[6rem] ml-[55px]" data-aos="zoom-in-up">
-                        <h2 className="font-extrabold font-sans text-[4.5em] font-normal inline-block">Travel Planning Made<span
-                                className="inline-block font-bold text-[#FFC83A] relative ml-[10px] leading-none text-shadow-md ">Easy</span>
+                        <h2 className="font-bold font-sans text-[4.5em] inline-block">Travel Planning Made<span
+                            className="inline-block font-bold text-[#FFC83A] relative ml-[10px] leading-none text-shadow-md ">Easy</span>
                         </h2>
-                        <img src="../image/wave.png" alt="" className="relative flex pointer-events-none"/>
+                        <img src={waveimg} alt="" className="relative flex pointer-events-none"/>
                     </div>
                     <p className="text-xl font-medium ml-[55px] text-gray-600">We make it easy to plan and book your
                         next trip with a Day by Day itinerary</p>
@@ -68,7 +71,7 @@ const Advert = () => {
                             <input type="text" placeholder="Plan a Trip" onFocus={handleFocus}
                                    className="p-5 pl-8 border-none outline-none rounded-full w-[360px] h-[70px] shadow-inner bg-[rgba(232,217,217,0.8)] opacity-70 transition-all duration-200"
                             />
-                            {/*<img src="../image/eliment_left.png" alt=""/>*/}
+                            {/*<img className="absolute t-[50%] r-0" src={element_left} alt=""/>*/}
                             <button onClick={() => setModalIsOpen(true)}
                                     className="btn_create_trip">
                                 Create trip
@@ -80,7 +83,8 @@ const Advert = () => {
 
                     </div>
                     <div className="flex flex-col m-[55px]">
-                        <h5 className="font-bold mb-[20px] tracking-wider text-gray-400 pointer-events-none">Our customers say</h5>
+                        <h5 className="font-bold mb-[20px] tracking-wider text-gray-400 pointer-events-none">Our
+                            customers say</h5>
                         <div className="flex">
                             <div className="flex flex-col justify-center border-r-2 border-gray-400 pr-[30px] mr-3">
                                 <span className="font-xl font-bold text-gray-300">Excellent</span>
@@ -94,7 +98,8 @@ const Advert = () => {
                             </div>
                             <div className="flex flex-col mr-3 gap-2">
                                 <span className="text-primary font-xl font-bold pr-2">4.7</span>
-                                <p className="flex items-center justify-center text-gray-400 pr-2">out of 5 on 194 reviewers</p>
+                                <p className="flex items-center justify-center text-gray-400 pr-2">out of 5 on 194
+                                    reviewers</p>
                             </div>
                         </div>
                     </div>
@@ -132,58 +137,60 @@ const Advert = () => {
                 </div>
             </div>
 
-            <div className="pt-[60px]">
-                <h1 class="text-4xl text-center font-bold" data-aos="fade-down">Innovative Trip Planning</h1>
-                <p className="mt-[18px] text-center leading-[30px]" data-aos="fade-down" data-aos-duration="5000">
-                    Our Vision is to revolutionize the way people travel by
-                    introducing intelligent trip planning
-                </p>
+            <div className="bg-gradient-to-t from-blue-100 to-transparent w-full">
+                <div className="pt-[60px]">
+                    <h1 className="text-4xl text-center font-bold" data-aos="fade-down">Innovative Trip Planning</h1>
+                    <p className="mt-[18px] text-center leading-[30px]" data-aos="fade-down" data-aos-duration="5000">
+                        Our Vision is to revolutionize the way people travel by
+                        introducing intelligent trip planning
+                    </p>
+                </div>
+                <div className="my-[70px] w-full flex justify-center gap-[30px]">
+                    <a href="#"
+                       className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item1"
+                       data-aos="zoom-in">
+                        <div className="adver-item">
+                            <img src="../image/label01.png" alt=""/>
+                            <p className="mt-[18px] leading-5">Partner allows you to
+                                <br/>browse multiple carriers
+                                <br/>for travel.</p>
+                            <p className="mt-[25px] text-[1.1em] font-medium flex items-center justify-center gap-[10px] transition-all duration-200 hover:tracking-wider">Learn
+                                more
+                                <i className="fa-solid fa-arrow-right"></i>
+                            </p>
+                        </div>
+                    </a>
+
+                    <a href="#"
+                       className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item2"
+                       data-aos="zoom-in">
+                        <div className="adver-item ">
+                            <img src="../image/label02.png" alt=""/>
+                            <p className="mt-[18px] leading-5">The website is a way for
+                                <br/>partners to communicate
+                                <br/>with their customers.</p>
+                            <p className="mt-[25px] text-[1.1em] font-medium flex items-center justify-center gap-[10px] transition-all duration-200 hover:tracking-wider">Learn
+                                more
+                                <i className="fa-solid fa-arrow-right"></i></p>
+                        </div>
+                    </a>
+
+                    <a href="#"
+                       className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item3"
+                       data-aos="zoom-in">
+                        <div className="adver-item ">
+                            <img src="../image/label03.png" alt=""/>
+                            <p className="mt-[18px] leading-5">The eBook Reader is
+                                <br/>a new way to look at
+                                <br/>e-books.</p>
+                            <p className="mt-[25px] text-[1.1em] font-medium flex items-center justify-center gap-[10px] transition-all duration-200 hover:tracking-wider">Learn
+                                more
+                                <i className="fa-solid fa-arrow-right"></i></p>
+                        </div>
+                    </a>
+                </div>
             </div>
 
-            <div className="my-[70px] w-full flex justify-center gap-[30px]">
-                <a href="#"
-                   className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item1"
-                   data-aos="zoom-in">
-                    <div className="adver-item">
-                        <img src="../image/label01.png" alt=""/>
-                        <p className="mt-[18px] leading-5">Partner allows you to
-                            <br/>browse multiple carriers
-                            <br/>for travel.</p>
-                        <p className="mt-[25px] text-[1.1em] font-medium flex items-center justify-center gap-[10px] transition-all duration-200 hover:tracking-wider">Learn
-                            more
-                            <i className="fa-solid fa-arrow-right"></i>
-                        </p>
-                    </div>
-                </a>
-
-                <a href="#"
-                   className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item2"
-                   data-aos="zoom-in">
-                    <div className="adver-item ">
-                        <img src="../image/label02.png" alt=""/>
-                        <p className="mt-[18px] leading-5">The website is a way for
-                            <br/>partners to communicate
-                            <br/>with their customers.</p>
-                        <p className="mt-[25px] text-[1.1em] font-medium flex items-center justify-center gap-[10px] transition-all duration-200 hover:tracking-wider">Learn
-                            more
-                            <i className="fa-solid fa-arrow-right"></i></p>
-                    </div>
-                </a>
-
-                <a href="#"
-                   className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item3"
-                   data-aos="zoom-in">
-                    <div className="adver-item ">
-                        <img src="../image/label03.png" alt=""/>
-                        <p className="mt-[18px] leading-5">The eBook Reader is
-                            <br/>a new way to look at
-                            <br/>e-books.</p>
-                        <p className="mt-[25px] text-[1.1em] font-medium flex items-center justify-center gap-[10px] transition-all duration-200 hover:tracking-wider">Learn
-                            more
-                            <i className="fa-solid fa-arrow-right"></i></p>
-                    </div>
-                </a>
-            </div>
         </div>
     );
 }

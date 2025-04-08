@@ -39,7 +39,6 @@ public class LocationServiceImpl implements LocationService {
                     existingLocation.setName(location.getName());
                     existingLocation.setImageUrl(location.getImageUrl());
                     existingLocation.setDescription(location.getDescription());
-                    existingLocation.setDetailAddress(location.getDetailAddress());
                     existingLocation.setType(location.getType());
 
                     return locationRepository.save(existingLocation);

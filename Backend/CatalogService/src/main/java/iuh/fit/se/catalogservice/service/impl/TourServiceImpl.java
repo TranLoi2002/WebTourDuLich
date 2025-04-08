@@ -2,6 +2,7 @@ package iuh.fit.se.catalogservice.service.impl;
 
 import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.TourRepository;
+import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,4 +79,11 @@ public class TourServiceImpl implements TourService {
     public void deleteTour(Long id) {
         tourRepository.deleteById(id);
     }
+
+    @Override
+    public List<Tour> getToursByTourTypeId(Long tourTypeId) {
+        return tourRepository.findByTourTypeId(tourTypeId);
+    }
+
+
 }

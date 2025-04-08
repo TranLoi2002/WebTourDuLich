@@ -96,7 +96,9 @@ const Header = () => {
                             <Link to="/faq" className="text-gray-500 font-extrabold">FAQ</Link>
                         </li>
                         <li className="relative list-none">
-                            <Link className="text-gray-500"><i className="fa-regular fa-bell" title="Notification"></i></Link>
+                            <Link className="text-gray-500 relative">
+                                <i className="fa-regular fa-bell" title="Notification"></i>
+                            </Link>
                         </li>
                         <li className="navbar_icon hidden text-xl cursor-pointer" onClick={handleOpenMenu}>
                             <i className="fa-solid fa-bars"></i>

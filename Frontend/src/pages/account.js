@@ -21,6 +21,29 @@ const Account = () => {
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
+    const [image, setImage] = useState(null);
+    const [error, setError] = useState("");
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+
+        if (selectedFile) {
+            if (selectedFile.size > 3 * 1024 * 1024) {
+                setError("❌ File quá lớn! Vui lòng chọn file dưới 3MB.");
+                setImage(null);
+            } else {
+                setError("");
+                const fileURL = URL.createObjectURL(selectedFile);
+                setImage(fileURL);
+            }
+        }
+    };
+
+    const handleRemoveFile = () => {
+        setImage(null);
+        setError("");
+    };
+
     return (
         <div className="flex flex-col">
             <div className="flex mt-[100px] pt-[50px] pr-[200px] pb-[100px] pl-[200px] flex-col">
@@ -83,23 +106,39 @@ const Account = () => {
                                 <div className="flex flex-col shadow-xl rounded-lg py-[30px] px-[40px]">
                                     <h3>My profile</h3>
                                     <div className="flex items-center mt-[24px] mb-[24px]">
-                                        <div className="w-[120px] h-[110px] mr-[60px] rounded-lg border-2">
-                                            <img src="image/mask-group@2x.png" alt="" id="avt"/>
+                                        {/* Ô hiển thị ảnh */}
+                                        <div
+                                            className="w-[120px] h-[110px] mr-[60px] rounded-lg border-2 overflow-hidden">
+                                            {image ? (
+                                                <img src={image} alt="Preview" className="w-full h-full object-cover"/>
+                                            ) : (
+                                                <img src="image/mask-group@2x.png" alt="Default Avatar"
+                                                     className="w-full h-full object-cover"/>
+                                            )}
                                         </div>
+
+                                        {/* Upload Form */}
                                         <div className="flex flex-col">
-                                            <form action="" method="post"
-                                                  className="flex items-center justify-center gap-[25px] ">
-                                                <input className="hidden" type="file" name="" id="file"/>
+                                            <form className="flex items-center gap-[25px]">
+                                                <input type="file" id="file" className="hidden" accept="image/*"
+                                                       onChange={handleFileChange}/>
                                                 <label htmlFor="file"
-                                                       className="w-[210px] h-[38px] rounded-lg bg-[#3B71FE] text-white flex items-center justify-center">Upload
-                                                    file</label>
+                                                       className="w-[210px] h-[38px] rounded-lg bg-[#3B71FE] text-white flex items-center justify-center cursor-pointer">
+                                                    Upload file
+                                                </label>
                                                 <button
                                                     className="outline-none border-2 border-[#F65540] text-[#F65540] rounded-lg bg-white py-[5px] px-[30px]"
-                                                    type="reset">Remove
+                                                    type="button"
+                                                    onClick={handleRemoveFile}
+                                                >
+                                                    Remove
                                                 </button>
                                             </form>
+
+                                            {error && <p className="text-red-500">{error}</p>}
+
                                             <h4 className="font-normal text-[#b7b1b1] leading-5">Image formats with max
-                                                size of 3mb</h4>
+                                                size of 3MB</h4>
                                         </div>
                                     </div>
                                     <div className="relative">

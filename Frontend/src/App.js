@@ -43,6 +43,7 @@ import Account from "./pages/account";
 import FAQ from './pages/FAQ';
 import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
+import Dashboard from "./pages/admin/dashboard"
 
 
 function App() {
@@ -55,9 +56,14 @@ function App() {
     // Kiểm tra nếu đường dẫn hiện tại không nằm trong mảng hiddenFooterPaths
     const showFooter = !hiddenFooterPaths.includes(location.pathname);
 
+    // Kiểm tra nếu đường dẫn chứa từ "admin" thì ẩn Header và Footer
+    const isAdminRoute = location.pathname.includes('admin');
+    const showHeader = !isAdminRoute;
+    const showFooterOnAdmin = !isAdminRoute && showFooter;
+
     return (
         <div className="App">
-            <Header/>
+            {showHeader && <Header/>}
             <main style={{flexGrow: 1, paddingBottom: '50px'}}>
                 <Routes>
                     <Route path="/" element={<Home/>}/>
@@ -72,7 +78,7 @@ function App() {
                     <Route path="/confirmbooking" element={<ConfirmBooking/>}/>
                     {/*option - tours*/}
                     <Route path="/tours" element={<ShowTours/>}/>
-                    <Route path="/tours/detailtour" element={<DetailTour/>}/>
+                    <Route path="/tours/detailtour/:id" element={<DetailTour/>}/>
                     {/*option - blog*/}
                     <Route path="/blogs" element={<ShowBlogs/>}/>
                     <Route path="/blogs/detail_blog" element={<BlogDetail/>}/>
@@ -84,9 +90,13 @@ function App() {
                     {/*404*/}
                     <Route path="*" element={<NotFound/>}/>
 
+                    {/*Admin*/}
+                    <Route path="/admin" element={<Dashboard />} />
+                    <Route path="/admin/dashboard" element={<Dashboard />} />
+
                 </Routes>
             </main>
-            {showFooter && <Footer/>}
+            {showFooterOnAdmin && <Footer/>}
         </div>
     );
 }
