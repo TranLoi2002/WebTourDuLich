@@ -1,6 +1,6 @@
-package iuh.fit.se.user_service.service;
+package iuh.fit.se.service;
 
-import iuh.fit.se.user_service.model.User;
+import iuh.fit.se.model.User;
 
 import java.util.List;
 

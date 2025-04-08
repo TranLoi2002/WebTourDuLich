@@ -1,4 +1,4 @@
-package iuh.fit.se.user_service.model;
+package iuh.fit.se.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

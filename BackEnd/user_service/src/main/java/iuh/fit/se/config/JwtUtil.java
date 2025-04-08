@@ -1,4 +1,4 @@
-package iuh.fit.se.user_service.config;
+package iuh.fit.se.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,11 +17,13 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
+    private final SecretKey secretKey;
 
-    private final SecretKey secretKey; // Sử dụng SecretKey thay vì String
+    @Value("${jwt.access.expiration}")
+    private Long accessExpiration;
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
+    @Value("${jwt.refresh.expiration}")
+    private Long refreshExpiration;
 
     public JwtUtil() {
         // Tạo khóa động cho HS512
@@ -54,13 +56,15 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(userDetails.getUsername(), accessExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(UserDetails userDetails) {
+        return createToken(userDetails.getUsername(), refreshExpiration);
+    }
+
+    private String createToken(String subject, Long expiration) {
         return Jwts.builder()
-                .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

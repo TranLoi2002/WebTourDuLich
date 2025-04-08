@@ -1,7 +1,7 @@
-package iuh.fit.se.user_service.service.impl;
+package iuh.fit.se.service.impl;
 
-import iuh.fit.se.user_service.model.User;
-import iuh.fit.se.user_service.repository.UserRepository;
+import iuh.fit.se.model.User;
+import iuh.fit.se.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

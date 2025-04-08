@@ -1,7 +1,7 @@
-package iuh.fit.se.user_service.config;
+package iuh.fit.se.config;
 
-import iuh.fit.se.user_service.repository.UserRepository;
-import iuh.fit.se.user_service.service.impl.CustomUserDetailsService;
+import iuh.fit.se.repository.UserRepository;
+import iuh.fit.se.service.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import iuh.fit.se.user_service.model.User;
+import iuh.fit.se.model.User;
 
 @Configuration
 @EnableWebSecurity

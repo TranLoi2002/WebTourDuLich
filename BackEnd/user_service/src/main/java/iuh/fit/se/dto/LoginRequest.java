@@ -1,4 +1,4 @@
-package iuh.fit.se.user_service.dto;
+package iuh.fit.se.dto;
 
 
 import jakarta.validation.constraints.*;

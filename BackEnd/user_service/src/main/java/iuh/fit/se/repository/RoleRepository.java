@@ -1,6 +1,6 @@
-package iuh.fit.se.user_service.repository;
+package iuh.fit.se.repository;
 
-import iuh.fit.se.user_service.model.Role;
+import iuh.fit.se.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

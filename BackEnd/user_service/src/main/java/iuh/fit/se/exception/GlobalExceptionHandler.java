@@ -1,4 +1,4 @@
-package iuh.fit.se.user_service.exception;
+package iuh.fit.se.exception;
 
 
 import org.springframework.http.HttpStatus;

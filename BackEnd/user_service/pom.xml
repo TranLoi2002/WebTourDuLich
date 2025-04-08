@@ -8,8 +8,8 @@
         <version>3.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>iuh.fit.se</groupId>
-    <artifactId>user_service</artifactId>
+    <groupId>iuh.fit</groupId>
+    <artifactId>se</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>user_service</name>
     <description>user_service</description>

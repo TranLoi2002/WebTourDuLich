@@ -1,7 +1,7 @@
-package iuh.fit.se.user_service.controller;
+package iuh.fit.se.controller;
 
-import iuh.fit.se.user_service.model.User;
-import iuh.fit.se.user_service.service.UserService;
+import iuh.fit.se.model.User;
+import iuh.fit.se.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,7 @@
-package iuh.fit.se.user_service.controller;
+package iuh.fit.se.controller;
 
-import iuh.fit.se.user_service.model.Role;
-import iuh.fit.se.user_service.repository.RoleRepository;
+import iuh.fit.se.model.Role;
+import iuh.fit.se.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
