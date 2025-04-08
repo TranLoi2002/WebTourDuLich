@@ -1,34 +1,18 @@
+// user.api.js
 import axios from "axios";
 
-const apiURL = process.env.API_BASE_URL; 
+const API_BASE_URL = "http://localhost:5000";
 
-export const getAllUser = async () => {
-    try {
-        const response = await axios.get(`${apiURL}/api/users`);
-        return response.data; 
-    } catch (error) {
-        console.error("Error fetching all users:", error);
-        throw error; 
-    }
+// SIGNUP
+export const signup = async (user) => {
+    const response = await axios.post(`${API_BASE_URL}/api/auth/signup`, user, {
+        withCredentials: true,
+    });
+    return response.data;
 };
-
-export const getUserByUserName = async (username) => {
-    try {
-        const response = await axios.get(`${apiURL}/api/users/${username}`);
-        return response.data;
-    } catch (error) {
-        console.error(`Error fetching user with username ${username}:`, error);
-        throw error; 
-    }
-};
-export const getBookingByUserName = async (username) => {
-    try {
-        const response = await axios.get(`${apiURL}/api/bookings`, {
-            params: { username }
-        });
-        return response.data;
-    } catch (error) {
-        console.error(`Error fetching bookings for username ${username}:`, error);
-        throw error; 
-    }
-};
+//LOGIN
+export const loginUser = (loginData) => {
+    return axios.post(`${API_BASE_URL}/api/auth/login`, loginData, {
+      withCredentials: true, // Nếu dùng cookie
+    });
+  };
