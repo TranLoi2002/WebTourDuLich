@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -18,17 +21,14 @@ public class Refund {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long refundId; // Khóa chính
+    private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "booking_id", nullable = false)
-//    private Booking booking; // Khóa ngoại liên kết tới bảng Bookings
+    @ManyToOne
+    private Payment payment;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date refundDate;
+    private String status;
 
-    private Double refundAmount;
+    private String reason;
 
-    private String refundReason;
-
+    private LocalDateTime createdAt;
 }

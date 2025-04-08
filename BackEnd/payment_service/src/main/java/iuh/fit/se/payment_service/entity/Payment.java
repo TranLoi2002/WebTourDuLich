@@ -20,20 +20,17 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long paymentId; // Payment_ID (PK)
+    private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "booking_id", nullable = false)
-//    private Booking booking; // Booking_ID (FK)
+    private BigDecimal amount;
+
+    private String status;
 
     @ManyToOne
-    @JoinColumn(name = "payment_method_id", nullable = false)
-    private PaymentMethod paymentMethod; // Payment_Method_ID (FK)
+    private PaymentMethod paymentMethod;
 
-    private Double amount; // Payment_Amount
-    private LocalDateTime paymentDate; // Payment_Date
-    private String status; // Payment_Status
+    private LocalDateTime createdAt;
 
-    public Payment(Double amount, String processed) {
-    }
+    private Long userId;
+
 }

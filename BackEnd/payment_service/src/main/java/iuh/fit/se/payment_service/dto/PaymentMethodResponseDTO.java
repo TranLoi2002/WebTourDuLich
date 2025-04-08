@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentMethodResponseDTO {
-    private String id;          // Unique identifier for the payment method
-    private String name;        // Name of the payment method (e.g., Credit Card, PayPal)
-    private String logoUrl;     // URL for the logo of the payment method
-    private boolean isActive;
+    private Long id;
+    private String name;
+    private boolean active;
 }

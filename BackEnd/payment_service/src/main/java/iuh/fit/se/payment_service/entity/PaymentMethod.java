@@ -16,9 +16,9 @@ public class PaymentMethod {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long paymentMethodId;  // Khóa chính
+    private Long id;
 
-    private String paymentMethodName;
+    private String name;
 
-    private String description;
+    private boolean active;
 }
