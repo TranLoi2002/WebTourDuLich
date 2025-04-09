@@ -1,6 +1,6 @@
 spring:
   application:
-    name: booking-service
+    name: payment-service
   datasource:
     url: jdbc:mariadb://localhost:3306/payment_service_db?createDatabaseIfNotExist=true
     username: root
