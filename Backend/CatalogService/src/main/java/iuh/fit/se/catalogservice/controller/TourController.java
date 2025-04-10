@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,7 +30,7 @@ public class TourController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Tour> getTourById(@PathVariable Long id) {
-        Optional<Tour> tour = tourService.getTourById(id);
+        Optional<Tour> tour = tourService.getTourByIdWithRating(id);
         return tour.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -51,5 +52,23 @@ public class TourController {
     public ResponseEntity<Void> deleteTour(@PathVariable Long id) {
         tourService.deleteTour(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/activitytour/{activityTypeName}")
+    public ResponseEntity<List<Tour>> getToursByActivityType(@PathVariable String activityTypeName) {
+        List<Tour> tours = tourService.getToursByActivityType(activityTypeName);
+        return ResponseEntity.ok(tours);
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<Map<String, Object>>> getReviewsByTourId(@PathVariable Long id) {
+        List<Map<String, Object>> reviews = tourService.getReviewsByTourId(id);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/location/{locationId}")
+    public ResponseEntity<List<Tour>> getToursByLocationId(@PathVariable Long locationId) {
+        List<Tour> tours = tourService.getToursByLocationId(locationId);
+        return ResponseEntity.ok(tours);
     }
 }

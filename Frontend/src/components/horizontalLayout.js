@@ -5,7 +5,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import CardTour from '../components/card_tour';
 
-const HorizontalLayout = ({ tours, title }) => {
+const HorizontalLayout = ({ tours, title, isShowDescCard }) => {
     return (
         <div className="horizontal-tour-layout">
             <div>
@@ -22,7 +22,7 @@ const HorizontalLayout = ({ tours, title }) => {
             >
                     {tours.map((tour, index) => (
                         <SwiperSlide key={index} style={{display: 'flex', justifyContent: 'center'}}>
-                            <CardTour tour={tour}/>
+                            <CardTour tour={tour} isShowDesc={isShowDescCard}/>
                         </SwiperSlide>
                     ))}
 

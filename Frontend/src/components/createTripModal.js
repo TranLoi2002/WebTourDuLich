@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
     Modal,
     Box,
@@ -7,10 +7,12 @@ import {
     Button,
     MenuItem,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import LocationSearch from "./LocationSearch";
 
-const CreateTripModal = ({ open, handleClose }) => {
+import {getAllTour} from "../api/tour.api";
+
+const CreateTripModal = ({open, handleClose}) => {
     const [location, setLocation] = useState("");
     const [selectedLocation, setSelectedLocation] = useState(null);
 
@@ -23,11 +25,48 @@ const CreateTripModal = ({ open, handleClose }) => {
     const [showTravellers, setShowTravellers] = useState(false);
     const [showBudget, setShowBudget] = useState(false);
 
+    const [tours, setTours] = useState([]);
+    useEffect(() => {
+        const fetchTours = async () => {
+            try {
+                const response = await getAllTour();
+                setTours(response);
+                console.log("Tours fetched:", response);
+            } catch (error) {
+                console.error("Error fetching tours:", error);
+            }
+        };
+
+        fetchTours();
+    }, []);
+
     const navigate = useNavigate();
+
     const handleSubmit = () => {
-        navigate("/resulttour", {
-            state: { selectedLocation, checkIn, checkOut, guests, rooms, budget },
+        const filteredTours = tours.filter((tour) => {
+            const isBudgetMatch = budget ? tour.price <= budget : true;
+            const isLocationMatch = location
+                ? tour.location.name.toLowerCase().includes(location.toLowerCase())
+                : selectedLocation?.name
+                    ? tour.location.name.toLowerCase().includes(selectedLocation.name.toLowerCase())
+                    : true;
+            const isDateMatch =
+                (!checkIn || new Date(checkIn) <= new Date(tour.startDate)) &&
+                (!checkOut || new Date(checkOut) >= new Date(tour.endDate));
+
+            return isBudgetMatch && isLocationMatch && isDateMatch;
         });
+
+        if (filteredTours.length > 0) {
+            navigate("/resulttour", {
+                state: {
+                    filteredTours,
+                    searchCriteria: { selectedLocation, location, checkIn, checkOut, budget, guests, rooms },
+                },
+            });
+        } else {
+            alert("No tours match your criteria");
+        }
     };
 
 
@@ -50,15 +89,15 @@ const CreateTripModal = ({ open, handleClose }) => {
                 </Typography>
 
                 {/* Location */}
-                <LocationSearch onLocationSelect={setSelectedLocation} />
+                <LocationSearch onLocationSelect={setSelectedLocation}/>
 
                 {/* Check-in & Check-out Dates */}
-                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <Box sx={{display: "flex", gap: 2, mb: 2}}>
                     <TextField
                         fullWidth
                         label="Check-in"
                         type="date"
-                        InputLabelProps={{ shrink: true }}
+                        InputLabelProps={{shrink: true}}
                         value={checkIn}
                         onChange={(e) => setCheckIn(e.target.value)}
                     />
@@ -66,18 +105,18 @@ const CreateTripModal = ({ open, handleClose }) => {
                         fullWidth
                         label="Check-out"
                         type="date"
-                        InputLabelProps={{ shrink: true }}
+                        InputLabelProps={{shrink: true}}
                         value={checkOut}
                         onChange={(e) => setCheckOut(e.target.value)}
                     />
                 </Box>
 
                 {/* Travellers Section */}
-                <Button fullWidth variant="outlined" onClick={() => setShowTravellers(!showTravellers)} sx={{ mb: 2 }}>
+                <Button fullWidth variant="outlined" onClick={() => setShowTravellers(!showTravellers)} sx={{mb: 2}}>
                     {rooms} Room, {guests} Guest(s)
                 </Button>
                 {showTravellers && (
-                    <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2 }}>
+                    <Box sx={{p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2}}>
                         <Typography>Guests</Typography>
                         <TextField
                             select
@@ -91,7 +130,7 @@ const CreateTripModal = ({ open, handleClose }) => {
                                 </MenuItem>
                             ))}
                         </TextField>
-                        <Typography sx={{ mt: 2 }}>Rooms</Typography>
+                        <Typography sx={{mt: 2}}>Rooms</Typography>
                         <TextField
                             select
                             fullWidth
@@ -108,11 +147,11 @@ const CreateTripModal = ({ open, handleClose }) => {
                 )}
 
                 {/* Budget Section */}
-                <Button fullWidth variant="outlined" onClick={() => setShowBudget(!showBudget)} sx={{ mb: 2 }}>
+                <Button fullWidth variant="outlined" onClick={() => setShowBudget(!showBudget)} sx={{mb: 2}}>
                     Budget: ${budget}
                 </Button>
                 {showBudget && (
-                    <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2 }}>
+                    <Box sx={{p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2}}>
                         <Typography>Set Budget</Typography>
                         <input
                             type="range"
@@ -120,7 +159,7 @@ const CreateTripModal = ({ open, handleClose }) => {
                             max="1000"
                             value={budget}
                             onChange={(e) => setBudget(e.target.value)}
-                            style={{ width: "100%" }}
+                            style={{width: "100%"}}
                         />
                         <Typography>Selected: ${budget}</Typography>
                     </Box>

@@ -53,6 +53,12 @@
 .adver{
     background-image: linear-gradient( to bottom,transparent , rgb(232, 236, 247));
 }
+.adver-item{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
 .item1:hover{
     background-color: rgb(194, 229, 194);

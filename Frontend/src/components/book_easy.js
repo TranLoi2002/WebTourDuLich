@@ -48,7 +48,7 @@ const BookEasy = () => {
                                 <h4 className="leading-[50px] font-bold text-white">Set up all trip</h4>
                                 <label htmlFor="" className="flex items-center">
                                     <input type="text" placeholder="Plan a Trip" className="p-[15px] rounded-lg outline-none w-[300px] relative pr-[50px] border-0" readOnly={true}/>
-                                    <i className="fa-solid fa-arrow-right text-primary"></i>
+                                    {/*<i className="fa-solid fa-arrow-right text-primary"></i>*/}
                                 </label>
                                 <div className="flex mt-[20px] text-white">
                                     <ul className="relative">
@@ -93,7 +93,7 @@ const BookEasy = () => {
                                     <input type="text" placeholder="Plan a Trip"
                                            className="p-[15px] rounded-lg outline-none w-[300px] relative pr-[50px] border-0"
                                            readOnly={true}/>
-                                    <i className="fa-solid fa-arrow-right text-primary"></i>
+                                    {/*<i className="fa-solid fa-arrow-right text-primary"></i>*/}
                                 </label>
                                 <div className="flex mt-[20px] text-white">
                                     <ul className="relative">

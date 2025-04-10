@@ -22,6 +22,9 @@ import brand_3 from "../assets/images/trivago_brand03.png";
 import brand_4 from "../assets/images/trainline_brand04.png";
 import brand_5 from "../assets/images/cheapflight_brand05.png";
 import brand_6 from "../assets/images/momondo_brand06.png";
+import label01 from "../assets/images/label01.png";
+import label02 from "../assets/images/label02.png";
+import label03 from "../assets/images/label03.png";
 
 
 const images = [imageMain1, imageMain2, imageMain3];
@@ -150,7 +153,7 @@ const Advert = () => {
                        className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item1"
                        data-aos="zoom-in">
                         <div className="adver-item">
-                            <img src="../image/label01.png" alt=""/>
+                            <img src={label01} alt=""/>
                             <p className="mt-[18px] leading-5">Partner allows you to
                                 <br/>browse multiple carriers
                                 <br/>for travel.</p>
@@ -165,7 +168,7 @@ const Advert = () => {
                        className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item2"
                        data-aos="zoom-in">
                         <div className="adver-item ">
-                            <img src="../image/label02.png" alt=""/>
+                            <img src={label02} alt=""/>
                             <p className="mt-[18px] leading-5">The website is a way for
                                 <br/>partners to communicate
                                 <br/>with their customers.</p>
@@ -179,7 +182,7 @@ const Advert = () => {
                        className="min-w-[20%] text-center p-[16px] text-black relative transition-all duration-200 bg-[rgba(59,210,59,0.2)] rounded-lg hover:bg-[rgb(194,229,194)] item3"
                        data-aos="zoom-in">
                         <div className="adver-item ">
-                            <img src="../image/label03.png" alt=""/>
+                            <img src={label03} alt=""/>
                             <p className="mt-[18px] leading-5">The eBook Reader is
                                 <br/>a new way to look at
                                 <br/>e-books.</p>

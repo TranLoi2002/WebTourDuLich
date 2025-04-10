@@ -19,12 +19,11 @@ public class Blog {
     private Long id;
 
     private String title;
+
+    @Lob
+    @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
     private String thumbnail;
-
-    @ElementCollection
-    @CollectionTable(name = "blog_images", joinColumns = @JoinColumn(name = "blog_id"))
-    private List<String> images;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

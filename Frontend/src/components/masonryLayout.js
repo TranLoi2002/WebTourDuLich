@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-css';
 import { useNavigate } from 'react-router-dom';
+import { getTourByLocationId } from "../api/tour.api";
 
 const MasonryLayout = ({ locations, title }) => {
     const navigate = useNavigate();
+    const [tourCounts, setTourCounts] = useState({}); // Object to store tour counts by locationId
+
+    useEffect(() => {
+        const fetchTourCounts = async () => {
+            try {
+                const counts = {};
+                await Promise.all(
+                    locations.map(async (location) => {
+                        const tours = await getTourByLocationId(location.id);
+                        counts[location.id] = tours.length; // Store the count for each location
+                    })
+                );
+                setTourCounts(counts); // Update state with all counts
+            } catch (error) {
+                console.error("Error fetching tour counts:", error);
+            }
+        };
+
+        fetchTourCounts();
+    }, [locations]);
+
+    const handleLocationClick = async (locationId) => {
+        try {
+            const tours = await getTourByLocationId(locationId);
+            navigate('/tours/location-tours', { state: { tours } });
+        } catch (error) {
+            console.error("Error fetching tours for location:", error);
+        }
+    };
+
     const breakpointColumnsObj = {
         default: 4,
         1100: 3,
@@ -26,17 +57,29 @@ const MasonryLayout = ({ locations, title }) => {
                 columnClassName="pl-4 bg-clip-padding"
             >
                 {locations.slice(0, 7).map((location, index) => (
-                    <div key={index} className="mb-4 relative">
-                        <img src={location.imageUrl} alt={location.name} className="w-full h-auto rounded-lg"/>
+                    <div
+                        key={index}
+                        className="mb-4 relative cursor-pointer"
+                        onClick={() => handleLocationClick(location.id)}
+                    >
+                        <img src={location.imageUrl} alt={location.name} className="w-full h-auto rounded-lg" />
                         <div className="absolute inset-0 bg-gradient-to-b from-black to-transparent rounded-lg"></div>
-                        <h4 className="text-center mt-2 text-lg font-bold absolute top-3 left-3 text-white">{location.name}</h4>
+                        <h4 className="text-center mt-2 text-lg font-bold absolute top-3 left-3 text-white">
+                            {location.name}
+                        </h4>
+                        <p className="absolute top-8 left-3 text-white mt-4 text-center">
+                            {tourCounts[location.id] || 0} tours available
+                        </p>
                     </div>
                 ))}
+
                 {locations.length > 7 && (
                     <div className="mb-4 relative cursor-pointer" onClick={handleViewAll}>
-                        <img src={locations[7].imageUrl} alt="View All" className="w-full h-auto rounded-lg"/>
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                            <span className="text-center text-lg font-bold text-white">+{locations.length - 7} more</span>
+                        <img src={locations[7].imageUrl} alt="View All" className="w-full h-auto rounded-lg" />
+                        <div
+                            className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                            <span
+                                className="text-center text-lg font-bold text-white">+{locations.length - 7} more</span>
                         </div>
                     </div>
                 )}

@@ -18,9 +18,12 @@ spring:
             - Path=/api/catalog/**
           filters:
             - StripPrefix=1
-
-
-
+        - id: review-service
+          uri: lb://REVIEW-SERVICE
+          predicates:
+            - Path=/api/reviews/**
+          filters:
+            - StripPrefix=1
 
   main:
     web-application-type: reactive

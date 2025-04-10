@@ -38,6 +38,7 @@ import ResultTour from "./pages/resultTour";
 import ConfirmBooking from './pages/confirmBooking';
 import ShowTours from "./pages/tour/show";
 import DetailTour from "./pages/tour/detail"
+import LocationTours from "./components/LocationTours";
 import ShowBlogs from "./pages/blog/show";
 import Account from "./pages/account";
 import FAQ from './pages/FAQ';
@@ -79,6 +80,7 @@ function App() {
                     {/*option - tours*/}
                     <Route path="/tours" element={<ShowTours/>}/>
                     <Route path="/tours/detailtour/:id" element={<DetailTour/>}/>
+                    <Route path="/tours/location-tours" element={<LocationTours/>}/>
                     {/*option - blog*/}
                     <Route path="/blogs" element={<ShowBlogs/>}/>
                     <Route path="/blogs/detail_blog" element={<BlogDetail/>}/>

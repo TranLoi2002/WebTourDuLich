@@ -4,7 +4,9 @@ import iuh.fit.se.reviewservice.model.Review;
 import iuh.fit.se.reviewservice.repository.ReviewRepository;
 import iuh.fit.se.reviewservice.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +15,9 @@ import java.util.Optional;
 public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     public ReviewServiceImpl() {
         super();
@@ -55,4 +60,17 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReview(Long id) {
         reviewRepository.deleteById(id);
     }
+
+    @Override
+    public List<Review> getReviewByTourId(Long tourId) {
+        String reviewServiceUrl = "http://localhost:8083/review-service/api/reviews/tour/" + tourId;
+        ResponseEntity<List> response = restTemplate.getForEntity(reviewServiceUrl, List.class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            return response.getBody();
+        }
+        return List.of();
+    }
+
+
 }
