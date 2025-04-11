@@ -11,12 +11,10 @@ import java.util.List;
 @Data
 public class BookingResponseDTO {
     private Long id;
-    private Long userId;
-    private Long tourId;
-    private List<ParticipantInfo> participants;
     private String customerName;
     private String customerEmail;
-    private String customerPhone;
+    private TourDTO tour;
+    private List<ParticipantInfo> participants;
     private LocalDateTime bookingDate;
     private LocalDateTime updatedAt;
     private LocalDateTime paymentDueTime;
@@ -24,7 +22,6 @@ public class BookingResponseDTO {
     private String notes;
     private String reason;
     private boolean paymentDueTimeRelevant;
-
     @Data
     public static class ParticipantInfo {
         private Long id;

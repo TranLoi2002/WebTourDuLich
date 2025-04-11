@@ -1,10 +1,13 @@
 package iuh.fit.booking_service.repository;
 
 import iuh.fit.booking_service.entity.Booking;
+import iuh.fit.booking_service.entity.BookingStatus;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -22,5 +25,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findBookingByUserId(Long userId);
 
+    @Query("SELECT COUNT(p) FROM Participant p WHERE p.booking.tourId = :tourId AND p.booking.bookingStatus != 'CANCELLED'")
+    int countTotalParticipantsByTourId(@Param("tourId") Long tourId);
+
     Optional<Booking> findBookingByBookingDate(LocalDateTime bookingDate, Sort sort);
+
+    List<Booking> findByBookingStatusAndPaymentDueTimeBefore(BookingStatus bookingStatus, LocalDateTime now);
 }

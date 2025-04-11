@@ -31,9 +31,6 @@ public class Booking {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Participant> participants = new ArrayList<>();
-
-
-
     public void addParticipant(Participant participant) {
         participants.add(participant);
         participant.setBooking(this);

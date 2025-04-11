@@ -14,17 +14,18 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 ex.getErrorCode(),
                 ex.getMessage(),
+                ex.getErrorMessage(),
                 System.currentTimeMillis()
         );
         return new ResponseEntity<>(response, ex.getHttpStatus());
     }
 
-    // DTO cho error response
     @Data
     @AllArgsConstructor
     private static class ErrorResponse {
         private String errorCode;
         private String message;
+        private String errorMessage;
         private long timestamp;
     }
 }

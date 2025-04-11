@@ -1,7 +1,5 @@
 package iuh.fit.booking_service.service.impl;
 
-import iuh.fit.booking_service.client.user.UserClient;
-import iuh.fit.booking_service.dto.UserDTO;
 import iuh.fit.booking_service.entity.Booking;
 import iuh.fit.booking_service.service.EmailService;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,12 +17,12 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-    private final UserClient userClient;
+//    private final UserClient userClient;
 
-    public EmailServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserClient userClient) {
+    public EmailServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
-        this.userClient = userClient;
+//        this.userClient = userClient;
     }
 
     @Override
@@ -34,8 +32,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             // Set email details
-            UserDTO user = userClient.getUserById(booking.getUserId());
-            helper.setTo(user.getEmail());
+            helper.setTo("annns");
             helper.setSubject("Xác nhận đặt tour #" + booking.getId());
 
             // Prepare Thymeleaf context
@@ -62,8 +59,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             // Set email details
-            UserDTO user = userClient.getUserById(booking.getUserId());
-            helper.setTo(user.getEmail());
+            helper.setTo("sadd");
             helper.setSubject("Xác nhận thanh toán tour #" + booking.getId());
 
             // Prepare Thymeleaf context

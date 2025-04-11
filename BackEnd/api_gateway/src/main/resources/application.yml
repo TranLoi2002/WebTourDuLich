@@ -19,13 +19,19 @@ spring:
             - Path=/api/booking/**
           filters:
             - StripPrefix=1
-        - id: user-service
-          uri: lb://USER-SERVICE
+        - id: booking-service
+          uri: lb://CATALOG-SERVICE
           predicates:
-            - Path=/api/user/**,/api/role/**,/api/auth/**
+            - Path=/api/catalog/**
           filters:
             - StripPrefix=1
-            - AddRequestHeader=Authorization, "Bearer #{token}"
+#        - id: user-service
+#          uri: lb://USER-SERVICE
+#          predicates:
+#            - Path=/api/user/**,/api/role/**,/api/auth/**
+#          filters:
+#            - StripPrefix=1
+#            - AddRequestHeader=Authorization, "Bearer #{token}"
     loadbalancer:
       health-check:
         interval: 5s
