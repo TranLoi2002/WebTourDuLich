@@ -1,0 +1,118 @@
+.slider-container::after {
+    content: "";
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    width: 100%;
+    height: 60%; /* Điều chỉnh chiều cao của gradient */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+    pointer-events: none; /* Đảm bảo không ảnh hưởng đến thao tác click */
+    z-index:99;
+}
+
+.header_infor_details{
+    position : absolute;
+    top: 0;
+    left: 0;
+    z-index:99;
+}
+
+.btn_create_trip{
+    padding: 20px 20px 20px 30px ;
+    border: none;
+    outline : none;
+    border-radius: 40px;
+    height: 70px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: white;
+    font-family: 'Inter',sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition : all 0.25s ease;
+    overflow: hidden;
+    text-align: center;
+}
+
+.header_brands ul li img{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap : 40px;
+    transform: scale(1.2);
+}
+.header_brands ul:hover :not(:hover){
+    opacity: 0.8;
+}
+.header_brands ul li img:hover{
+    transform: scale(1.1);
+    /* scale: 1.1; */
+}
+
+.adver{
+    background-image: linear-gradient( to bottom,transparent , rgb(232, 236, 247));
+}
+.adver-item{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.item1:hover{
+    background-color: rgb(194, 229, 194);
+}
+.item2:hover{
+    background-color: rgb(236, 216, 180);
+}
+.item3:hover{
+    background-color: rgba(113, 145, 240, 0.2);
+}
+.item1{
+    border-radius: 10px;
+    background-color: rgba(59, 210, 59,0.2);
+    transition: 0.25s ease;
+}
+.item2{
+    border-radius: 10px;
+    background-color: rgba(221, 122, 30,0.2);
+    transition: 0.25s ease;
+}
+.item3{
+    border-radius: 10px;
+    background-color: rgba(64, 106, 232, 0.2);
+    transition: 0.25s ease;
+}
+
+
+@media (min-width: 441px) and (max-width: 794px) {
+    .adver-items{
+        margin : 2rem 2rem 2rem 2rem;
+        width: 90%;
+        flex-direction: column;
+
+        gap: 20px;
+    }
+    .adver-item{
+        width: 100%;
+    }
+    .adver-item p{
+        text-align: center;
+    }
+    .adver-item .learn-more{
+        justify-content: center;
+    }
+    .adver-header {
+        font-size: 1.6rem;
+    }
+    .adver-sub-header {
+        margin-top: 16px;
+        font-size: 0.9rem;
+    }
+    .adver-container {
+        padding: 60px 50px 0 50px;
+    }
+}
+
+
