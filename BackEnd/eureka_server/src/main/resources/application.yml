@@ -1,0 +1,24 @@
+server:
+  port: 8761
+eureka:
+  instance:
+    hostname: localhost
+  client:
+      register-with-eureka: false  # Eureka server không tự đăng ký với chính nó
+      fetch-registry: false        # Không cần fetch registry từ server khác
+      service-url:
+        defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+spring:
+  application:
+    name: eureka_server
+  security:
+    user:
+      name: admin       # Tùy chọn: thêm bảo mật cơ bản
+      password: password
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"   # Mở tất cả actuator endpoints
