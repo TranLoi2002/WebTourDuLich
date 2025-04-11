@@ -1,0 +1,406 @@
+.account_container{
+    display: flex;
+    flex-direction: column;
+}
+.account-setting{
+    display: flex;
+    margin-top: 100px;
+    padding: 50px 200px 100px 200px;
+    flex-direction: column;
+}
+.acc_title h2{
+    font-size: 2em;
+    text-align: center;
+}
+.acc_content{
+    display: flex;
+    margin-top: 20px;
+    gap: 40px;
+}
+.acc_left{
+    position: relative;
+}
+.acc_left .card_select{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 14px;
+    box-shadow: 0 2px  10px #e1dede;
+    padding: 40px 23px 40px 24px;
+    font-size: 0.9em;
+    width: 250px;
+}
+.card_select label{
+    padding: 10px;
+    cursor: pointer;
+}
+.choice_acc{
+    /*background-color: #EBF1FF;*/
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap : 10px;
+    padding: 8px 8px 8px 12px;
+    border-radius: 6px;
+}
+.choice_not,
+.choice_pri,
+.choice_tr,
+.choice_favourite{
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap : 10px;
+    padding: 8px 8px 8px 12px;
+    border-radius: 6px;
+}
+.choice_acc .fa-user{
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #3B71FE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    padding: 10px;
+}
+.choice_not .fa-bell,
+.choice_pri .fa-lock,
+.choice_tr .fa-plane,
+.choice_favourite .fa-heart
+{
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #EBF1FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3B71FE;
+    padding: 10px;
+}
+.acc_right{
+    position: relative;
+}
+.acc_right .card_profile{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    /* border-radius: 14px;
+    padding: 30px 40px; */
+}
+.card_profile h3{
+    font-size: 1.4em;
+}
+.card_profile .infor{
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px  10px #e1dede;
+    border-radius: 14px;
+    padding: 30px 40px;
+}
+.card_profile .details{
+    display: flex;
+    align-items: center;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    /* gap: 20px; */
+}
+
+.image_user img{
+    /* transform: scale(0.6);
+    transform-origin: left; */
+    width: 120px;
+    height: 110px;
+    margin-right: 60px;
+    border-radius: 10px;
+}
+.load_infor{
+    display: flex;
+    flex-direction: column;
+}
+.details_load{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+.details_load input{
+    display: none;
+}
+.details_load label{
+    width: 210px;
+    height: 38px;
+    border-radius: 6px;
+    /* border: 1px solid #3B71FE; */
+    background-color: #3B71FE;
+    color:#fff;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+}
+.details_load input[type="file"]{
+    outline: none;
+    color: #fff;
+    padding: 8px 30px 7px 30px;
+    border-radius: 8px;
+    background-color: #3B71FE;
+}
+.details_load button{
+    outline: none;
+    border: 1px solid #F65540;
+    color: #F65540;
+    padding: 11px 30px 9px 30px;
+    border-radius: 8px;
+    background-color: #fff;
+}
+.load_infor h4{
+    font-weight: 100;
+    color: #b7b1b1;
+    line-height: 40px;
+}
+.infor_acc{
+    position: relative;
+    width: 550px;
+}
+.infor_acc .name,
+.infor_acc .locate,
+.infor_acc .email{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.infor_acc label{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+label input{
+    width: 235px;
+    height: 48px;
+    border-radius: 6px;
+    padding: 14px 20px 14px 12px;
+    border: 1px solid #B1B5C3;
+    outline: none;
+}
+.infor_acc input[type="button"]{
+    background-color: #3B71FE;
+    outline: none;
+    border: none;
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 27px 12px 27px;
+    margin-top: 20px;
+}
+/*.pass{*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    box-shadow: 0 2px  10px #e1dede;*/
+/*    border-radius: 14px;*/
+/*    padding: 30px 40px;*/
+/*}*/
+.pass label{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+.pass label input{
+    width: 330px;
+}
+.pass_title{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+.pass_right{
+    border: 1px solid #C4C4C4;
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #777E90;
+    transition : 0.2s ease;
+}
+.pass_right:hover{
+    background-color: rgba(233, 222, 222, 0.244);
+}
+.pass_left span{
+    line-height:30px;
+    color: #48464672;
+    font-size: 0.9em;
+}
+.pass_left h3{
+    margin-top: 10px;
+    font-weight:500;
+    font-size: 1em;
+}
+.social{
+    display: flex;
+    flex-direction: column;
+    gap:10px;
+    box-shadow: 0 2px  10px #e1dede;
+    border-radius: 14px;
+    padding: 30px 40px;
+}
+.social_title{
+    margin-bottom: 30px;
+}
+.social_title p{
+    line-height: 40px;
+}
+.face_book,
+.twitter,
+.linkedin{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.face_book span,
+.twitter span,
+.linkedin span{
+    font-size: 1em;
+    color: #555;
+}
+.face_book label,
+.twitter label ,
+.linkedin label{
+    display: flex;
+    align-items: center;
+    padding: 17px 28px 17px 24px;
+    border-radius: 10px;
+    background-color: #EEF9F2;
+    justify-content: space-between;
+    border: 1px solid #58C27D;
+}
+.face_book label:hover,
+.twitter label:hover ,
+.linkedin label:hover{
+    background-color: rgb(232, 240, 232);
+}
+.face_book label button,
+.twitter label button,
+.linkedin label button{
+    outline: none;
+    border: 1px solid #F65540;
+    color: #F65540;
+    background-color: #FFEFF1;
+    border-radius: 8px;
+    padding: 8px 39px 9px 39px;
+}
+.fb_connect{
+    display: flex;
+    align-items: center;
+    gap:10px;
+    width: 490px;
+}
+.fb_connect i{
+    font-size: 2.3em;
+    color: #3B71FE;
+}
+.twitter i{
+    color: rgb(20, 156, 219);
+}
+.linkedin i{
+    color: rgb(56, 118, 211);
+}
+.fb_connect p{
+    font-size: 0.9em;
+    color: #63646b;
+    padding-right: 130px;
+}
+.modal-header{
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+}
+.modal-header button{
+    background-color: #3B71FE;
+    color: #fff;
+    border: none;
+    border-radius: 1px;
+    padding: 5px 10px;
+    outline: none;
+}
+.pass{
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    /* padding: 30px 40px; */
+}
+.pass label{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+.pass label input{
+    width: 80%;
+    border-radius: 10px;
+    padding: 15px 15px;
+    outline:none;
+    border: none;
+    background-color: rgba(159, 159, 159, 0.148);
+}
+.pass button{
+    outline: none;
+    padding: 15px 15px;
+    border-radius : 10px;
+    border: none;
+    margin-top: 20px;
+    background-color: #3B71FE;
+    color: #fff;
+}
+#tbl-tour{
+    width: 1000px;
+    background-color: #fafafa;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-radius : 5px;
+    text-align: center;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    margin-top:2rem;
+}
+
+th, td{
+    /* border:1px solid black; */
+    padding: 20px 15px;
+}
+
+#tbl-tour th{
+    background-color: #3B71FE;
+    color: #fafafa;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
+}
+
+td{
+    font-family: Arial, Helvetica, sans-serif;
+    border-bottom : 1px solid #dddada;
+}
+tr:hover{
+    background-color: rgba(211, 211, 211, 0.267);
+}
+
+tr:nth-child(odd){
+    /* background-color: #eeeeee; */
+}
+
+#btnDel{
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    display: block;
+    float: right;
+    transition: 0.25s ease-in-out;
+    font-size: 1em;
+}
+#btnDel:hover{
+    background-color:rgba(255, 0, 0, 0.715);
+    color: #fff;
+}
+
+
