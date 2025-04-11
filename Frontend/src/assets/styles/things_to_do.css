@@ -78,7 +78,7 @@
 }
 .things_right .card .image_adds{
     position: relative;
-    width: 700px;
+    /*width: 700px;*/
     height: 350px;
     display: flex;
     overflow: hidden;
