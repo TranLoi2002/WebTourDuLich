@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**") // Cho phép tất cả API bắt đầu bằng "/api"
+        registry.addMapping("/auth/**") // Cho phép tất cả API bắt đầu bằng "/"
                 .allowedOrigins("http://localhost:3000") // URL của ReactJS
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE") // Các phương thức HTTP cho phép
                 .allowedHeaders("*") // Cho phép tất cả headers

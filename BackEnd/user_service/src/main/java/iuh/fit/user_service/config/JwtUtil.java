@@ -9,14 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
+
     private final SecretKey secretKey;
 
     @Value("${jwt.access.expiration}")
@@ -25,9 +24,8 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private Long refreshExpiration;
 
-    public JwtUtil() {
-        // Tạo khóa động cho HS512
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String extractUsername(String token) {
@@ -68,7 +66,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secretKey, SignatureAlgorithm.HS512) // Sử dụng secretKey
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 

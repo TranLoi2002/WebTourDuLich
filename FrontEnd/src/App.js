@@ -90,6 +90,11 @@ function App() {
                             <Dashboard />
                         </PrivateRoute>
                     } />
+                    <Route path="/admin/" element={
+                        <PrivateRoute role="ADMIN">
+                            <Dashboard />
+                        </PrivateRoute>
+                    } />
 
                 </Routes>
             </main>

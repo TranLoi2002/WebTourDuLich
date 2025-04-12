@@ -41,11 +41,11 @@ public class AuthController {
 //        return ResponseEntity.ok("Đăng nhập thành công");
 //    }
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         AuthResponse authResponse = authService.login(loginRequest);
         addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
         addJwtCookie(response, authResponse.getRefreshToken(), "refreshToken");
-        return ResponseEntity.ok("Đăng nhập thành công");
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/register")

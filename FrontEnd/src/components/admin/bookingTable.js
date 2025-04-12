@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllBookings, updateBookingStatus } from '../../api/booking.api';
 
 function BookingTable() {
+
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([
   ]);
@@ -11,25 +12,74 @@ function BookingTable() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newStatus, setNewStatus] = useState('');
-
-  // Fetch data từ API
+  const mockBookings = [
+    {
+      id: 1,
+      tourId: "TOUR001",
+      customerName: "Nguyen Van A",
+      customerEmail: "vana@example.com",
+      customerPhone: "0909123456",
+      bookingStatus: "PENDING",
+      bookingDate: "2025-04-10T10:30:00Z",
+      paymentDueTimeRelevant: true,
+      paymentDueTime: "2025-04-12T23:59:59Z",
+      participants: ["Alice", "Bob"],
+      updatedAt: "2025-04-10T11:00:00Z"
+    },
+    {
+      id: 2,
+      tourId: "TOUR002",
+      customerName: "Tran Thi B",
+      customerEmail: "thib@example.com",
+      customerPhone: "0909345678",
+      bookingStatus: "CONFIRMED",
+      bookingDate: "2025-04-08T15:45:00Z",
+      paymentDueTimeRelevant: false,
+      paymentDueTime: null,
+      participants: ["Charlie", "David", "Emma"],
+      updatedAt: "2025-04-09T10:15:00Z"
+    },
+    {
+      id: 3,
+      tourId: "TOUR003",
+      customerName: "Le Van C",
+      customerEmail: "c@example.com",
+      customerPhone: "0912345678",
+      bookingStatus: "CANCELLED",
+      bookingDate: "2025-04-05T08:20:00Z",
+      paymentDueTimeRelevant: false,
+      paymentDueTime: null,
+      participants: ["Frank"],
+      updatedAt: "2025-04-06T09:00:00Z"
+    },
+    {
+      id: 4,
+      tourId: "TOUR004",
+      customerName: "Pham Thi D",
+      customerEmail: "d@example.com",
+      customerPhone: "0987654321",
+      bookingStatus: "COMPLETED",
+      bookingDate: "2025-03-30T14:00:00Z",
+      paymentDueTimeRelevant: false,
+      paymentDueTime: null,
+      participants: ["George", "Helen"],
+      updatedAt: "2025-04-01T12:30:00Z"
+    }
+  ];
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getAllBookings();
-        if(response!==null){
-          setBookings(response.data);
-          setFilteredBookings();
-          setFilteredBookings(response.data);
-        }
-
-        // console.log(response.data)
+        setBookings(response.data);
+        setFilteredBookings(response.data);
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
+        setBookings(mockBookings);
+        setFilteredBookings(mockBookings);
       }
     };
     fetchData();
-  }, []);
+  },[]);
 
   // Áp dụng bộ lọc
   useEffect(() => {
@@ -195,7 +245,7 @@ function BookingTable() {
                   {new Date(booking.updatedAt).toLocaleString()}
                 </td>
               </tr>
-            )):null}
+            )) : null}
           </tbody>
         </table>
       </div>

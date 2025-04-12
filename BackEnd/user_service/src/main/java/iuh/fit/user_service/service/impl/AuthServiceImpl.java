@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -65,23 +66,31 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest loginRequest) {
         // Xác thực người dùng
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassWord())
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUserName(),
+                        loginRequest.getPassWord()
+                )
         );
 
+        // Load UserDetails
         final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUserName());
 
         // Tạo Access Token và Refresh Token
         String accessToken = jwtUtil.generateToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
-        return new AuthResponse(accessToken, refreshToken);
+        // Truy vấn đối tượng User từ database
+        User user = userRepository.findByUserName(loginRequest.getUserName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return new AuthResponse(accessToken, refreshToken, user);
     }
 
     @Override
     public AuthResponse register(RegisterRequest registerRequest) {
         // Kiểm tra xem username đã tồn tại chưa
-        if (userRepository.findByUserName(registerRequest.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username đã tồn tại: " + registerRequest.getUsername());
+        if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
+            throw new IllegalArgumentException("Username đã tồn tại: " + registerRequest.getUserName());
         }
 
         // Kiểm tra xem role có tồn tại không
@@ -89,24 +98,24 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại: " + registerRequest.getRoleName()));
 
         User user = new User();
-        user.setUserName(registerRequest.getUsername());
-        user.setPassWord(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setFullName(registerRequest.getName());
+        user.setUserName(registerRequest.getUserName());
+        user.setPassWord(passwordEncoder.encode(registerRequest.getPassWord()));
+        user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
-        user.setPhoneNumber(registerRequest.getPhone());
+        user.setPhoneNumber(registerRequest.getPhoneNumber());
         user.setIsActive(true);
         user.setCreateAt(LocalDateTime.now());
         user.setRole(role);
 
         userRepository.save(user);
 
-        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(registerRequest.getUsername());
+        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(registerRequest.getUserName());
 
         // Tạo Access Token và Refresh Token
         String accessToken = jwtUtil.generateToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponse(accessToken, refreshToken,user);
     }
 
 //    @Override

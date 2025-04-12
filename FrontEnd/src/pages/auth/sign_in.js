@@ -28,13 +28,14 @@ const Sign_In = () => {
 
         try {
             const res = await login(formData);
-            console.log(res);
-            localStorage.setItem("user", JSON.stringify(res)); 
-            if (res.role === "ADMIN") {
+            const roleName = res.user.role.roleName;
+            localStorage.setItem("user", JSON.stringify(res.user)); 
+            if (roleName === "ADMIN") {
                 navigate("/admin/dashboard");
             } else {
-                navigate("/home");
+                navigate("/");
             }
+            console.log("login successfully")
 
         } catch (err) {
             console.error("Login error", err);

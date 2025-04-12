@@ -17,13 +17,15 @@ spring:
         dialect: org.hibernate.dialect.MariaDBDialect
 
 server:
-  port: 8081
+  port: 8085
 
 jwt:
+  secret: jW9sR7p1dQc4TfXuEzN6BvLgKa2MhZcVrW0XyAjKl9DsRuBnFxGvTyPnQzLtYkMi
   access:
     expiration: 3600000
   refresh:
     expiration: 86400000
+
 
 eureka:
   client:
