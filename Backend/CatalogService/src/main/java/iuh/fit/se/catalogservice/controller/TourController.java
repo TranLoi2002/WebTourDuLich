@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/catalog/tours")
+@RequestMapping("/catalog/tours")
 @RequiredArgsConstructor
 public class TourController {
     @Autowired

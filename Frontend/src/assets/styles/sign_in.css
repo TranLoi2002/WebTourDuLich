@@ -48,14 +48,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
+    /*gap: 2rem;*/
     width: 100%;
     padding: 2rem 0 0 0;
 }
 .sign-in-left .form_sign_in label{
-    width: 100%;
+    /*width: 100%;*/
     display: flex;
-    flex-direction: column;
+    /*flex-direction: column;*/
     align-items: flex-start;
     gap: 5px;
     margin-bottom: 0;
@@ -120,7 +120,7 @@
 }
 .sign-in-ques{
     display: flex;
-    flex-direction: column;
+    /*flex-direction: column;*/
     justify-content: center;
     align-items: center;
     gap: 5px;
@@ -150,19 +150,6 @@
     color: #a8a3a3d1;
     z-index: 999;
 }
-
-/*.sign-in-image {*/
-/*    width: 50%;*/
-/*    display: flex;*/
-/*    justify-content: center;*/
-/*    !*align-items: center;*!*/
-/*}*/
-
-/*.sign-in-image img {*/
-/*    max-width: 100%;*/
-/*    height: auto;*/
-/*    border-radius: 8px;*/
-/*}*/
 
 h2, h3 {
     color: #333;

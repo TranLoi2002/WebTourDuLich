@@ -24,6 +24,12 @@ spring:
             - Path=/api/reviews/**
           filters:
             - StripPrefix=1
+        - id: booking-service
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/booking/**
+          filters:
+            - StripPrefix=1
 
   main:
     web-application-type: reactive

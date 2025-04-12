@@ -1,34 +1,27 @@
 import axios from "axios";
 
-const apiURL = process.env.API_BASE_URL; 
+const API_BASE_URL = "http://localhost:5000";
 
-export const getAllUser = async () => {
+// SIGN UP
+export const signup = async (user) => {
     try {
-        const response = await axios.get(`${apiURL}/api/users`);
-        return response.data; 
-    } catch (error) {
-        console.error("Error fetching all users:", error);
-        throw error; 
-    }
-};
-
-export const getUserByUserName = async (username) => {
-    try {
-        const response = await axios.get(`${apiURL}/api/users/${username}`);
-        return response.data;
-    } catch (error) {
-        console.error(`Error fetching user with username ${username}:`, error);
-        throw error; 
-    }
-};
-export const getBookingByUserName = async (username) => {
-    try {
-        const response = await axios.get(`${apiURL}/api/bookings`, {
-            params: { username }
+        const response = await axios.post(`${API_BASE_URL}/api/auth/signup`, user, {
+            withCredentials: true,
         });
         return response.data;
     } catch (error) {
-        console.error(`Error fetching bookings for username ${username}:`, error);
-        throw error; 
+        throw error.response?.data || { error: "Something went wrong" };
+    }
+};
+
+// LOGIN
+export const login = async (loginData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/login`, loginData, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong" };
     }
 };
