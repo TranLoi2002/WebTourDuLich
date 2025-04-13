@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @Data
 @Table(name = "blogs")
-public class Blog {
+public class Blog extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,9 +24,6 @@ public class Blog {
     @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
     private String thumbnail;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     private Long authorId;
 

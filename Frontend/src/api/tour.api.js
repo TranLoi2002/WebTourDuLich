@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiURL = "http://localhost:8083/catalog-service/api/catalog/tours";
+const apiURL = "http://localhost:8083/api/catalog/tours";
 
 export const getAllTour = async () => {
     try{

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface TourService {
     List<Tour> getAllTours();
+    List<Tour> getTourByIsActive(boolean isActive);
 //    Optional<Tour> getTourById(Long id);
     Tour saveTour(Tour tour);
     Tour updateTour(Long id, Tour tour);

@@ -1,4 +1,4 @@
-package iuh.fit.se.catalogservice.model;
+package iuh.fit.se.blogservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public abstract class BaseEntity {
-
     @Column(name = "active", columnDefinition = "BOOLEAN DEFAULT TRUE")
     protected boolean isActive = true;
 

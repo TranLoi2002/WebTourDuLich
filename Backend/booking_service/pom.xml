@@ -133,8 +133,8 @@
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
         <dependency>
-            <groupId>iuh.fit</groupId>
-            <artifactId>catalog_service</artifactId>
+            <groupId>iuh.fit.se</groupId>
+            <artifactId>CatalogService</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

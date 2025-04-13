@@ -1,6 +1,7 @@
 package iuh.fit.se.catalogservice.service.impl;
 
 import com.netflix.discovery.converters.Auto;
+import iuh.fit.se.catalogservice.feign.ReviewServiceFeignClient;
 import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.TourRepository;
 import iuh.fit.se.catalogservice.repository.TourTypeRepository;
@@ -20,7 +21,7 @@ public class TourServiceImpl implements TourService {
     private TourRepository tourRepository;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private ReviewServiceFeignClient reviewServiceFeignClient;
 
     public TourServiceImpl() {
         super();
@@ -34,6 +35,11 @@ public class TourServiceImpl implements TourService {
     @Override
     public List<Tour> getAllTours() {
         return tourRepository.findAll();
+    }
+
+    @Override
+    public List<Tour> getTourByIsActive(boolean isActive) {
+        return tourRepository.findByIsActive(isActive);
     }
 
 //    @Override
@@ -86,7 +92,10 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public void deleteTour(Long id) {
-        tourRepository.deleteById(id);
+        Tour tour = tourRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tour not found with id " + id));
+        tour.setActive(false);
+        tourRepository.save(tour);
     }
 
     @Override
@@ -104,31 +113,17 @@ public class TourServiceImpl implements TourService {
         Optional<Tour> tour = tourRepository.findById(id);
 
         if (tour.isPresent()) {
-//            http://localhost:8083/review-service/api/reviews/tour/1/ratings
-            String reviewServiceUrl = "http://localhost:8083/review-service/api/reviews/tour/" + id + "/ratings";
-            ResponseEntity<Map> response = restTemplate.getForEntity(reviewServiceUrl, Map.class);
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                Map<String, Object> ratings = response.getBody();
-                tour.get().setAverageRating((Double) ratings.get("averageRating"));
-                tour.get().setTotalReviews(((Number) ratings.get("totalReviews")).longValue());
-            }
+            Map<String, Object> ratings = reviewServiceFeignClient.getTourRating(id);
+            tour.get().setAverageRating((Double) ratings.get("averageRating"));
+            tour.get().setTotalReviews(((Number) ratings.get("totalReviews")).longValue());
         }
 
         return tour;
     }
 
-
-    // File: Backend/CatalogService/src/main/java/iuh/fit/se/catalogservice/service/impl/TourServiceImpl.java
     @Override
     public List<Map<String, Object>> getReviewsByTourId(Long tourId) {
-        String reviewServiceUrl = "http://localhost:8083/review-service/api/reviews/tour/" + tourId;
-        ResponseEntity<List> response = restTemplate.getForEntity(reviewServiceUrl, List.class);
-
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            return response.getBody();
-        }
-        return List.of();
+        return reviewServiceFeignClient.getReviewsByTourId(tourId);
     }
 
     @Override

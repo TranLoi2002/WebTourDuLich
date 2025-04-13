@@ -25,7 +25,7 @@ public class Location extends BaseEntity {
 
     private String description;
 
-    @Pattern(regexp = "^(http|https)://.*\\.(jpg|jpeg|png|gif)$", message = "Invalid image URL format")
+//    @Pattern(regexp = "^(http|https)://.*\\.(jpg|jpeg|png|gif)$", message = "Invalid image URL format")
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)

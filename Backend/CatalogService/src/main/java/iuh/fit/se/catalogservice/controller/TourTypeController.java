@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping ("/api/catalog/tour-types")
+@RequestMapping ("/catalog/tour-types")
 public class TourTypeController {
     @Autowired
     private TourTypeService tourTypeService;

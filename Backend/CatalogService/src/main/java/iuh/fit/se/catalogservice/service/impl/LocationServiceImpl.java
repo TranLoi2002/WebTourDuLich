@@ -23,6 +23,11 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    public List<Location> getLocationsByIsActive(boolean isActive) {
+        return locationRepository.findByIsActive(isActive);
+    }
+
+    @Override
     public Location getLocationById(Long id) {
         return locationRepository.findById(id).orElse(null);
     }
@@ -48,6 +53,10 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void deleteLocation(Long id) {
-        locationRepository.deleteById(id);
+        Location location = getLocationById(id);
+        if(location != null){
+            location.setActive(false);
+            locationRepository.save(location);
+        }
     }
 }

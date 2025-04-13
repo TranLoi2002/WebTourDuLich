@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = "http://localhost:8083/catalog-service/api/catalog/activity-types";
+const apiUrl = "http://localhost:8083/api/catalog/activity-types";
 
 
 // get tour have activity tour and activity type

@@ -21,6 +21,11 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
     }
 
     @Override
+    public List<ActivityType> getActivityTypesByIsActive(boolean isActive) {
+        return activityTypeRepository.findByIsActive(isActive);
+    }
+
+    @Override
     public ActivityType getActivityTypeById(Long id) {
         return activityTypeRepository.findById(id).orElse(null);
     }
@@ -42,6 +47,10 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
 
     @Override
     public void deleteActivityType(Long id) {
-        activityTypeRepository.deleteById(id);
+        ActivityType activityType = getActivityTypeById(id);
+        if (activityType != null) {
+            activityType.setActive(false);
+            activityTypeRepository.save(activityType);
+        }
     }
 }

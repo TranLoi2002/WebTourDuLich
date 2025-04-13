@@ -57,13 +57,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReview(Long id) {
-        reviewRepository.deleteById(id);
-    }
-
-    @Override
     public List<Review> getReviewByTourId(Long tourId) {
-        String reviewServiceUrl = "http://localhost:8083/review-service/api/reviews/tour/" + tourId;
+        String reviewServiceUrl = "http://localhost:8083/api/reviews/tour/" + tourId;
         ResponseEntity<List> response = restTemplate.getForEntity(reviewServiceUrl, List.class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {

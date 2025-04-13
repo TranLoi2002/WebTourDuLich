@@ -9,4 +9,5 @@ import java.util.List;
 
 @Repository
 public interface TourTypeRepository extends JpaRepository<TourType, Long> {
+    List<TourType> findByIsActive(boolean isActive);
 }

@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/reviews")
+@RequestMapping("/reviews")
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;
@@ -24,28 +24,22 @@ public class ReviewController {
     private ReviewRepository reviewRepository;
 
     @GetMapping
-    public ResponseEntity<List<Review>> getAllTour() {
+    public ResponseEntity<List<Review>> getAllReview() {
         return ResponseEntity.ok(reviewService.getAllReviews());
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Review> getTourById(@PathVariable Long id) {
+    public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
         Optional<Review> review = reviewService.getReviewById(id);
         return review.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
     @PostMapping
-    public ResponseEntity<Review> createTour(@RequestBody Review review) {
+    public ResponseEntity<Review> createReview(@RequestBody Review review) {
         return ResponseEntity.ok(reviewService.createReview(review));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Review> updateTour(@PathVariable Long id, @RequestBody Review review) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
         return ResponseEntity.ok(reviewService.updateReview(id, review));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTour(@PathVariable Long id) {
-        reviewService.deleteReview(id);
-        return ResponseEntity.noContent().build();
     }
 
     // get rating by tour

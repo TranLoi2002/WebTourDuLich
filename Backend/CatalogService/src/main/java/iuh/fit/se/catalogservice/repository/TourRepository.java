@@ -25,4 +25,6 @@ public interface TourRepository extends JpaRepository<Tour, Long>{
     // get tour by location id
     @Query("SELECT t FROM Tour t WHERE t.location.id = :locationId")
     List<Tour> getToursByLocationId(@Param("locationId") Long locationId);
+
+    List<Tour> findByIsActive(boolean isActive);
 }

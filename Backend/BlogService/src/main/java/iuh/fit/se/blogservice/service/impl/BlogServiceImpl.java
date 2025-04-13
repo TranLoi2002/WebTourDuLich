@@ -42,6 +42,12 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void deleteBlog(Long id) {
-        blogRepository.deleteById(id);
+        Blog blog = getBlogById(id);
+        if (blog != null) {
+            blog.setActive(false);
+            blogRepository.save(blog);
+        } else {
+            throw new RuntimeException("Blog not found with id " + id);
+        }
     }
 }

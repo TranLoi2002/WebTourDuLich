@@ -22,6 +22,11 @@ public class TourTypeServiceImpl implements TourTypeService {
     }
 
     @Override
+    public List<TourType> getTourTypesByIsActive(boolean isActive) {
+        return tourTypeRepository.findByIsActive(isActive);
+    }
+
+    @Override
     public TourType getTourTypeById(Long id) {
         return tourTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("TourType not found with id: " + id));
@@ -45,7 +50,11 @@ public class TourTypeServiceImpl implements TourTypeService {
 
     @Override
     public void deleteTourType(Long id) {
-        tourTypeRepository.deleteById(id);
+        TourType tourType = getTourTypeById(id);
+        if (tourType != null) {
+            tourType.setActive(false);
+            tourTypeRepository.save(tourType);
+        }
     }
 
 }

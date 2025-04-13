@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/catalog/activity-types")
+@RequestMapping("/catalog/activity-types")
 public class ActivityTypeController {
     @Autowired
     private ActivityTypeService activityTypeService;
@@ -34,7 +34,7 @@ public class ActivityTypeController {
         return ResponseEntity.ok(savedActivityType);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ActivityType> updateActivityType(@PathVariable Long id, @RequestBody ActivityType activityType) {
         ActivityType updatedActivityType = activityTypeService.updateActivityType(id, activityType);
         return updatedActivityType != null ? ResponseEntity.ok(updatedActivityType) : ResponseEntity.notFound().build();

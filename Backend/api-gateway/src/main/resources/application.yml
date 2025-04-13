@@ -30,6 +30,18 @@ spring:
             - Path=/api/booking/**
           filters:
             - StripPrefix=1
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+              - Path=/api/users/**
+          filters:
+              - StripPrefix=1
+        - id: blog-service
+          uri: lb://BLOG-SERVICE
+          predicates:
+              - Path=/api/blog/**
+          filters:
+              - StripPrefix=1
 
   main:
     web-application-type: reactive

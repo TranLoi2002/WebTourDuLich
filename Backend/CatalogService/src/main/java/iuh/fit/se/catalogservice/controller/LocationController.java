@@ -12,17 +12,19 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/catalog/locations")
+@RequestMapping("/catalog/locations")
 public class LocationController {
     @Autowired
     private LocationService locationService;
 
-    @Autowired
-    private LocationRepository locationRepository;
-
     @GetMapping
     public ResponseEntity<List<Location>> getAllLocations() {
         return ResponseEntity.ok(locationService.getAllLocations());
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<Location>> getLocationsByActive(@RequestParam boolean isActive) {
+        return ResponseEntity.ok(locationService.getLocationsByIsActive(isActive));
     }
 
     @GetMapping("/{id}")
@@ -36,7 +38,7 @@ public class LocationController {
         return ResponseEntity.ok(locationService.saveLocation(location));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<Location> updateLocation(Long id, Location updatedLocation) {
         if (id == null) {
             throw new IllegalArgumentException("The given id must not be null");
