@@ -25,13 +25,12 @@ spring:
             - Path=/api/catalog/**
           filters:
             - StripPrefix=1
-#        - id: user-service
-#          uri: lb://USER-SERVICE
-#          predicates:
-#            - Path=/api/user/**,/api/role/**,/api/auth/**
-#          filters:
-#            - StripPrefix=1
-#            - AddRequestHeader=Authorization, "Bearer #{token}"
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/user/**,/api/role/**,/api/auth/**
+          filters:
+            - StripPrefix=1
     loadbalancer:
       health-check:
         interval: 5s

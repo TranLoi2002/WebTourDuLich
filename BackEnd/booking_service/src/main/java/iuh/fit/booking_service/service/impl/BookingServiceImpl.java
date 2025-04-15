@@ -1,8 +1,10 @@
 package iuh.fit.booking_service.service.impl;
 
 import iuh.fit.booking_service.client.catalog.CatalogClient;
+import iuh.fit.booking_service.client.user.UserClient;
 import iuh.fit.booking_service.dto.BookingResponseDTO;
 import iuh.fit.booking_service.dto.TourDTO;
+import iuh.fit.booking_service.dto.UserDTO;
 import iuh.fit.booking_service.entity.Booking;
 import iuh.fit.booking_service.entity.BookingStatus;
 import iuh.fit.booking_service.entity.Participant;
@@ -31,14 +33,20 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
     private final CatalogClient catalogClient;
+    private final UserClient  userClient;
 
     @Override
     public BookingResponseDTO createBooking(Booking bookingRequest) {
         validateBookingRequest(bookingRequest);
         TourDTO tour = catalogClient.getTourById(bookingRequest.getTourId());
+        UserDTO user = userClient.getUserById(bookingRequest.getUserId());
+        if(user==null){
+            throw new BookingException("User không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_004");
+        }
         if(tour==null){
             throw new BookingException("Tour không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_004");
         }
+
         validateTourForBooking(tour);
         validateParticipants(bookingRequest.getParticipants());
         if (!canUserBookingService(bookingRequest.getTourId(), bookingRequest.getUserId())) {
@@ -52,7 +60,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking savedBooking = bookingRepository.save(prepareBookingToSave(bookingRequest));
-        // emailService.sendBookingConfirmation(savedBooking);
+//        emailService.sendBookingConfirmation(savedBooking);
         return convertToResponseDTO(savedBooking);
     }
 
@@ -66,7 +74,7 @@ public class BookingServiceImpl implements BookingService {
 
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")); // giờ hệ thống hoặc VN
         // Tour không cho phép đặt
-        if (!tour.isActivityTour()) {
+        if (!tour.isActive()) {
             throw new BookingException("Tour hiện tại không cho phép đặt", HttpStatus.BAD_REQUEST, "BOOKING_006");
         }
 
@@ -128,11 +136,10 @@ public class BookingServiceImpl implements BookingService {
     private BookingResponseDTO convertToResponseDTO(Booking booking) {
         BookingResponseDTO dto = new BookingResponseDTO();
         TourDTO tour = catalogClient.getTourById(booking.getTourId());
-
+        UserDTO user = userClient.getUserById(booking.getUserId());
         dto.setId(booking.getId());
+        dto.setUser(user);
         dto.setTour(tour);
-        dto.setCustomerName("cant connect user");
-        dto.setCustomerEmail("cant connect user");
         dto.setBookingDate(booking.getBookingDate());
         dto.setUpdatedAt(booking.getUpdatedAt());
         dto.setPaymentDueTime(booking.getPaymentDueTime());

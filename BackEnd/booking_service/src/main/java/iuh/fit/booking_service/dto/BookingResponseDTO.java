@@ -11,9 +11,9 @@ import java.util.List;
 @Data
 public class BookingResponseDTO {
     private Long id;
-    private String customerName;
-    private String customerEmail;
+    private UserDTO user;
     private TourDTO tour;
+    private BookingStatus status;
     private List<ParticipantInfo> participants;
     private LocalDateTime bookingDate;
     private LocalDateTime updatedAt;

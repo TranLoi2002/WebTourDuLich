@@ -1,6 +1,7 @@
 package iuh.fit.user_service.controller;
 
 import iuh.fit.user_service.model.User;
+import iuh.fit.user_service.repository.UserRepository;
 import iuh.fit.user_service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,15 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @GetMapping("/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        User user = userService.findByUsername(username);
+//
+//    @GetMapping("/{username}")
+//    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+//        User user = userService.findByUsername(username);
+//        return ResponseEntity.ok(user);
+//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.findById(id);
         return ResponseEntity.ok(user);
     }
 }

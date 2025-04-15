@@ -21,6 +21,7 @@ public class TourDTO {
     private ZonedDateTime startDate;
     private LocalDate endDate;
     private Integer maxParticipants;
+    private boolean isActive;
     private boolean isActivityTour;
     private Integer currentParticipants;
     private String thumbnail;

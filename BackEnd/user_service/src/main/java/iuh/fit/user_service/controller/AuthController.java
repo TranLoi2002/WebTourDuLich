@@ -49,11 +49,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         AuthResponse authResponse = authService.register(registerRequest);
         addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
         addJwtCookie(response, authResponse.getRefreshToken(), "refreshToken");
-        return ResponseEntity.ok("Đăng ký thành công");
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/logout")
