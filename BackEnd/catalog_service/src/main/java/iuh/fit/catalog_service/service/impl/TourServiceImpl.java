@@ -130,6 +130,18 @@ public class TourServiceImpl implements TourService {
         }
         return List.of();
     }
+    @Override
+    public Tour updateCurrentParticipants(Long id, Integer currentParticipants) {
+        return tourRepository.findById(id)
+                .map(existingTour -> {
+                    if (currentParticipants < 0 || currentParticipants > existingTour.getMaxParticipants()) {
+                        throw new IllegalArgumentException("Current participants must be between 0 and max participants.");
+                    }
+                    existingTour.setCurrentParticipants(currentParticipants);
+                    return tourRepository.save(existingTour);
+                })
+                .orElseThrow(() -> new RuntimeException("Tour not found with id " + id));
+    }
 
     @Override
     public List<Tour> getToursByLocationId(Long locationId) {

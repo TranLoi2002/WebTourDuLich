@@ -4,19 +4,22 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "bookings")
-@Getter @Setter
+@Table(name = "bookings", indexes = {
+        @Index(name = "idx_tour_id", columnList = "tourId"),
+        @Index(name = "idx_user_id", columnList = "userId")
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Booking {
 
     @Id
@@ -31,10 +34,6 @@ public class Booking {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Participant> participants = new ArrayList<>();
-    public void addParticipant(Participant participant) {
-        participants.add(participant);
-        participant.setBooking(this);
-    }
 
     @Column(nullable = false)
     private LocalDateTime bookingDate;
@@ -44,21 +43,24 @@ public class Booking {
     private BookingStatus bookingStatus;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt; // Thêm trường updatedAt
+    private LocalDateTime updatedAt;
 
     @Column
-    private LocalDateTime paymentDueTime; // Thời hạn thanh toán
+    private LocalDateTime paymentDueTime;
 
-    @Transient
+    @Column
     private String notes;
 
-    // Phương thức tiện ích để kiểm tra xem có cần hiển thị thời hạn thanh toán không
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setBooking(this);
+    }
+
     @Transient
     public boolean isPaymentDueTimeRelevant() {
         return bookingStatus == BookingStatus.PENDING;
     }
 
-    // PrePersist và PreUpdate để tự động cập nhật thời gian
     @PrePersist
     protected void onCreate() {
         bookingDate = LocalDateTime.now();

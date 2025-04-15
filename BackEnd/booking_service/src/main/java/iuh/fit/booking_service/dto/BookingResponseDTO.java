@@ -13,15 +13,15 @@ public class BookingResponseDTO {
     private Long id;
     private UserDTO user;
     private TourDTO tour;
-    private BookingStatus status;
+    private String tourCode;
+    private BookingStatus bookingStatus;
     private List<ParticipantInfo> participants;
     private LocalDateTime bookingDate;
     private LocalDateTime updatedAt;
     private LocalDateTime paymentDueTime;
-    private BookingStatus bookingStatus;
     private String notes;
-    private String reason;
     private boolean paymentDueTimeRelevant;
+
     @Data
     public static class ParticipantInfo {
         private Long id;
@@ -31,8 +31,7 @@ public class BookingResponseDTO {
         private AgeType ageType;
     }
 
-    // Phương thức để kiểm tra xem có nên hiển thị thời hạn thanh toán không
     public boolean isPaymentDueTimeRelevant() {
-        return bookingStatus == BookingStatus.PENDING || bookingStatus == BookingStatus.CONFIRMED;
+        return bookingStatus == BookingStatus.PENDING;
     }
 }

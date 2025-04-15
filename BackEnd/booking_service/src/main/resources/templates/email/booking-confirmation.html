@@ -3,20 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <title>Xác nhận đặt tour</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content h2 {
+            color: #333333;
+        }
+        .content p {
+            color: #555555;
+            line-height: 1.6;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .info-table th, .info-table td {
+            padding: 10px;
+            border: 1px solid #dddddd;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #f8f8f8;
+            color: #333333;
+        }
+        .participants-list {
+            margin-top: 20px;
+        }
+        .participants-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .participants-list li {
+            padding: 5px 0;
+            color: #555555;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 0 0 8px 8px;
+            color: #777777;
+            font-size: 12px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-<h1>Xác nhận đặt tour thành công</h1>
-<!--<p>Xin chào <span th:text="${booking.userId.fullName}"></span>,</p>-->
-<p>Cảm ơn bạn đã đặt tour với chúng tôi. Dưới đây là thông tin đặt tour của bạn:</p>
+<div class="container">
+    <div class="header">
+        <h1>Xác nhận đặt tour thành công</h1>
+    </div>
+    <div class="content">
+        <h2>Xin chào <span th:text="${user.fullName}"></span>,</h2>
+        <p>Cảm ơn bạn đã đặt tour với chúng tôi. Dưới đây là chi tiết booking của bạn:</p>
 
-<ul>
-    <li>Mã booking: <strong th:text="${booking.id}"></strong></li>
-    <li>Ngày đặt: <span th:text="${bookingDate}"></span></li>
-    <li>Thời hạn thanh toán: <span th:text="${paymentDueTime}"></span></li>
-</ul>
+        <table class="info-table">
+            <tr>
+                <th>Mã booking</th>
+                <td th:text="${booking.id}"></td>
+            </tr>
+            <tr>
+                <th>Mã tour</th>
+                <td th:text="${tour.tourCode}"></td>
+            </tr>
+            <tr>
+                <th>Tên tour</th>
+                <td th:text="${tour.title}"></td>
+            </tr>
+            <tr>
+                <th>Ngày đặt</th>
+                <td th:text="${bookingDate}"></td>
+            </tr>
+            <tr>
+                <th>Ngày khởi hành</th>
+                <td th:text="${tour.startDate} ? ${tour.startDate.format('dd/MM/yyyy HH:mm')} : 'N/A'"></td>
+            </tr>
+            <tr>
+                <th>Thời hạn thanh toán</th>
+                <td th:text="${paymentDueTime}"></td>
+            </tr>
+            <tr>
+                <th>Giá tour</th>
+                <td th:text="${tour.price} + ' VNĐ'"></td>
+            </tr>
+        </table>
 
-<p>Vui lòng thanh toán trước thời hạn để hoàn tất đặt tour.</p>
-<p>Trân trọng,</p>
-<p>Đội ngũ hỗ trợ</p>
+        <div class="participants-list">
+            <h3>Danh sách người tham gia</h3>
+            <ul>
+                <li th:each="participant : ${participants}">
+                    <span th:text="${participant.fullName} + ' (' + ${participant.ageType} + ')'"></span>
+                </li>
+            </ul>
+        </div>
 
+        <p>Vui lòng hoàn tất thanh toán trước thời hạn để xác nhận booking của bạn.</p>
+        <a th:href="${bookingUrl ?: '#'}" class="button">Kiểm tra booking</a>
+    </div>
+    booking_service/src/main/resources/templates/email/booking-confirmation.html
+    <div class="footer">
+        <p>Trân trọng,<br>Đội ngũ hỗ trợ khách hàng</p>
+        <p>Liên hệ: support@travel.com | (+84) 123 456 789</p>
+    </div>
+</div>
+</body>
 </html>

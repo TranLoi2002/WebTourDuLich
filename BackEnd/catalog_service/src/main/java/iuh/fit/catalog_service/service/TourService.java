@@ -21,4 +21,6 @@ public interface TourService {
     List<Map<String, Object>> getReviewsByTourId(Long tourId);
 
     List<Tour> getToursByLocationId(Long locationId);
+    Tour updateCurrentParticipants(Long id, Integer currentParticipants);
+
 }

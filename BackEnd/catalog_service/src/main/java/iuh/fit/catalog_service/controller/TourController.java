@@ -37,10 +37,6 @@ public class TourController {
         }
         return ResponseEntity.ok(tourDTO);
     }
-
-
-
-
     @PostMapping
     public ResponseEntity<Tour> saveTour(@RequestBody Tour tour) {
         return ResponseEntity.ok(tourService.saveTour(tour));
@@ -53,6 +49,11 @@ public class TourController {
         }
         Tour updated = tourService.updateTour(id, updatedTour);
         return ResponseEntity.ok(updated);
+    }
+    @PutMapping("/update/current-participants/{id}")
+    public ResponseEntity<Tour> updateCurrentParticipants(@PathVariable Long id, @RequestParam Integer currentParticipants) {
+        Tour updatedTour = tourService.updateCurrentParticipants(id, currentParticipants);
+        return ResponseEntity.ok(updatedTour);
     }
 
     @DeleteMapping("/{id}")

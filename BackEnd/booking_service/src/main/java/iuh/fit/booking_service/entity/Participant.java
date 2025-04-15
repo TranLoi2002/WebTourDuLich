@@ -37,7 +37,6 @@ public class Participant {
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    // Thêm phương thức setBooking để đảm bảo quan hệ hai chiều
     public void setBooking(Booking booking) {
         if (booking == null) {
             throw new IllegalArgumentException("Booking cannot be null");
