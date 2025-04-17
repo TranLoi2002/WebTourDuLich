@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import Modal from 'react-modal';
 import logo from '../assets/images/logo.png';
 import user_avt from '../assets/images/user_header.png';
@@ -47,6 +47,16 @@ const Header = () => {
         setShowUserMenu(false);
     };
 
+    const location = useLocation();
+    let headerClass = '';
+    if (location.pathname === '/thingstodo') {
+        headerClass = 'things_to_do_header';
+    } else if (location.pathname === '/tours') {
+        headerClass = 'tours_header';
+    } else if (location.pathname === '/blogs') {
+        headerClass = 'blogs_header';
+    }
+
     return (
         <header>
             <div
@@ -56,12 +66,12 @@ const Header = () => {
                     <span className="font-extrabold text-[20px] leading-[25px] ml-2 text-primary">Airtrav</span>
                 </Link>
 
-                <div className="nav_select flex">
+                <div className={`nav_select ${headerClass} flex`}>
                     <ul className="relative flex justify-center items-center">
                         <li className="relative list-none">
                             <Link
                                 className="link_target flex justify-between items-center mx-5 text-gray-800 relative text-[1.1rem]"
-                                to="/tours" title="click to details page">Things to do</Link>
+                                to="/thingstodo" title="click to details page">Things to do</Link>
                         </li>
                         <li className="relative list-none">
                             <Link
@@ -86,7 +96,9 @@ const Header = () => {
                             <Link to="/faq" className="text-gray-500 font-extrabold">FAQ</Link>
                         </li>
                         <li className="relative list-none">
-                            <Link className="text-gray-500"><i className="fa-regular fa-bell" title="Notification"></i></Link>
+                            <Link className="text-gray-500 relative">
+                                <i className="fa-regular fa-bell" title="Notification"></i>
+                            </Link>
                         </li>
                         <li className="navbar_icon hidden text-xl cursor-pointer" onClick={handleOpenMenu}>
                             <i className="fa-solid fa-bars"></i>
@@ -151,7 +163,7 @@ const Header = () => {
                             <li className="relative list-none">
                                 <Link
                                     className="link_target flex justify-between items-center mx-5 text-gray-800 relative text-sm"
-                                    to="/tours" title="click to details page">Things to do</Link>
+                                    to="/thingstodo" title="click to details page">Things to do</Link>
                             </li>
                             <li className="relative list-none">
                                 <Link

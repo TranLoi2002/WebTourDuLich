@@ -22,29 +22,29 @@ function Dashboard() {
   };
 
   return (
-    <div className="h-fit flex-column">
-      <div className="z-10">
-        {/* Navbar */}
-        <AdminNavbar />
-      </div>
-
-      <div className="fixed flex w-full h-full">
-        {/* Sidebar */}
-        <AdminSidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          openSetting={() => setIsSettingOpen(true)}
-        />
-
-        {/* Nội dung */}
-        <div className="container p-4 overflow-auto">
-          {renderTable()}
+      <div className="h-fit flex-column">
+        <div className="z-10">
+          {/* Navbar */}
+          <AdminNavbar />
         </div>
-      </div>
 
-      {/* Setting Modal */}
-      {isSettingOpen && <SettingModal onClose={() => setIsSettingOpen(false)} />}
-    </div>
+        <div className="fixed flex w-full h-full">
+          {/* Sidebar */}
+          <AdminSidebar
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              openSetting={() => setIsSettingOpen(true)}
+          />
+
+          {/* Nội dung */}
+          <div className="container p-4 overflow-auto">
+            {renderTable()}
+          </div>
+        </div>
+
+        {/* Setting Modal */}
+        {isSettingOpen && <SettingModal onClose={() => setIsSettingOpen(false)} />}
+      </div>
   );
 }
 

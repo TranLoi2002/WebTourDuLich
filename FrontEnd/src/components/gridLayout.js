@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Grid, Pagination } from '@mui/material';
 import CardTour from '../components/card_tour';
 
-const GridLayout = ({ tours, itemsPerPage, title }) => {
+const GridLayout = ({ tours, itemsPerPage, title, isShowDescCard }) => {
     const [page, setPage] = useState(1);
     const handleChange = (event, value) => {
         setPage(value);
@@ -13,13 +13,13 @@ const GridLayout = ({ tours, itemsPerPage, title }) => {
 
     return (
         <div className="grid-tour-layout" style={{width:'100%'}}>
-            <div>
-                <h3 className="grid_title">{title}</h3>
+            <div className="mt-6">
+                <h3 className="font-bold text-2xl">{title}</h3>
             </div>
             <Grid container spacing={4} style={{ width: '100%' }}>
                 {selectedTours.map((tour, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index} style={{ display: 'flex', justifyContent: 'center' }}>
-                        <CardTour tour={tour} />
+                        <CardTour tour={tour} isShowDesc={isShowDescCard} />
                     </Grid>
                 ))}
             </Grid>

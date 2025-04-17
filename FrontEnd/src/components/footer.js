@@ -1,3 +1,5 @@
+import logo from '../assets/images/logo.png';
+
 const Footer = () => {
     return (
         <footer>
@@ -5,16 +7,18 @@ const Footer = () => {
                 <div className="flex justify-evenly gap-[100px] mb-[60px]">
                     <div className="flex flex-col w-[250px]">
                         <div className="flex items-center gap-[10px]">
-                            <img src="image/logo.png" alt=""/>
+                            <img src={logo} alt=""/>
                             <span className="text-xl font-bold">Airtrav</span>
                         </div>
-                        <p className="mt-[25px] leading-[30px]">Similarly, a loan taken out to buy a car may be secured by the car. The duration of the
-                            loan.</p>
-                        <div className="flex">
-                            <label htmlFor="">
-                                <input type="text" placeholder="Enter your email" className="p-[12px] rounded-2xl outline-none w-[250px] mt-[35px] relative pr-[50px] border-2 border-[#c7c5c5]"/>
-                                {/*<i className="fa-solid fa-arrow-right absolute text-primary"></i>*/}
-                            </label>
+                        <p className="mt-[25px] leading-[30px]">We hope can send important notifications to you about
+                            good trip with best sale.</p>
+                        <p className="mt-[20px] text-[#777E90]">Subscribe to our newsletter</p>
+                        <div className="flex mt-2 items-center gap-1">
+
+                            <input type="text" placeholder="Enter your email"
+                                   className="p-[12px] rounded-2xl outline-none relative pr-[50px] border-2 border-[#c7c5c5]"/>
+                            <i className="fa-solid fa-arrow-right text-white bg-primary p-4 rounded-full "></i>
+
                         </div>
                     </div>
                     <div className="flex flex-col">
@@ -49,7 +53,8 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between border-t-2 border-t-[#cbc9c9] p-[10px] my-0 mx-[120px]">
+                <div
+                    className="flex items-center justify-between border-t-2 border-t-[#cbc9c9] p-[10px] my-0 mx-[120px]">
                     <div>
                         <p className="text-[#777E90] text-sm">Copyright© 2021 Airtrav LLC. All rights reserved</p>
                     </div>

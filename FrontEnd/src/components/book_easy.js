@@ -3,6 +3,7 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+import ceoimage from "../assets/images/ceoimg.png"
 
 const BookEasy = () => {
 
@@ -47,7 +48,7 @@ const BookEasy = () => {
                                 <h4 className="leading-[50px] font-bold text-white">Set up all trip</h4>
                                 <label htmlFor="" className="flex items-center">
                                     <input type="text" placeholder="Plan a Trip" className="p-[15px] rounded-lg outline-none w-[300px] relative pr-[50px] border-0" readOnly={true}/>
-                                    <i className="fa-solid fa-arrow-right text-primary"></i>
+                                    {/*<i className="fa-solid fa-arrow-right text-primary"></i>*/}
                                 </label>
                                 <div className="flex mt-[20px] text-white">
                                     <ul className="relative">
@@ -92,7 +93,7 @@ const BookEasy = () => {
                                     <input type="text" placeholder="Plan a Trip"
                                            className="p-[15px] rounded-lg outline-none w-[300px] relative pr-[50px] border-0"
                                            readOnly={true}/>
-                                    <i className="fa-solid fa-arrow-right text-primary"></i>
+                                    {/*<i className="fa-solid fa-arrow-right text-primary"></i>*/}
                                 </label>
                                 <div className="flex mt-[20px] text-white">
                                     <ul className="relative">
@@ -164,7 +165,7 @@ const BookEasy = () => {
                         go, and create a packing list”</i></p>
                 </div>
                 <div className="flex gap-[20px] items-center">
-                    <img src="../image/avatar.png" alt=""/>
+                    <img src={ceoimage} alt=""/>
                     <div className="flex flex-col gap-[10px]">
                         <h3>Steve Jobs</h3>
                         <span className="text-gray-500 opacity-[0.7] tracking-wider">Co-Founder and CEO</span>

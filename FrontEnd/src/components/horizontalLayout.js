@@ -5,11 +5,11 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import CardTour from '../components/card_tour';
 
-const HorizontalLayout = ({ tours, title }) => {
+const HorizontalLayout = ({ tours, title, isShowDescCard }) => {
     return (
         <div className="horizontal-tour-layout">
             <div>
-                <h3 className="hoz_title">{title}</h3>
+                <h3 className="font-bold text-2xl ">{title}</h3>
             </div>
             <Swiper
                 spaceBetween={30}
@@ -18,13 +18,15 @@ const HorizontalLayout = ({ tours, title }) => {
                 navigation={true}
                 modules={[Navigation]}
                 className="swiper-tour-layout"
-                style={{width : '100%'}}
+                style={{width: '100%'}}
             >
-                {tours.map((tour, index) => (
-                    <SwiperSlide key={index} style={{ display: 'flex', justifyContent: 'center' }}>
-                        <CardTour tour={tour} />
-                    </SwiperSlide>
-                ))}
+                    {tours.map((tour, index) => (
+                        <SwiperSlide key={index} style={{display: 'flex', justifyContent: 'center'}}>
+                            <CardTour tour={tour} isShowDesc={isShowDescCard}/>
+                        </SwiperSlide>
+                    ))}
+
+
             </Swiper>
         </div>
     );

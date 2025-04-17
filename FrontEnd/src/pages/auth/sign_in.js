@@ -9,7 +9,7 @@ import {
     Alert,
 } from "@mui/material";
 import logo from "../../assets/images/logo.png";
-import { login } from "../../api/users.api";
+import { login } from "../../api/users.api"; // Đảm bảo API login được định nghĩa đúng
 
 const Sign_In = () => {
     const [formData, setFormData] = useState({ userName: "", passWord: "" });
@@ -17,30 +17,33 @@ const Sign_In = () => {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    // Xử lý thay đổi input
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Xử lý đăng nhập
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError("");
 
         try {
-            const res = await login(formData);
+            const res = await login(formData); // Gọi API login
             console.log(res);
-            localStorage.setItem("user", JSON.stringify(res)); 
+            localStorage.setItem("user", JSON.stringify(res)); // Lưu thông tin người dùng vào localStorage
+
+            // Điều hướng dựa trên vai trò
             if (res.role === "ADMIN") {
                 navigate("/admin/dashboard");
             } else {
                 navigate("/home");
             }
-
         } catch (err) {
             console.error("Login error", err);
             const message =
                 err.response?.data?.error || "Login failed. Please try again.";
-            setError(message);
+            setError(message); // Hiển thị lỗi
         } finally {
             setLoading(false);
         }
@@ -74,7 +77,7 @@ const Sign_In = () => {
                         fullWidth
                         value={formData.userName}
                         onChange={handleChange}
-                        required
+                        // required
                         margin="normal"
                     />
                     <TextField
@@ -85,7 +88,7 @@ const Sign_In = () => {
                         fullWidth
                         value={formData.passWord}
                         onChange={handleChange}
-                        required
+                        // required
                         margin="normal"
                     />
 

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { handleApiError, formatSuccessResponse } from '../utils/apiErrorHandler';
-const API_BASE_URL =  "http://localhost:8080/api";
+const API_BASE_URL =  "http://localhost:8083/api";
 
 export const getAllBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/bookings`);
+      const response = await axios.get(`${API_BASE_URL}/booking`);
       return formatSuccessResponse(response);
     } catch (error) {
       return handleApiError(error);
