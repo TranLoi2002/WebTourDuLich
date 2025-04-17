@@ -1,0 +1,58 @@
+server:
+  port: 8082
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: BOOKING-SERVICE
+  datasource:
+    url: jdbc:mariadb://localhost:3306/booking_db?createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MariaDB106Dialect
+    properties:
+      hibernate:
+        connection:
+          characterEncoding: utf8mb4
+          useUnicode: true
+          CharSet: utf8mb4
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nguyentruongan0610@gmail.com
+    password: njehntdgsveweffi
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  cloud:
+    discovery:
+      enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework: DEBUG
+    org.hibernate: DEBUG

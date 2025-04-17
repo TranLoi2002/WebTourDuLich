@@ -1,0 +1,16 @@
+th, td{
+    padding: 20px 15px;
+}
+th{
+    background-color: #3B71FE;
+    color: #fafafa;
+    text-transform: uppercase;
+}
+td{
+    border-bottom : 1px solid #dddada;
+}
+tr:hover{
+    background-color: rgba(211, 211, 211, 0.267);
+}
+
+
