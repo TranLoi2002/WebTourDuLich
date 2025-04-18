@@ -204,39 +204,20 @@ public class BookingServiceImpl implements BookingService {
                 throw new BookingException("Tên người tham gia chỉ được chứa chữ cái và khoảng trắng", HttpStatus.BAD_REQUEST, "BOOKING_018");
             }
 
-            if (p.getPhoneNumber() == null || p.getPhoneNumber().trim().isEmpty()) {
-                throw new BookingException("Số điện thoại không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_012");
-            }
-            if (!p.getPhoneNumber().matches("^0[0-9]{9}$")) {
-                throw new BookingException("Số điện thoại phải là 10 chữ số và bắt đầu bằng 0", HttpStatus.BAD_REQUEST, "BOOKING_019");
+            if (p.getGender() == null) {
+                throw new BookingException("Giới tính không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_026");
             }
 
-            if (p.getDateOfBirth() == null) {
-                throw new BookingException("Ngày sinh không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_021");
-            }
-            if (p.getDateOfBirth().isAfter(LocalDate.now())) {
-                throw new BookingException("Ngày sinh không được ở tương lai", HttpStatus.BAD_REQUEST, "BOOKING_022");
+            if (p.getAgeType() == null) {
+                throw new BookingException("Loại tuổi không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_027");
             }
 
-            AgeType ageType = p.getAgeType();
-            if (ageType == AgeType.ADULT) {
-                if (p.getCitizenId() == null || p.getCitizenId().trim().isEmpty()) {
-                    throw new BookingException("Căn cước công dân là bắt buộc cho người lớn", HttpStatus.BAD_REQUEST, "BOOKING_023");
-                }
-                if (!p.getCitizenId().matches("^[0-9]{12}$")) {
-                    throw new BookingException("Căn cước công dân phải là 12 chữ số", HttpStatus.BAD_REQUEST, "BOOKING_024");
-                }
-            } else if (p.getCitizenId() != null && !p.getCitizenId().trim().isEmpty()) {
-                throw new BookingException("Trẻ em và em bé không được cung cấp căn cước công dân", HttpStatus.BAD_REQUEST, "BOOKING_025");
-            }
-
-            String participantKey = p.getFullName() + "|" + p.getPhoneNumber() + "|" + (p.getCitizenId() != null ? p.getCitizenId() : "");
+            String participantKey = p.getFullName() + "|" + p.getGender() + "|" + p.getAgeType();
             if (!participantSet.add(participantKey)) {
                 throw new BookingException("Người tham gia trùng lặp: " + p.getFullName(), HttpStatus.BAD_REQUEST, "BOOKING_020");
             }
         }
     }
-
     private Booking prepareBooking(Booking request, UserDTO user, TourDTO tour) {
         // Tạo bookingCode
         String firstLetter = user.getFullName() != null && !user.getFullName().isEmpty()
@@ -279,10 +260,8 @@ public class BookingServiceImpl implements BookingService {
     private Participant buildParticipant(Participant request, Booking booking) {
         return Participant.builder()
                 .fullName(request.getFullName())
-                .phoneNumber(request.getPhoneNumber())
-                .citizenId(request.getCitizenId())
                 .gender(request.getGender())
-                .dateOfBirth(request.getDateOfBirth())
+                .ageType(request.getAgeType())
                 .booking(booking)
                 .build();
     }
@@ -319,7 +298,7 @@ public class BookingServiceImpl implements BookingService {
         tour.setTourId(booking.getTourId());
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setId(booking.getId());
-        dto.setBookingCode(booking.getBookingCode()); // Thêm bookingCode
+        dto.setBookingCode(booking.getBookingCode());
         dto.setUser(user);
         dto.setTour(tour);
         dto.setTourCode(tour.getTourCode());
@@ -336,10 +315,7 @@ public class BookingServiceImpl implements BookingService {
                     BookingResponseDTO.ParticipantInfo info = new BookingResponseDTO.ParticipantInfo();
                     info.setId(p.getId());
                     info.setFullName(p.getFullName());
-                    info.setPhoneNumber(p.getPhoneNumber());
-                    info.setCitizenId(p.getCitizenId());
                     info.setGender(p.getGender());
-                    info.setDateOfBirth(p.getDateOfBirth());
                     info.setAgeType(p.getAgeType());
                     return info;
                 }).toList();

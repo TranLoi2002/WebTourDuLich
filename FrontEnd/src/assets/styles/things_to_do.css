@@ -65,7 +65,7 @@
     gap : 30px;
     flex-direction: column;
     position: relative;
-    max-height: 1900px;
+    /*max-height: 1900px;*/
 }
 .things_right .card{
     display: flex;
