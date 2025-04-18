@@ -31,13 +31,14 @@ const Sign_In = () => {
         try {
             const res = await login(formData); // Gọi API login
             console.log(res);
-            localStorage.setItem("user", JSON.stringify(res)); // Lưu thông tin người dùng vào localStorage
+            localStorage.setItem("user", JSON.stringify(res.user)); // Lưu thông tin người dùng vào localStorage
 
             // Điều hướng dựa trên vai trò
-            if (res.role === "ADMIN") {
-                navigate("/admin/dashboard");
+            if (res.user?.role?.roleName === "ADMIN") {
+                alert("DANG NHAP THANH CONG");
+                navigate("/admin");
             } else {
-                navigate("/home");
+                navigate("/");
             }
         } catch (err) {
             console.error("Login error", err);

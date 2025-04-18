@@ -6,7 +6,6 @@ import { signup } from '../../api/users.api';
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
-        fullName: "",
         userName: "",
         email: "",
         phoneNumber: "",
@@ -32,8 +31,16 @@ const Sign_Up = () => {
             return;
         }
 
+        const user = {
+            userName: formData.userName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            passWord: formData.passWord,
+            roleName: formData.role // ✅ Chỗ này phải là roleName
+        };
+
         try {
-            const res = await signup(formData); // Call the signup API
+            const res = await signup(user); // Call the signup API
             console.log("Signup success:", res);
             navigate("/auth/sign_in"); // Redirect to the login page
         } catch (err) {
@@ -59,16 +66,6 @@ const Sign_Up = () => {
 
                     <Box className="infor" component="form" onSubmit={handleSubmit}>
                         <TextField
-                            label="Full Name"
-                            name="fullName"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            // required
-                        />
-                        <TextField
                             label="Username"
                             name="userName"
                             variant="outlined"
@@ -76,7 +73,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.userName}
                             onChange={handleChange}
-                            // required
                         />
                         <TextField
                             label="Email"
@@ -86,7 +82,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.email}
                             onChange={handleChange}
-                            // required
                         />
                         <TextField
                             label="Phone Number"
@@ -96,7 +91,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.phoneNumber}
                             onChange={handleChange}
-                            // required
                         />
                         <TextField
                             label="Password"
@@ -107,7 +101,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.passWord}
                             onChange={handleChange}
-                            // required
                         />
                         <TextField
                             label="Confirm Password"
@@ -118,7 +111,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            // required
                         />
 
                         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}

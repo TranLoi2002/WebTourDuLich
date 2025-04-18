@@ -45,6 +45,7 @@ import FAQ from './pages/FAQ';
 import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
 import Dashboard from "./pages/admin/dashboard"
+import PrivateRoute from "./routes/PrivateRoute";
 
 
 function App() {
@@ -68,6 +69,15 @@ function App() {
             <main style={{flexGrow: 1, paddingBottom: '50px'}}>
                 <Routes>
                     <Route path="/" element={<Home/>}/>
+                    <Route
+                        path="/admin"
+                        element={
+                            <PrivateRoute allowedRoles={["ADMIN"]}>
+                                <Dashboard />
+                            </PrivateRoute>
+                        }
+                    />
+
                     {/*auth*/}
                     <Route path="/auth/sign_in" element={<SignIn/>}/>
                     <Route path="/auth/sign_up" element={<SignUp/>}/>
@@ -93,8 +103,7 @@ function App() {
                     <Route path="*" element={<NotFound/>}/>
 
                     {/*Admin*/}
-                    <Route path="/admin" element={<Dashboard />} />
-                    <Route path="/admin/dashboard" element={<Dashboard />} />
+                    {/*<Route path="/admin" element={<Dashboard />} />*/}
 
                 </Routes>
             </main>
