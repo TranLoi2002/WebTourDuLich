@@ -3,6 +3,7 @@ package iuh.fit.booking_service.service.impl;
 import iuh.fit.booking_service.client.catalog.CatalogClient;
 import iuh.fit.booking_service.client.user.UserClient;
 import iuh.fit.booking_service.dto.BookingResponseDTO;
+import iuh.fit.booking_service.dto.LightTourDTO;
 import iuh.fit.booking_service.dto.TourDTO;
 import iuh.fit.booking_service.dto.UserDTO;
 import iuh.fit.booking_service.entity.AgeType;
@@ -15,24 +16,21 @@ import iuh.fit.booking_service.repository.BookingRepository;
 import iuh.fit.booking_service.service.BookingService;
 import iuh.fit.booking_service.service.EmailService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BookingServiceImpl implements BookingService {
 
     private static final Logger logger = LoggerFactory.getLogger(BookingServiceImpl.class);
@@ -44,39 +42,45 @@ public class BookingServiceImpl implements BookingService {
     private final UserClient userClient;
 
     @Override
+    @Transactional
     public BookingResponseDTO createBooking(Booking bookingRequest) {
         logger.info("Creating booking for tourId: {}, userId: {}", bookingRequest.getTourId(), bookingRequest.getUserId());
         validateBookingRequest(bookingRequest);
 
-        TourDTO tour = fetchTour(bookingRequest.getTourId());
+        LightTourDTO tour = fetchTour(bookingRequest.getTourId());
         UserDTO user = fetchUser(bookingRequest.getUserId());
         validateBooking(tour, user, bookingRequest);
 
         Booking savedBooking = bookingRepository.save(prepareBooking(bookingRequest, user, tour));
-        tour.setTourId(bookingRequest.getTourId());
         updateTourParticipants(tour, bookingRequest.getParticipants().size());
-        emailService.sendBookingConfirmation(savedBooking, user, tour);
+        sendBookingConfirmationAsync(savedBooking, user, tour);
 
         logger.info("Booking created successfully with code: {}", savedBooking.getBookingCode());
-        return convertToResponseDTO(savedBooking);
+        return convertToResponseDTO(savedBooking, tour, user);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Booking getBooking(Long id) {
         logger.info("Fetching booking with id: {}", id);
-        return bookingRepository.findById(id)
+        return bookingRepository.findByIdWithParticipants(id)
                 .orElseThrow(() -> new BookingException("Booking không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_003"));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Booking> getAllBookings() {
-        logger.info("Fetching all bookings");
-        return bookingRepository.findAll();
+    public Page<BookingResponseDTO> getAllBookings(Pageable pageable) {
+        logger.info("Fetching bookings with page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        Page<Booking> bookings = bookingRepository.findAll(pageable);
+        return bookings.map(booking -> {
+            LightTourDTO tour = fetchTour(booking.getTourId());
+            UserDTO user = fetchUser(booking.getUserId());
+            return convertToResponseDTO(booking, tour, user);
+        });
     }
 
     @Override
+    @Transactional
     public BookingResponseDTO updateBookingStatus(Long id, BookingStatus newStatus) {
         logger.info("Updating booking status for id: {} to {}", id, newStatus);
         Booking booking = getBooking(id);
@@ -89,10 +93,11 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking updatedBooking = bookingRepository.save(booking);
-        return convertToResponseDTO(updatedBooking);
+        return convertToResponseDTO(updatedBooking, fetchTour(booking.getTourId()), fetchUser(booking.getUserId()));
     }
 
     @Override
+    @Transactional
     public BookingResponseDTO cancelBooking(Long id, String reason) {
         logger.info("Cancelling booking with id: {}, reason: {}", id, reason);
         Booking booking = getBooking(id);
@@ -106,12 +111,12 @@ public class BookingServiceImpl implements BookingService {
         booking.setNotes(reason);
 
         Booking cancelledBooking = bookingRepository.save(booking);
-        return convertToResponseDTO(cancelledBooking);
+        return convertToResponseDTO(cancelledBooking, fetchTour(booking.getTourId()), fetchUser(booking.getUserId()));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public boolean canUserBookingService(Long tourId, Long userId) {
+    public boolean canUserBookTour(Long tourId, Long userId) {
         logger.debug("Checking if user {} can book tour {}", userId, tourId);
         Booking existing = bookingRepository.findBookingByTourIdAndUserId(tourId, userId);
         return existing == null || existing.getBookingStatus() == BookingStatus.CANCELLED;
@@ -137,16 +142,18 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private TourDTO fetchTour(Long tourId) {
+    @Cacheable(value = "tours", key = "#tourId")
+    public LightTourDTO fetchTour(Long tourId) {
         logger.info("Fetching tour with id: {}", tourId);
-        TourDTO tour = catalogClient.getTourById(tourId);
+        LightTourDTO tour = catalogClient.getTourById(tourId);
         if (tour == null) {
             throw new BookingException("Tour không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_010");
         }
         return tour;
     }
 
-    private UserDTO fetchUser(Long userId) {
+    @Cacheable(value = "users", key = "#userId")
+    public UserDTO fetchUser(Long userId) {
         logger.info("Fetching user with id: {}", userId);
         UserDTO user = userClient.getUserById(userId);
         if (user == null) {
@@ -155,10 +162,10 @@ public class BookingServiceImpl implements BookingService {
         return user;
     }
 
-    private void validateBooking(TourDTO tour, UserDTO user, Booking booking) {
+    private void validateBooking(LightTourDTO tour, UserDTO user, Booking booking) {
         validateTour(tour);
         validateParticipants(booking.getParticipants());
-        if (!canUserBookingService(booking.getTourId(), booking.getUserId())) {
+        if (!canUserBookTour(booking.getTourId(), booking.getUserId())) {
             throw new BookingException("Bạn đã có booking cho tour này rồi", HttpStatus.CONFLICT, "BOOKING_002");
         }
 
@@ -170,7 +177,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validateTour(TourDTO tour) {
+    private void validateTour(LightTourDTO tour) {
         Date now = new Date();
         if (tour.getPrice() <= 0) {
             throw new BookingException("Giá tour không hợp lệ", HttpStatus.BAD_REQUEST, "BOOKING_015");
@@ -181,7 +188,7 @@ public class BookingServiceImpl implements BookingService {
         if (tour.getStartDate() != null && tour.getStartDate().before(now)) {
             throw new BookingException("Tour đã khởi hành", HttpStatus.BAD_REQUEST, "BOOKING_007");
         }
-        if (tour.getStartDate().before(new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000))) {
+        if (tour.getStartDate() != null && tour.getStartDate().before(new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000))) {
             throw new BookingException("Phải đặt tour ít nhất 3 ngày trước khi khởi hành",
                     HttpStatus.BAD_REQUEST, "BOOKING_008");
         }
@@ -192,7 +199,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingException("Phải có ít nhất 1 người tham gia", HttpStatus.BAD_REQUEST, "BOOKING_009");
         }
 
-        Set<String> participantSet = new HashSet<>();
+        Set<String> fullNames = new HashSet<>();
         for (Participant p : participants) {
             if (p.getFullName() == null || p.getFullName().trim().isEmpty()) {
                 throw new BookingException("Tên người tham gia không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_012");
@@ -203,38 +210,20 @@ public class BookingServiceImpl implements BookingService {
             if (!p.getFullName().matches("^[a-zA-Z\\sÀ-ỹ]+$")) {
                 throw new BookingException("Tên người tham gia chỉ được chứa chữ cái và khoảng trắng", HttpStatus.BAD_REQUEST, "BOOKING_018");
             }
-
             if (p.getGender() == null) {
                 throw new BookingException("Giới tính không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_026");
             }
-
             if (p.getAgeType() == null) {
                 throw new BookingException("Loại tuổi không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_027");
             }
-
-            String participantKey = p.getFullName() + "|" + p.getGender() + "|" + p.getAgeType();
-            if (!participantSet.add(participantKey)) {
+            if (!fullNames.add(p.getFullName().toLowerCase())) {
                 throw new BookingException("Người tham gia trùng lặp: " + p.getFullName(), HttpStatus.BAD_REQUEST, "BOOKING_020");
             }
         }
     }
-    private Booking prepareBooking(Booking request, UserDTO user, TourDTO tour) {
-        // Tạo bookingCode
-        String firstLetter = user.getFullName() != null && !user.getFullName().isEmpty()
-                ? user.getFullName().substring(0, 1).toUpperCase()
-                : "U";
-        String tourCodePrefix = tour.getTourCode() != null && tour.getTourCode().length() >= 4
-                ? tour.getTourCode().substring(0, 4)
-                : tour.getTourCode() != null ? tour.getTourCode() : "TOUR";
-        String randomString = RandomStringUtils.randomAlphanumeric(6).toUpperCase();
-        String bookingCode = String.format("BK%s%s%s", firstLetter, tourCodePrefix, randomString);
 
-
-        while (bookingRepository.existsByBookingCode(bookingCode)) {
-            randomString = RandomStringUtils.randomAlphanumeric(6).toUpperCase();
-            bookingCode = String.format("BK%s%s%s", firstLetter, tourCodePrefix, randomString);
-        }
-
+    private Booking prepareBooking(Booking request, UserDTO user, LightTourDTO tour) {
+        String bookingCode = generateBookingCode(user, tour);
         Booking booking = Booking.builder()
                 .userId(request.getUserId())
                 .tourId(request.getTourId())
@@ -257,6 +246,18 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
+    private String generateBookingCode(UserDTO user, LightTourDTO tour) {
+        String firstLetter = Optional.ofNullable(user.getFullName())
+                .filter(name -> !name.isEmpty())
+                .map(name -> name.substring(0, 1).toUpperCase())
+                .orElse("U");
+        String tourCodePrefix = Optional.ofNullable(tour.getTourCode())
+                .map(code -> code.length() >= 4 ? code.substring(0, 4) : code)
+                .orElse("TOUR");
+        String uniqueId = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        return String.format("BK%s%s%s", firstLetter, tourCodePrefix, uniqueId);
+    }
+
     private Participant buildParticipant(Participant request, Booking booking) {
         return Participant.builder()
                 .fullName(request.getFullName())
@@ -266,7 +267,7 @@ public class BookingServiceImpl implements BookingService {
                 .build();
     }
 
-    private void updateTourParticipants(TourDTO tour, int additionalParticipants) {
+    private void updateTourParticipants(LightTourDTO tour, int additionalParticipants) {
         if (tour.getTourId() == null) {
             logger.error("Tour ID is null for tour code: {}", tour.getTourCode());
             throw new BookingException("Tour ID không được null", HttpStatus.BAD_REQUEST, "BOOKING_014");
@@ -292,15 +293,12 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private BookingResponseDTO convertToResponseDTO(Booking booking) {
-        TourDTO tour = fetchTour(booking.getTourId());
-        UserDTO user = fetchUser(booking.getUserId());
-        tour.setTourId(booking.getTourId());
+    private BookingResponseDTO convertToResponseDTO(Booking booking, LightTourDTO tour, UserDTO user) {
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setId(booking.getId());
         dto.setBookingCode(booking.getBookingCode());
         dto.setUser(user);
-        dto.setTour(tour);
+        dto.setTour(convertToTourDTO(tour));
         dto.setTourCode(tour.getTourCode());
         dto.setBookingDate(booking.getBookingDate());
         dto.setUpdatedAt(booking.getUpdatedAt());
@@ -322,5 +320,22 @@ public class BookingServiceImpl implements BookingService {
 
         dto.setParticipants(participantInfos);
         return dto;
+    }
+
+    private TourDTO convertToTourDTO(LightTourDTO lightTour) {
+        TourDTO tourDTO = new TourDTO();
+        tourDTO.setTourId(lightTour.getTourId());
+        tourDTO.setTourCode(lightTour.getTourCode());
+        tourDTO.setTitle(lightTour.getTitle());
+        tourDTO.setPrice(lightTour.getPrice());
+        tourDTO.setMaxParticipants(lightTour.getMaxParticipants());
+        tourDTO.setCurrentParticipants(lightTour.getCurrentParticipants());
+        tourDTO.setStartDate(lightTour.getStartDate());
+        return tourDTO;
+    }
+
+    @Async
+    public void sendBookingConfirmationAsync(Booking booking, UserDTO user, LightTourDTO tour) {
+        emailService.sendBookingConfirmation(booking, user, convertToTourDTO(tour));
     }
 }

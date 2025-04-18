@@ -9,6 +9,7 @@ import AdminSidebar from '../../components/admin/adminSidebar';
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('booking');
   const [isSettingOpen, setIsSettingOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const renderTable = () => {
     switch (activeTab) {
@@ -16,35 +17,38 @@ function Dashboard() {
         return <TourTable />;
       case 'user':
         return <UserTable />;
+      case 'reports':
+        return <div className="p-4">Reports Content (Placeholder)</div>;
+      case 'payments':
+        return <div className="p-4">Payments Content (Placeholder)</div>;
       default:
         return <BookingTable />;
     }
   };
 
   return (
-      <div className="h-fit flex-column">
-        <div className="z-10">
-          {/* Navbar */}
-          <AdminNavbar />
-        </div>
+    <div className="flex flex-col h-screen">
+      {/* Navbar */}
+      <AdminNavbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-        <div className="fixed flex w-full h-full">
-          {/* Sidebar */}
-          <AdminSidebar
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              openSetting={() => setIsSettingOpen(true)}
-          />
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <AdminSidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          openSetting={() => setIsSettingOpen(true)}
+          isSidebarOpen={isSidebarOpen}
+        />
 
-          {/* Nội dung */}
-          <div className="container p-4 overflow-auto">
-            {renderTable()}
-          </div>
-        </div>
-
-        {/* Setting Modal */}
-        {isSettingOpen && <SettingModal onClose={() => setIsSettingOpen(false)} />}
+        {/* Main Content */}
+        <main className="flex-1 p-4 sm:ml-64 mt-16 overflow-auto">
+          {renderTable()}
+        </main>
       </div>
+
+      {/* Setting Modal */}
+      {isSettingOpen && <SettingModal onClose={() => setIsSettingOpen(false)} />}
+    </div>
   );
 }
 

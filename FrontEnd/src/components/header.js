@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import logo from '../assets/images/logo.png';
 import user_avt from '../assets/images/user_header.png';
-import { logout } from '../api/users.api';
+import { logout } from '../api/auth.api';
 
 const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);

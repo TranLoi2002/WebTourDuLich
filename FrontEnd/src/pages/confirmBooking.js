@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import axios from "axios";
-import { verifyUser } from "../api/users.api";
+import { verifyUser } from "../api/auth.api";
 // import createBooking from "../api/booking.api"
 
 const ConfirmBooking = () => {
@@ -100,7 +100,7 @@ const ConfirmBooking = () => {
                 notes: state.discountCode ? `Discount: ${state.discountCode}` : "",
             };
             // console.log(bookingData);
-              await axios.post(
+            await axios.post(
                 "http://localhost:8080/api/booking",
                 bookingData,
                 {

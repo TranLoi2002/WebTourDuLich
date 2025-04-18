@@ -1,12 +1,38 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal'
 import {TextField, MenuItem} from "@mui/material";
+import {getUserById, verifyUser} from "../api/auth.api";
 
 const Account = () => {
     const [activeSection, setActiveSection] = useState('account');
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [gender, setGender] = useState('');
+
+    const [user, setUser] = useState(null);
+    const [errorUser, setErrorUser] = useState("");
+
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const verifiedUser = await verifyUser();
+                if (verifiedUser?.id) {
+                    const userDetails = await getUserById(verifiedUser.id);
+                    setUser(userDetails);
+                    console.log("User details:", userDetails);
+
+                    console.log("user ", user)
+                } else {
+                    setErrorUser("User not found in cookie");
+                }
+            } catch (error) {
+                setErrorUser(error?.message || "Failed to fetch user details");
+            }
+        };
+
+        fetchUserDetails();
+    }, []); // chỉ chạy 1 lần khi component mount
+
 
     const changeSectionSecurity = () => {
         setActiveSection('security');
@@ -144,10 +170,9 @@ const Account = () => {
                                     <div className="relative">
                                         <form action="" method="post">
                                             <div className="flex items-center gap-[2rem] w-full my-5">
-                                                <TextField className="w-1/2" id="txtfname" label="First Name"
+                                                <TextField className="w-full" id="txtfname" label="Full Name"
                                                            variant="outlined"/>
-                                                <TextField className="w-1/2" id="txtfname" label="First Name"
-                                                           variant="outlined"/>
+
                                             </div>
 
                                             <div className="flex items-center gap-[2rem] w-full my-5">
@@ -168,7 +193,9 @@ const Account = () => {
 
                                             <div className="flex items-center gap-[2rem] w-full my-5">
                                                 <TextField className="w-1/2" id="txtemail" label="Email"
-                                                           variant="outlined"/>
+                                                           variant="outlined"
+                                                           value={user?.email || ''}
+                                                />
                                                 <TextField
                                                     className="w-1/2"
                                                     id="gender"

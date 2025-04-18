@@ -1,0 +1,109 @@
+services:
+  # MariaDB cho các dịch vụ
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  # Eureka Server (Discovery Service)
+  discovery-service:
+    build:
+      context: ./discovery_service
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api_gateway  # Đổi từ api-gateway thành api_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-service
+      - mariadb
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  # Booking Service
+  booking-service:
+    build:
+      context: ./booking_service  # Đổi từ booking_service thành booking_service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - discovery-service
+      - mariadb
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  # Catalog Service
+  catalog-service:
+    build:
+      context: ./catalog_service  # Đổi từ catalog-service thành catalog_service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery-service
+      - mariadb
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  # Review Service
+  review-service:
+    build:
+      context: ./review_service  # Đổi từ review-service thành review_service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    depends_on:
+      - discovery-service
+      - mariadb
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  # User Service
+  user-service:
+    build:
+      context: ./user_service  # Đổi từ user-service thành user_service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - discovery-service
+      - mariadb
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+# Định nghĩa volume cho MariaDB
+volumes:
+  mariadb-data:
+
+# Định nghĩa network để các container giao tiếp với nhau
+networks:
+  app-network:
+    driver: bridge

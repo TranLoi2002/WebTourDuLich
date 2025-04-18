@@ -1,6 +1,7 @@
 package iuh.fit.booking_service.client.catalog;
 
 import iuh.fit.booking_service.config.FeignConfig;
+import iuh.fit.booking_service.dto.LightTourDTO;
 import iuh.fit.booking_service.dto.TourDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 public interface CatalogClient {
 
     @GetMapping("/{id}")
-    TourDTO getTourById(@PathVariable("id") Long id);
+    LightTourDTO getTourById(@PathVariable("id") Long id);
+
 
     @PutMapping(value = "/update/current-participants/{id}", consumes = "application/json")
     void updateCurrentParticipants(@PathVariable("id") Long id,

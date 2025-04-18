@@ -1,70 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SettingModal = ({ onClose }) => {
-  const [username, setUsername] = useState('Admin');
-  const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('');
-  const [theme, setTheme] = useState('light');
-  const [language, setLanguage] = useState('vi');
-  const [notifications, setNotifications] = useState(true);
+  const [formData, setFormData] = useState({
+    theme: 'light',
+    language: 'vi',
+    notifications: true,
+  });
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    try {
+      const storedSettings = JSON.parse(localStorage.getItem('settings')) || {};
+      setFormData({
+        theme: storedSettings.theme || 'light',
+        language: storedSettings.language || 'vi',
+        notifications: storedSettings.notifications !== undefined ? storedSettings.notifications : true,
+      });
+    } catch (err) {
+      setError('Không thể tải cài đặt');
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
 
   const handleSave = () => {
-    // Xử lý lưu dữ liệu, có thể gửi API ở đây
-    console.log({
-      username,
-      email,
-      password,
-      theme,
-      language,
-      notifications,
-    });
-    onClose();
+    try {
+      localStorage.setItem(
+        'settings',
+        JSON.stringify({
+          theme: formData.theme,
+          language: formData.language,
+          notifications: formData.notifications,
+        })
+      );
+      onClose();
+    } catch (err) {
+      setError('Không thể lưu cài đặt');
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 max-h-[60vh] overflow-y-auto">
         <h2 className="text-2xl font-semibold mb-4">Cài đặt</h2>
-
-        {/* Thông tin người dùng */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
-          <input
-            type="text"
-            className="w-full mt-1 p-2 border rounded-md"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            className="w-full mt-1 p-2 border rounded-md"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        {/* Đổi mật khẩu */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Mật khẩu mới</label>
-          <input
-            type="password"
-            className="w-full mt-1 p-2 border rounded-md"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
         {/* Giao diện */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Giao diện</label>
           <select
+            name="theme"
             className="w-full mt-1 p-2 border rounded-md"
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
+            value={formData.theme}
+            onChange={handleChange}
           >
             <option value="light">Sáng</option>
             <option value="dark">Tối</option>
@@ -75,9 +69,10 @@ const SettingModal = ({ onClose }) => {
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Ngôn ngữ</label>
           <select
+            name="language"
             className="w-full mt-1 p-2 border rounded-md"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            value={formData.language}
+            onChange={handleChange}
           >
             <option value="vi">Tiếng Việt</option>
             <option value="en">English</option>
@@ -88,9 +83,10 @@ const SettingModal = ({ onClose }) => {
         <div className="mb-4 flex items-center">
           <input
             type="checkbox"
+            name="notifications"
             className="mr-2"
-            checked={notifications}
-            onChange={(e) => setNotifications(e.target.checked)}
+            checked={formData.notifications}
+            onChange={handleChange}
           />
           <label className="text-sm text-gray-700">Bật thông báo</label>
         </div>
@@ -116,7 +112,7 @@ const SettingModal = ({ onClose }) => {
           onClick={onClose}
           className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl leading-none"
         >
-          &times;
+          ×
         </button>
       </div>
     </div>

@@ -34,6 +34,10 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+
+    @Autowired
+    private UserRepository userRepository;
+
 //    @PostMapping("/login")
 //    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 //        String token = authService.login(loginRequest);
@@ -68,7 +72,18 @@ public class AuthController {
         String token = extractTokenFromCookies(request, "jwtToken");
         if (token != null) {
             UserDetails userDetails = authService.verifyToken(token);
-            return ResponseEntity.ok(userDetails);
+
+            // Fetch additional user details from the database
+            User user = userRepository.findByUserName(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Return a custom response with user details
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUserName());
+            response.put("email", user.getEmail());
+            response.put("role", user.getRole().getRoleName());
+            return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc không tồn tại");
     }

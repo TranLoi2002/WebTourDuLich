@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
-import { signup } from '../../api/users.api';
+import { signup } from '../../api/auth.api';
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({

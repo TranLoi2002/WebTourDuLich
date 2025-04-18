@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 // SIGN UP
 export const signup = async (user) => {
     try {
-        const response = await axios.post("http://localhost:8080/api/auth/register", user, {
+        const response = await axios.post(`${API_BASE_URL}/auth/register`, user, {
             withCredentials: true,
         });
         return response.data;
@@ -42,6 +42,18 @@ export const logout = async () => {
 export const verifyUser = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/auth/verifyUser`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong" };
+    }
+};
+
+// GET USER BY ID
+export const getUserById = async (userId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/user/${userId}`, {
             withCredentials: true,
         });
         return response.data;
