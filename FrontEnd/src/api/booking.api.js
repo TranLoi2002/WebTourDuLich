@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { handleApiError, formatSuccessResponse } from '../utils/apiErrorHandler';
-const API_BASE_URL =  "http://localhost:8083/api";
+
+const apiUrl =  process.env.REACT_APP_API_BASE_URL;
 
 export const getAllBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/booking`);
+      const response = await axios.get(`${apiUrl}/booking`);
       return formatSuccessResponse(response);
     } catch (error) {
       return handleApiError(error);
@@ -22,7 +23,7 @@ export const getAllBookings = async () => {
 
 
 export const updateBookingStatus = (id, status) => {
-    return axios.patch(`${API_BASE_URL}/${id}/status`, null, {
+    return axios.patch(`${apiUrl}/${id}/status`, null, {
         params: { status }
     });
 };

@@ -1,10 +1,10 @@
 import axios from "axios"
 
-const API_URL = "http://localhost:8083/api/catalog/locations";
+const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/catalog/locations`;
 
 export const getAllLocation = async () => {
     try {
-        const response = await axios.get(`${API_URL}`) // Use the correct API URL
+        const response = await axios.get(apiUrl) // Use the correct API URL
         return response.data;
     } catch (error) {
         console.error("Error fetching all locations:", error)
