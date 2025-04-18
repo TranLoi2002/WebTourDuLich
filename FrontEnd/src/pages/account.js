@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal'
 import {TextField, MenuItem} from "@mui/material";
-import {getUserById, verifyUser} from "../api/users.api";
+import {getUserById, verifyUser} from "../api/auth.api";
 
 const Account = () => {
     const [activeSection, setActiveSection] = useState('account');

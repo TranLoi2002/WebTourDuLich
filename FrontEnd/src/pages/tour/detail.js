@@ -7,7 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { format } from "date-fns";
-import { verifyUser } from "../../api/users.api";
+import { verifyUser } from "../../api/auth.api";
 
 const DetailTour = () => {
     const { id } = useParams();

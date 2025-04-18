@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import axios from "axios";
-import { verifyUser } from "../api/users.api";
+import { verifyUser } from "../api/auth.api";
 // import createBooking from "../api/booking.api"
 
 const ConfirmBooking = () => {

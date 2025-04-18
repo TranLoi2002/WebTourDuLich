@@ -18,15 +18,17 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-//
-//    @GetMapping("/{username}")
-//    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-//        User user = userService.findByUsername(username);
-//        return ResponseEntity.ok(user);
-//    }
+
+    @GetMapping(value = {"", "/"})
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.findAll();
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);
         return ResponseEntity.ok(user);
     }
+
 }
