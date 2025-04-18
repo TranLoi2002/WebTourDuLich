@@ -8,8 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
+        <module name="api_gateway" />
         <module name="DiscoveryService" />
         <module name="booking_service" />
+        <module name="discovery_service" />
       </profile>
       <profile name="Annotation profile for user_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -19,9 +21,12 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="BlogService" />
-        <module name="CatalogService" />
         <module name="user_service" />
+        <module name="blog_service" />
+        <module name="CatalogService" />
         <module name="ReviewService" />
+        <module name="catalog_service" />
+        <module name="review_service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -36,7 +41,12 @@
       <module name="DiscoveryService" options="-parameters" />
       <module name="ReviewService" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
+      <module name="api_gateway" options="-parameters" />
+      <module name="blog_service" options="-parameters" />
       <module name="booking_service" options="-parameters" />
+      <module name="catalog_service" options="-parameters" />
+      <module name="discovery_service" options="-parameters" />
+      <module name="review_service" options="-parameters" />
       <module name="user_service" options="-parameters" />
     </option>
   </component>

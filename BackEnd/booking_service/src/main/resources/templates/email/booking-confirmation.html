@@ -60,17 +60,20 @@
             color: #007bff;
             font-weight: bold;
         }
-        .participants-list {
-            list-style: none;
-            padding: 0;
+        .participants-table {
+            width: 100%;
+            border-collapse: collapse;
             margin: 20px 0;
         }
-        .participants-list li {
+        .participants-table th, .participants-table td {
             padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        .participants-table th {
             background-color: #f8f9fa;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            font-size: 16px;
+            color: #007bff;
+            font-weight: bold;
         }
         .btn {
             display: inline-block;
@@ -105,7 +108,7 @@
             .content h2 {
                 font-size: 18px;
             }
-            .content p, .info-table th, .info-table td, .participants-list li {
+            .content p, .info-table th, .info-table td, .participants-table th, .participants-table td {
                 font-size: 14px;
             }
             .btn {
@@ -149,15 +152,21 @@
         </table>
 
         <h2>Người tham gia</h2>
-        <ul class="participants-list">
-            <li th:each="p : ${participants}">
-                <span th:text="${p.fullName}"></span> (<span th:text="${p.ageType}"></span>)
-                <span th:if="${p.citizenId} != null"> - CCCD: <span th:text="${p.citizenId}"></span></span>
-            </li>
-        </ul>
+        <table class="participants-table">
+            <tr>
+                <th>Họ và Tên</th>
+                <th>Giới tính</th>
+                <th>Loại tuổi</th>
+            </tr>
+            <tr th:each="p : ${participants}">
+                <td th:text="${p.fullName}"></td>
+                <td th:text="${p.gender}"></td>
+                <td th:text="${p.ageType}"></td>
+            </tr>
+        </table>
 
         <div style="text-align: center;">
-            <a th:href="${#strings.isEmpty(booking.paymentDueTime) ? '#' : '/payment?bookingCode=' + booking.bookingCode}" class="btn">Thanh toán ngay</a>
+            <a th:href="'http://localhost:8080/api/booking/detail/' + ${booking.id}" class="btn">Thanh toán ngay</a>
         </div>
     </div>
     <div class="footer">

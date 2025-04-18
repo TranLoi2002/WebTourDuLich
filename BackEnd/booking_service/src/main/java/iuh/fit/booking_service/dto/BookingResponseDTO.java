@@ -5,7 +5,6 @@ import iuh.fit.booking_service.entity.Gender;
 import iuh.fit.booking_service.entity.AgeType;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,10 +28,7 @@ public class BookingResponseDTO {
     public static class ParticipantInfo {
         private Long id;
         private String fullName;
-        private String phoneNumber;
-        private String citizenId;
         private Gender gender;
-        private LocalDate dateOfBirth;
         private AgeType ageType;
     }
 

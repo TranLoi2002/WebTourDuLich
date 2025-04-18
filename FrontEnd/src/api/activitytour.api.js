@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = "http://localhost:8083/api/catalog/activity-types";
+const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/catalog/activity-types`;
 
 
 // get tour have activity tour and activity type

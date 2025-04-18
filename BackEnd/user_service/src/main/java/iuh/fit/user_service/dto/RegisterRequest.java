@@ -20,7 +20,7 @@ public class RegisterRequest {
     private String passWord;
 
 //    @Size(max = 100, message = "Tên không được dài quá 100 ký tự")
-    private String fullName;
+//    private String fullName;
 
 //    @Email(message = "Email không hợp lệ")
 //    @Size(max = 100, message = "Email không được dài quá 100 ký tự")

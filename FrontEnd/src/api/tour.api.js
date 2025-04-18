@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiURL = "http://localhost:8083/api/catalog/tours";
+const apiURL = `${process.env.REACT_APP_API_BASE_URL}/catalog/tours`;
 
 export const getAllTour = async () => {
     try{

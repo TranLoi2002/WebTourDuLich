@@ -11,6 +11,11 @@
         <option value="$PROJECT_DIR$/Backend/DiscoveryService/pom.xml" />
         <option value="$PROJECT_DIR$/Backend/user_service/pom.xml" />
         <option value="$PROJECT_DIR$/Backend/booking_service/pom.xml" />
+        <option value="$PROJECT_DIR$/BackEnd/api_gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/BackEnd/blog_service/pom.xml" />
+        <option value="$PROJECT_DIR$/BackEnd/catalog_service/pom.xml" />
+        <option value="$PROJECT_DIR$/BackEnd/discovery_service/pom.xml" />
+        <option value="$PROJECT_DIR$/BackEnd/review_service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
