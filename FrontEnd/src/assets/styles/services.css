@@ -1,0 +1,12 @@
+@media (min-width: 441px) and (max-width: 794px) {
+    .services_container{
+        padding: 3rem 5rem;
+    }
+    .services_content{
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .services_content .card{
+        width: 100%;
+    }
+}

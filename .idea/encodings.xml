@@ -7,7 +7,17 @@
     <file url="file://$PROJECT_DIR$/Backend/ReviewService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Backend/api-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Backend/api-gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/api_gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/api_gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/blog_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/blog_service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Backend/booking_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/catalog_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/catalog_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/discovery_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/discovery_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/review_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/review_service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Backend/user_service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Backend/user_service/src/main/resources" charset="UTF-8" />
   </component>
