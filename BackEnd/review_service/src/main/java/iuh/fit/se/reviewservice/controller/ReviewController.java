@@ -1,8 +1,9 @@
 package iuh.fit.se.reviewservice.controller;
 
 import iuh.fit.se.reviewservice.model.Review;
-import iuh.fit.se.reviewservice.model.ReviewStatus;
+import iuh.fit.se.reviewservice.model.ReviewReply;
 import iuh.fit.se.reviewservice.repository.ReviewRepository;
+import iuh.fit.se.reviewservice.service.ReviewReplyService;
 import iuh.fit.se.reviewservice.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,10 @@ import java.util.Optional;
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private ReviewReplyService reviewReplyService;
+
     @Autowired
     private ReviewRepository reviewRepository;
 
@@ -32,21 +37,30 @@ public class ReviewController {
         Optional<Review> review = reviewService.getReviewById(id);
         return review.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    @PostMapping
-    public ResponseEntity<Review> createReview(@RequestBody Review review) {
-        return ResponseEntity.ok(reviewService.createReview(review));
+    @PostMapping("/tour/{tourId}/add")
+    public ResponseEntity<Review> addReview(
+            @PathVariable Long tourId,
+            @RequestBody Map<String, Object> payload,
+            @RequestHeader("userId") Long userId) {
+        if (userId == null) {
+            return ResponseEntity.status(401).body(null); // Unauthorized
+        }
+        String content = (String) payload.get("comment");
+        List<String> imageUrls = (List<String>) payload.get("images");
+        Review review = reviewService.addReview(userId, tourId, content, imageUrls);
+        return ResponseEntity.ok(review);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
-        return ResponseEntity.ok(reviewService.updateReview(id, review));
-    }
+//    @PutMapping("/update/{id}")
+//    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
+//        return ResponseEntity.ok(reviewService.updateReview(id, review));
+//    }
 
     // get rating by tour
     @GetMapping("/tour/{tourId}/ratings")
     public ResponseEntity<?> getTourRating(@PathVariable Long tourId){
         Double averageRating = reviewRepository.findAverageRatingByTourId(tourId);
-        Long totalReviews = reviewRepository.countByTourIdAndStatus(tourId, ReviewStatus.APPROVED);
+        Long totalReviews = reviewRepository.countByTourId(tourId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("averageRating", averageRating != null ? averageRating : 0.0);
@@ -57,8 +71,27 @@ public class ReviewController {
 
     @GetMapping("/tour/{tourId}")
     public ResponseEntity<List<Review>> getReviewsByTourId(@PathVariable Long tourId) {
-        List<Review> reviews = reviewRepository.findByTourIdAndStatus(tourId, ReviewStatus.APPROVED);
+        List<Review> reviews = reviewService.getReviewsByTourId(tourId);
         return ResponseEntity.ok(reviews);
+    }
+
+    @PostMapping("/{reviewId}/reply")
+    public ResponseEntity<ReviewReply> addReply(
+            @PathVariable Long reviewId,
+            @RequestBody Map<String, Object> payload,
+            @RequestHeader("userId") Long userId) {
+        if (userId == null) {
+            return ResponseEntity.status(401).body(null); // Unauthorized
+        }
+        String content = (String) payload.get("content");
+        ReviewReply reply = reviewReplyService.addReviewReply(reviewId, userId, content);
+        return ResponseEntity.ok(reply);
+    }
+
+    @GetMapping("/reply/{reviewId}")
+    public ResponseEntity<List<ReviewReply>> getRepliesByReviewId(@PathVariable Long reviewId) {
+        List<ReviewReply> replies = reviewReplyService.getReviewRepliesByReviewId(reviewId);
+        return ResponseEntity.ok(replies);
     }
 
 }

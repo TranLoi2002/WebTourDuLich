@@ -31,7 +31,7 @@ const CreateTripModal = ({open, handleClose}) => {
             try {
                 const response = await getAllTour();
                 setTours(response);
-                console.log("Tours fetched:", response);
+                // console.log("Tours fetched:", response);
             } catch (error) {
                 console.error("Error fetching tours:", error);
             }

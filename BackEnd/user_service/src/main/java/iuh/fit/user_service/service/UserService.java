@@ -7,4 +7,8 @@ import java.util.List;
 public interface UserService {
     User findByUsername(String username);
     User findById(Long id);
+
+    void addFavouriteTour(Long userId, Long tourId);
+
+    void removeFavouriteTour(Long userId, Long tourId);
 }

@@ -4,6 +4,7 @@ import Modal from 'react-modal';
 import logo from '../assets/images/logo.png';
 import user_avt from '../assets/images/user_header.png';
 import { logout } from '../api/auth.api';
+import {toast} from "react-toastify";
 
 const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
@@ -21,6 +22,18 @@ const Header = () => {
         setIsLoggedIn(!!user);
     }, [location]);
 
+    // Lắng nghe sự thay đổi trong localStorage
+    useEffect(() => {
+        const handleStorageChange = (event) => {
+            if (event.key === 'user') {
+                const user = localStorage.getItem('user');
+                setIsLoggedIn(!!user);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     // Xử lý cuộn trang
     useEffect(() => {
@@ -44,6 +57,14 @@ const Header = () => {
                 setIsLoggedIn(false);
                 setShowUserMenu(false);
                 localStorage.removeItem('user');
+                toast.info("Logout successfully.", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
                 navigate('/auth/sign_in');
             })
             .catch((error) => console.error('Logout failed:', error));

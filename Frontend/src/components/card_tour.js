@@ -1,15 +1,60 @@
-import {Link} from "react-router-dom";
-// import img_tour_1 from "../assets/images/image_tour_1.avif";
+import {Link, useNavigate} from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {toast} from "react-toastify";
+import {addFavouriteTourByUserId, getFavouriteTourByUserId, removeFavouriteTourByUserId} from "../api/user.api";
 
 const CardTour = ({tour, isShowDesc}) => {
+
+    const [isLiked, setIsLiked] = useState(false);
+
+    // check like tour if do not login by user in localstorage
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    useEffect(() => {
+        const checkIfLiked = async () => {
+            if (user) {
+                try {
+                    const favourites = await getFavouriteTourByUserId(user.id);
+                    const isTourLiked = favourites.some((fav) => fav.id === tour.id);
+                    setIsLiked(isTourLiked);
+                } catch (error) {
+                    console.error("Failed to fetch favourites:", error);
+                }
+            }
+        };
+        checkIfLiked();
+    }, [user, tour.id]);
+
     if (!tour || !tour.title) {
-        return null; // Do not render the card if the tour object is empty or has no title
+        return null;
     }
 
     // Calculate the discounted price
     const discountedPrice = tour.discount > 0
         ? (tour.price * (1 - tour.discount / 100)).toFixed(2)
         : tour.price;
+
+    const handleLikeClick = async () => {
+        if (!user) {
+            toast.info("Please login to like this tour.");
+            return;
+        }
+
+        try {
+            if (isLiked) {
+                await removeFavouriteTourByUserId(user.id, tour.id);
+                setIsLiked(false);
+                toast.success("Removed from favourites.");
+            } else {
+                await addFavouriteTourByUserId(user.id, tour.id);
+                setIsLiked(true);
+                toast.success("Added to favourites.");
+            }
+        } catch (error) {
+            toast.error("Something went wrong.");
+        }
+    };
+
 
     return (
         <div className="card-tour border rounded-lg shadow-md p-4 w-full md:w-[300px] flex flex-col relative">
@@ -28,14 +73,22 @@ const CardTour = ({tour, isShowDesc}) => {
                     </Link>
                 )}
                 <span
-                    className="absolute top-[40px] right-[30px] bg-white p-3 w-[30px] h-[30px] text-center rounded-full flex items-center justify-center">
-                    <i className="fa-regular fa-heart"></i>
+                    className={`absolute cursor-pointer top-[40px] right-[30px] bg-white p-3 w-[30px] h-[30px] text-center rounded-full flex items-center justify-center ${
+                        isLiked ? "text-red-500" : "text-white"
+                    }`}
+                >
+                   <i
+                       className={`fa-solid fa-heart ${isLiked ? "text-red-500" : "text-gray-300"} cursor-pointer`}
+                       onClick={handleLikeClick}
+                   />
                 </span>
+
+
             </div>
 
-            <p className="text-base font-semibold mb-2 h-[48px] overflow-hidden">
+            <Link to={`/tours/detailtour/${tour.id}`} className="text-base font-semibold mb-2 h-[48px] overflow-hidden">
                 {tour.title.length <= 40 ? tour.title : tour.title.substring(0, 40) + "..."}
-            </p>
+            </Link>
             {isShowDesc && (
                 <div>
                     <div className="review flex flex-wrap justify-between items-center text-sm mb-3">

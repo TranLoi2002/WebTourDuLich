@@ -9,7 +9,8 @@ import {
     Alert,
 } from "@mui/material";
 import logo from "../../assets/images/logo.png";
-import { login } from "../../api/auth.api"; // Đảm bảo API login được định nghĩa đúng
+import { login } from "../../api/auth.api";
+import {toast} from "react-toastify";
 
 const Sign_In = () => {
     const [formData, setFormData] = useState({ userName: "", passWord: "" });
@@ -35,9 +36,24 @@ const Sign_In = () => {
 
             // Điều hướng dựa trên vai trò
             if (res.user?.role?.roleName === "ADMIN") {
-                alert("DANG NHAP THANH CONG");
+                toast.info("Login success with Admin.", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
                 navigate("/admin");
             } else {
+                toast.info("Login successfully.", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
                 navigate("/");
             }
         } catch (err) {

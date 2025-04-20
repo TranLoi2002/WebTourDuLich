@@ -7,11 +7,13 @@ import {getAllLocation} from "../../api/location.api";
 import {getAllTourType} from "../../api/tourtype.api";
 import {getTourByTourTypeId} from "../../api/tourtype.api";
 import SkeletonTourCard from "../../components/SkeletonTourCard";
+import {useLoading} from "../../utils/LoadingContext"
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 
 const Show = () => {
     // const [layout, setLayout] = useState('horizontal');
-    const [loading, setLoading] = useState(true);
+    const {isLoading, setIsLoading} = useLoading();
 
     const [tourSale, setTourSale] = useState([]);
     const [tourFav, setTourFav] = useState([]);
@@ -25,53 +27,61 @@ const Show = () => {
     useEffect(() => {
         const fetchSaleTours = async () => {
             try {
+                setIsLoading(true);
                 const response = await getAllTour();
                 const filterTours = response.filter(tour => tour.discount > 10);
                 setTourSale(filterTours);
             } catch (error) {
                 console.error("Error fetching tours:", error);
             } finally {
-                setLoading(false);
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 1000);
             }
         };
 
         fetchSaleTours();
-    }, []);
+    }, [setIsLoading]);
 
     useEffect(() => {
         const fetchFavTours = async () => {
             try {
+                setIsLoading(true);
                 const response = await getAllTour();
                 const filterTours = response.filter(tour => tour.currentParticipants > 0);
                 setTourFav(filterTours);
             } catch (error) {
                 console.error("Error fetching tours:", error);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
         fetchFavTours();
-    }, []);
+    }, [setIsLoading]);
 
     // get location from location.api.js
     useEffect(() => {
         const fetchLocations = async () => {
             try {
+                setIsLoading(true);
                 const response = await getAllLocation();
                 setLocations(response);
             } catch (error) {
                 console.error("Error fetching locations:", error);
+            }finally {
+                setIsLoading(false);
             }
         };
 
         fetchLocations();
-    }, []);
+    }, [setIsLoading]);
 
     // get tour type from tourtype.api.js
     useEffect(() => {
         const fetchTourTypes = async () => {
             try {
+                setIsLoading(true);
                 const response = await getAllTourType();
                 setTourTypes(response);
                 if (response.length > 0) {
@@ -79,51 +89,67 @@ const Show = () => {
                 }
             } catch (error) {
                 console.error("Error fetching tour types:", error);
+            }finally {
+                setIsLoading(false);
             }
         };
 
         fetchTourTypes();
-    }, []);
+    }, [setIsLoading]);
 
     useEffect(() => {
         const fetchToursByTourType = async () => {
             if (selectedTourType) {
                 try {
+                    setIsLoading(true);
                     const response = await getTourByTourTypeId(selectedTourType);
                     setTourByTourType(response);
                 } catch (error) {
                     console.error("Error fetching tours by tour type:", error);
+                } finally {
+                    setIsLoading(false);
                 }
             }
         };
 
         fetchToursByTourType();
-    }, [selectedTourType]);
+    }, [selectedTourType, setIsLoading]);
 
     return (
         <div className="show_tour">
-            {loading ? (
-                <div className="skeleton-container">
-                    {Array.from({length: 5}).map((_, index) => (
-                        <SkeletonTourCard key={index}/>
-                    ))}
-                </div>
+            {isLoading ? (
+                <>
+                    <LoadingOverlay isLoading={true}/>
+                    <div className="skeleton-container">
+                        {Array.from({length: 5}).map((_, index) => (
+                            <SkeletonTourCard key={index}/>
+                        ))}
+                    </div>
+                </>
             ) : (
                 <>
-                    {tourSale.length > 0 ? (
-                        <HorizontalLayout tours={tourSale} title="Tour sale" isShowDescCard={true}/>
-                    ) : null}
+                    {tourSale.length > 0 && (
+                        <HorizontalLayout
+                            tours={tourSale}
+                            title="Tour sale"
+                            isShowDescCard={true}
+                        />
+                    )}
 
-                    {tourFav.length > 0 ? (
-                        <GridLayout tours={tourFav} itemsPerPage={6} title="Tour favourite" isShowDescCard={true}/>
-                    ) : null}
+                    {tourFav.length > 0 && (
+                        <GridLayout
+                            tours={tourFav}
+                            itemsPerPage={6}
+                            title="Tour favourite"
+                            isShowDescCard={true}
+                        />
+                    )}
 
-                    {locations.length > 0 ? (
+                    {locations.length > 0 && (
                         <MasonryLayout locations={locations} title={"Top destinations"}/>
-                    ) : null}
+                    )}
 
-
-                    {tourTypes.length > 0 ? (
+                    {tourTypes.length > 0 && (
                         <div>
                             <h2 className="text-2xl font-bold mt-8">Your plan by favourites ?</h2>
                             <div className="mt-6 flex flex-row gap-3">
@@ -137,15 +163,18 @@ const Show = () => {
                                     </div>
                                 ))}
                             </div>
-                            <div>
-                                <HorizontalLayout tours={tourByTourType} title="" isShowDescCard={false}/>
-                            </div>
+                            <HorizontalLayout
+                                tours={tourByTourType}
+                                title=""
+                                isShowDescCard={false}
+                            />
                         </div>
-                    ) : null}
+                    )}
                 </>
             )}
         </div>
     );
+
 }
 
 export default Show;

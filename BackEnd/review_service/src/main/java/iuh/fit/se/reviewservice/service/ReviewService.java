@@ -8,8 +8,9 @@ import java.util.Optional;
 public interface ReviewService {
     List<Review> getAllReviews();
     Optional<Review> getReviewById(Long id);
-    Review createReview(Review review);
-    Review updateReview(Long id, Review review);
+    Review addReview(Long userId, Long tourId, String content, List<String> imageUrls);
+    List<Review> getReviewsByTourId(Long tourId);
+//    Review updateReview(Long id, Review review);
 
     List<Review> getReviewByTourId(Long tourId);
 }

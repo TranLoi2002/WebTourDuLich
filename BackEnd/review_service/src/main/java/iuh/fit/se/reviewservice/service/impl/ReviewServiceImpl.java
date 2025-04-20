@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,27 +35,40 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review createReview(Review review) {
+    public Review addReview(Long userId, Long tourId, String content, List<String> imageUrls) {
+        Review review = new Review();
+        review.setUserId(userId);
+        review.setTourId(tourId);
+        review.setComment(content);
+        review.setImages(imageUrls);
+        review.setCreatedAt(LocalDateTime.now());
         return reviewRepository.save(review);
     }
 
     @Override
-    public Review updateReview(Long id, Review review) {
-       return reviewRepository.findById(id)
-                .map(oldReview -> {
-                    oldReview.setTourId(review.getTourId());
-                    oldReview.setUserId(review.getUserId());
-                    oldReview.setRating(review.getRating());
-                    oldReview.setComment(review.getComment());
-                    oldReview.setImages(review.getImages());
-                    oldReview.setCreatedAt(review.getCreatedAt());
-                    oldReview.setUpdatedAt(review.getUpdatedAt());
-                    oldReview.setStatus(review.getStatus());
-
-                    return reviewRepository.save(oldReview);
-                }).orElseThrow(() -> new RuntimeException("Review not found with id " + id));
-
+    public List<Review> getReviewsByTourId(Long tourId) {
+        return reviewRepository.findByTourId(tourId);
     }
+
+
+
+//    @Override
+//    public Review updateReview(Long id, Review review) {
+//       return reviewRepository.findById(id)
+//                .map(oldReview -> {
+//                    oldReview.setTourId(review.getTourId());
+//                    oldReview.setUserId(review.getUserId());
+//                    oldReview.setRating(review.getRating());
+//                    oldReview.setComment(review.getComment());
+//                    oldReview.setImages(review.getImages());
+//                    oldReview.setCreatedAt(review.getCreatedAt());
+//                    oldReview.setUpdatedAt(review.getUpdatedAt());
+////                    oldReview.setStatus(review.getStatus());
+//
+//                    return reviewRepository.save(oldReview);
+//                }).orElseThrow(() -> new RuntimeException("Review not found with id " + id));
+//
+//    }
 
     @Override
     public List<Review> getReviewByTourId(Long tourId) {

@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal'
 import {TextField, MenuItem} from "@mui/material";
 import {getUserById, verifyUser} from "../api/auth.api";
+import {getFavouriteTourByUserId, removeFavouriteTourByUserId} from "../api/user.api";
+import {Link} from "react-router-dom";
 
 const Account = () => {
     const [activeSection, setActiveSection] = useState('account');
@@ -11,6 +13,8 @@ const Account = () => {
 
     const [user, setUser] = useState(null);
     const [errorUser, setErrorUser] = useState("");
+
+    const [favouritesTour, setFavouritesTour] = useState([]);
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -32,6 +36,42 @@ const Account = () => {
 
         fetchUserDetails();
     }, []); // chỉ chạy 1 lần khi component mount
+
+    useEffect(() => {
+        const fetchFavouritesTour = async () => {
+            try {
+                if (user?.id) {
+                    const response = await getFavouriteTourByUserId(user.id);
+                    setFavouritesTour(response);
+                    console.log("Favourites tour:", response);
+                }
+            } catch (error) {
+                console.error("Failed to fetch favourites tour:", error);
+            }
+        };
+
+        fetchFavouritesTour();
+
+    });
+
+    // handle remove favourite tour
+    const handleRemoveFavouriteTour = async (tourId) => {
+        try {
+            if (user?.id) {
+                await removeFavouriteTourByUserId(user.id, tourId);
+                setFavouritesTour((prevFavourites) =>
+                    prevFavourites.filter((tour) => tour.id !== tourId)
+                );
+            }
+        } catch (error) {
+            console.error("Failed to remove favourite tour:", error);
+        }
+    };
+
+    // Gọi hàm khi cần thiết, ví dụ khi người dùng click vào nút xóa
+    const handleDeleteClick = (tourId) => {
+        handleRemoveFavouriteTour(tourId);
+    };
 
 
     const changeSectionSecurity = () => {
@@ -456,12 +496,36 @@ const Account = () => {
                                 <table className="bg-[#fafafa] border-collapse border-spacing-0 rounded-lg text-center shadow-xl mt-[2rem] w-full">
                                     <thead>
                                     <tr>
-                                        <th>Name tour</th>
+                                        <th>Name</th>
                                         <th>Tour Code</th>
+                                        <th>Place of Departure</th>
+                                        <th>Price</th>
+                                        <th>Detail</th>
+                                        <th>Remove</th>
                                     </tr>
                                     </thead>
+                                    <tbody>
+                                    {favouritesTour.map((tour, index) => (
+                                        <tr key={index}>
+                                            <td>{tour.title}</td>
+                                            <td>{tour.tourCode}</td>
+                                            <td>{tour.placeOfDeparture}</td>
+                                            <td>{tour.price}</td>
+                                            <td>
+                                                <Link to={`/tours/detailtour/${tour.id}`}
+                                                      className="text-primary underline">More</Link>
+                                            </td>
+                                            <td>
+                                                <span onClick={() => handleDeleteClick(tour.id)}>
+                                                    <i className="fa-solid fa-trash-can text-red-600 cursor-pointer"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
                                 </table>
-                                <button id="btnDel" className="mt-[15px] border-none rounded-lg py-[10px] px-[20px] shadow-xl block text-sm bg-red-600 text-white">delete All</button>
+                                <button id="btnDel"
+                                        className="mt-[15px] border-none rounded-lg py-[10px] px-[20px] shadow-xl block text-sm bg-red-600 text-white">delete All</button>
                             </div>
 
                         )}

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
 import { signup } from '../../api/auth.api';
+import {toast} from "react-toastify";
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
@@ -41,7 +42,15 @@ const Sign_Up = () => {
 
         try {
             const res = await signup(user); // Call the signup API
-            console.log("Signup success:", res);
+            toast.info("Register account success. Let's complete your sign in !!", {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+            // console.log("Signup success:", res);
             navigate("/auth/sign_in"); // Redirect to the login page
         } catch (err) {
             setError(err.response?.data?.error || "Signup failed");

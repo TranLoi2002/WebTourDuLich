@@ -1,22 +1,26 @@
-package iuh.fit.se.catalogservice.dto;
+package iuh.fit.user_service.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class TourDTO {
     private Long id;
-    private String title;
     private String tourCode;
+    private String title;
     private String description;
     private String highlights;
     private boolean isActivityTour;
-    private Double averageRating;
+    private Double price;
     private int discount;
     private String placeOfDeparture;
-    private Double price;
     private String duration;
     private Date startDate;
     private Date endDate;
@@ -24,8 +28,10 @@ public class TourDTO {
     private Integer currentParticipants;
     private String thumbnail;
     private List<String> images;
+
+//    private Double averageRating;
+//    private Long totalReviews;
     private Long locationId; // Thay thế cho Location entity
     private Long tourTypeId; // Thay thế cho TourType entity
-//    private List<Long> activityTypeIds; // Thay thế cho ActivityType entity
-    private Long totalReviews;
+//    private Set<Long> activityTypeIds; // Thay thế cho ActivityType entity
 }

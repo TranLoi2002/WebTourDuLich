@@ -11,10 +11,12 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long>{
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.tourId = :tourId AND r.status = 'APPROVED'")
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.tourId = :tourId")
     Double findAverageRatingByTourId(@Param("tourId") Long tourId);
 
-    Long countByTourIdAndStatus(Long tourId, ReviewStatus status);
+    Long countByTourId(Long tourId);
 
-    List<Review> findByTourIdAndStatus(Long tourId, ReviewStatus status);
+//    List<Review> findByTourIdAndStatus(Long tourId);
+
+    List<Review> findByTourId(Long tourId);
 }
