@@ -5,6 +5,8 @@ import TourTable from '../../components/admin/tourTable';
 import UserTable from '../../components/admin/userTable';
 import SettingModal from '../../components/admin/settingModal';
 import AdminSidebar from '../../components/admin/adminSidebar';
+import PaymentsPage from '../../components/admin/payments';
+
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('booking');
@@ -20,8 +22,7 @@ function Dashboard() {
       case 'reports':
         return <div className="p-4">Reports Content (Placeholder)</div>;
       case 'payments':
-        return <div className="p-4">Payments Content (Placeholder)</div>;
-      default:
+        return <PaymentsPage/>;
         return <BookingTable />;
     }
   };
