@@ -23,7 +23,9 @@ export const getAllBookings = async () => {
  */
 export const createBooking = async (bookingRequest) => {
   try {
-    const response = await axios.post(`${apiUrl}/booking`, bookingRequest);
+    const response = await axios.post(`${apiUrl}/booking`, bookingRequest, {
+      withCredentials: true,
+    });
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);

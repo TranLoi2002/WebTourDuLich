@@ -1,5 +1,6 @@
 package iuh.fit.booking_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.List;
 
 @Data
 public class TourDTO {
+    @JsonProperty("id")
     private Long tourId;
     private String tourCode;
     private String title;

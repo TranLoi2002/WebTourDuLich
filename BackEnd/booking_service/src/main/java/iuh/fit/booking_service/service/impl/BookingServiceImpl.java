@@ -268,6 +268,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void updateTourParticipants(LightTourDTO tour, int additionalParticipants) {
+
         if (tour.getTourId() == null) {
             logger.error("Tour ID is null for tour code: {}", tour.getTourCode());
             throw new BookingException("Tour ID không được null", HttpStatus.BAD_REQUEST, "BOOKING_014");

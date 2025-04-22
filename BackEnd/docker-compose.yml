@@ -1,19 +1,4 @@
 services:
-  # MariaDB cho các dịch vụ
-  mariadb:
-    image: mariadb:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-    volumes:
-      - mariadb-data:/var/lib/mysql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    ports:
-      - "3306:3306"
-    networks:
-      - app-network
-
   # Eureka Server (Discovery Service)
   discovery-service:
     build:
@@ -33,75 +18,76 @@ services:
       - "8080:8080"
     depends_on:
       - discovery-service
-      - mariadb
+#      - mariadb
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     networks:
       - app-network
 
-  # Booking Service
   booking-service:
     build:
-      context: ./booking_service  # Đổi từ booking_service thành booking_service
+      context: ./booking_service
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
     depends_on:
       - discovery-service
-      - mariadb
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/booking_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - app-network
 
-  # Catalog Service
   catalog-service:
     build:
-      context: ./catalog_service  # Đổi từ catalog-service thành catalog_service
+      context: ./catalog_service
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
     depends_on:
       - discovery-service
-      - mariadb
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/catalog_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - app-network
 
-  # Review Service
   review-service:
     build:
-      context: ./review_service  # Đổi từ review-service thành review_service
+      context: ./review_service
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
     depends_on:
       - discovery-service
-      - mariadb
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/review_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - app-network
 
-  # User Service
   user-service:
     build:
-      context: ./user_service  # Đổi từ user-service thành user_service
+      context: ./user_service
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
     depends_on:
       - discovery-service
-      - mariadb
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/user_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - app-network
 
-# Định nghĩa volume cho MariaDB
-volumes:
-  mariadb-data:
 
 # Định nghĩa network để các container giao tiếp với nhau
 networks:
