@@ -54,9 +54,7 @@ export const getBooking = async (id) => {
  */
 export const updateBookingStatus = async (id, status) => {
   try {
-    const response = await axios.patch(`${apiUrl}/booking/${id}/status`, null, {
-      params: { status },
-    });
+    const response = await axios.patch(`${apiUrl}/booking/${id}/status?status=${status}`);
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);

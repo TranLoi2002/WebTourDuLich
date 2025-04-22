@@ -20,6 +20,7 @@ spring:
               - PUT
               - DELETE
               - OPTIONS
+              - PATCH
             allowedHeaders: "*"
             allowCredentials: true
       discovery:
@@ -33,6 +34,14 @@ spring:
             - Path=/api/booking/**
           filters:
             - StripPrefix=1
+#        - id: booking-websocket
+#          uri: lb://BOOKING-SERVICE
+#          predicates:
+#            - Path=/api/ws/**
+#            - WebSocket=*
+#          filters:
+#            - StripPrefix=1
+#            - name: WebSocket
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:

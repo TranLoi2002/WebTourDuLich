@@ -5,6 +5,8 @@ import TourTable from '../../components/admin/tourTable';
 import UserTable from '../../components/admin/userTable';
 import SettingModal from '../../components/admin/settingModal';
 import AdminSidebar from '../../components/admin/adminSidebar';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('booking');
@@ -28,6 +30,9 @@ function Dashboard() {
 
   return (
     <div className="flex flex-col h-screen">
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+
       {/* Navbar */}
       <AdminNavbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
