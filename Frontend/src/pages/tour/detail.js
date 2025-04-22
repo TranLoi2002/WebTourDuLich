@@ -1,432 +1,765 @@
-import React, {useState, useEffect} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {getDetailTour, getReviewOfTour} from "../../api/tour.api";
-import {Swiper, SwiperSlide} from "swiper/react";
-import {Navigation, Pagination} from "swiper/modules";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getDetailTour, getRelatedTourByLocationId } from "../../api/tour.api";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import {format} from "date-fns";
-import {verifyUser} from "../../api/auth.api";
-import {createReview} from "../../api/review.api";
-import {getUserById} from "../../api/user.api";
+import { format } from "date-fns";
+import { verifyUser } from "../../api/auth.api";
+import { createReview, getReviewOfTour, addReply, getRepliesByReviewId } from "../../api/review.api";
+import { getUserById } from "../../api/user.api";
+import { toast } from "react-toastify";
+import { uploadImages } from "../../api/review.api";
 
+// Placeholder for HorizontalLayout
+const HorizontalLayout = ({ children }) => <div>{children}</div>;
+
+// Sub-component for Tour Information (unchanged)
+const TourInfo = ({ tour, randomImage, showImages, setShowImages }) => (
+  <div className="trip_main">
+    <div className="trip_infor">
+      {tour && tour.tourType ? (
+        <>
+          <span className="Tour">{tour.tourType.name}</span>
+          <label>
+            <i className="fa-solid fa-location-dot"></i>
+            <span>{tour.location.name}</span>
+          </label>
+        </>
+      ) : (
+        <p>No tour information available.</p>
+      )}
+    </div>
+    <div className="top">
+      <div className="image_main">
+        <img src={tour.thumbnail} alt="Main Tour" />
+      </div>
+      <div className="image_second">
+        {tour.images.slice(0, 1).map((image, index) => (
+          <img key={index} src={image} alt={`Tour Image ${index + 1}`} />
+        ))}
+        <div className="image_third w-full h-full overflow-hidden">
+          <div className="absolute w-full h-full bg-gradient-to-b from-black to-transparent rounded-lg"></div>
+          <img src={tour.images[1]} alt={`Tour Image 3`} />
+          {tour.images.length > 1 && (
+            <button className="more_images_button" onClick={() => setShowImages(true)}>
+              +{tour.images.length - 2} more
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+    {showImages && (
+      <div className="image_modal_overlay">
+        <div className="image_modal">
+          <button className="close_button" onClick={() => setShowImages(false)}>
+            ×
+          </button>
+          <Swiper spaceBetween={10} slidesPerView={1} navigation pagination={{ clickable: true }} modules={[Navigation, Pagination]}>
+            {tour.images.map((image, index) => (
+              <SwiperSlide key={index}>
+                <img src={image} alt={`Tour Image ${index + 1}`} className="modal_image" />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </div>
+    )}
+    <div className="top_infor">
+      <div className="review">{randomImage && <img src={randomImage} alt="Image Tour" />}</div>
+      <div className="content">
+        <div className="details_review">
+          <span>{tour.averageRating.toFixed(1)}</span>
+          <i className="fa-solid fa-star text-yellow-600"></i>
+          <span>
+            - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
+          </span>
+          <span className="px-4 py-2 rounded bg-blue-200 text-blue-600 text-center">Good</span>
+        </div>
+        <h2 id="name">{tour.title}</h2>
+        <div className="details">
+          <label>
+            <span>Tour Code</span>
+            <a href="#" id="tcode">{tour.tourCode}</a>
+          </label>
+          <label>
+            <span>Duration:</span>
+            <a href="#" id="dura">{tour.duration}</a>
+          </label>
+          <label>
+            <span>Place of departure</span>
+            <a href="#" id="place">{tour.placeOfDeparture}</a>
+          </label>
+          <label>
+            <span>Current seat:</span>
+            <a href="#">{tour.currentParticipants} / {tour.maxParticipants}</a>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Sub-component for Booking Form (unchanged)
+const BookingForm = ({ tour, adults, setAdults, children, setChildren, babies, setBabies, discountCode, setDiscountCode, totalPrice, handleSubmit, checkGiamGia }) => (
+  <div className="book_container">
+    <div className="book_now">
+      <h2 className="font-bold text-primary">Trip summary</h2>
+      <div className="infor_book">
+        <img src={tour.thumbnail} alt="" />
+        <p>{tour.title}</p>
+      </div>
+      <div className="schedule">
+        <label>
+          <i className="fa-solid fa-calendar-days"></i>
+          <span>Start your trip - {tour.startDate ? format(new Date(tour.startDate), "MMMM, dd yyyy") : "N/A"}</span>
+        </label>
+        <label>
+          <i className="fa-solid fa-calendar-days"></i>
+          <span>End your trip - {tour.endDate ? format(new Date(tour.endDate), "MMMM, dd yyyy") : "N/A"}</span>
+        </label>
+      </div>
+      <div className="infor_booking">
+        <label>
+          <h4>Passenger</h4>
+          {/*<span>{adults + children + conjectural passengers}</span>*/}
+        </label>
+        <label>
+          <h4>Adult</h4>
+          <div className="discrea">
+            <i className="fa-solid fa-minus" onClick={() => setAdults(Math.max(0, adults - 1))}></i>
+            <span>{adults}</span>
+            <i className="fa-solid fa-plus" onClick={() => setAdults(adults + 1)}></i>
+          </div>
+        </label>
+        <label>
+          <h4>Children</h4>
+          <div className="discrea">
+            <i className="fa-solid fa-minus" onClick={() => setChildren(Math.max(0, children - 1))}></i>
+            <span>{children}</span>
+            <i className="fa-solid fa-plus" onClick={() => setChildren(children + 1)}></i>
+          </div>
+        </label>
+        <label>
+          <h4>Baby</h4>
+          <div className="discrea">
+            <i className="fa-solid fa-minus" onClick={() => setBabies(Math.max(0, babies - 1))}></i>
+            <span>{babies}</span>
+            <i className="fa-solid fa-plus" onClick={() => setBabies(babies + 1)}></i>
+          </div>
+        </label>
+        <label className="discount">
+          <h4>Discount Code</h4>
+          <div className="discrea">
+            <input
+              type="text"
+              placeholder="Add Code"
+              value={discountCode}
+              className="border-2 rounded px-2 py-4"
+              onChange={(e) => setDiscountCode(e.target.value)}
+            />
+            <button onClick={checkGiamGia}>Apply</button>
+          </div>
+        </label>
+        <label className="total">
+          <h4>TOTAL</h4>
+          <div className="discrea_total">
+            <span>${totalPrice.toFixed(2)}</span>
+          </div>
+        </label>
+        <button className="book_submit" onClick={handleSubmit}>
+          BOOK NOW
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// Updated ReviewSection with Star Rating and Image Upload
+const ReviewSection = ({ reviews, user, newReview, setNewReview, rating, setRating, images, setImages, handleReviewSubmit, toggleReplies, handleReplySubmit, newReply, setNewReply, loadMoreReviews, hasMore }) => {
+  // Handle image selection
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setImages((prev) => [...prev, ...newImages]);
+  };
+
+  // Remove an image from the preview
+  const removeImage = (index) => {
+    setImages((prev) => {
+      const updatedImages = [...prev];
+      URL.revokeObjectURL(updatedImages[index].preview);
+      updatedImages.splice(index, 1);
+      return updatedImages;
+    });
+  };
+
+  // Render stars for rating selection
+  const renderStars = (currentRating, isEditable = false) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <i
+          key={i}
+          className={`fa-solid fa-star ${i <= currentRating ? "text-yellow-600" : "text-gray-300"} ${isEditable ? "cursor-pointer" : ""}`}
+          onClick={isEditable ? () => setRating(i) : undefined}
+        ></i>
+      );
+    }
+    return stars;
+  };
+
+  return (
+    <div className="reviews_customer">
+      <h3 className="font-bold">Customer Reviews</h3>
+      <div className="review_form mb-6">
+        <div className="mb-2">
+          <label className="font-semibold">Your Rating:</label>
+          <div className="flex">{renderStars(rating, true)}</div>
+        </div>
+        <textarea
+          className="w-full border rounded p-2 mb-2"
+          placeholder="Write your review here..."
+          value={newReview}
+          onChange={(e) => setNewReview(e.target.value)}
+        />
+        <div className="mb-2">
+          <label className="font-semibold">Upload Images:</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            className="w-full border rounded p-2"
+            onChange={handleImageChange}
+          />
+        </div>
+        {images.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {images.map((image, index) => (
+              <div key={index} className="relative">
+                <img src={image.preview} alt={`Preview ${index}`} className="w-24 h-24 object-cover rounded" />
+                <button
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  onClick={() => removeImage(index)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={handleReviewSubmit}
+          disabled={!newReview || rating === 0}
+        >
+          Submit
+        </button>
+      </div>
+
+      {reviews.length > 0 ? (
+        reviews.map((review, index) => (
+          <div className="review" key={`${review.id}-${index}`}>
+            <div className="review_header">
+              <div className="review_avt">
+                <img src="https://picsum.photos/600" alt="avt-user" />
+              </div>
+              <div className="review_infor">
+                <div>
+                  <h4>By: {review.userName}</h4>
+                  <p className="review_place">Bangkok, Thailand</p>
+                </div>
+                <div>
+                  <p className="review_date">{format(new Date(review.createdAt), "MMMM, dd yyyy")}</p>
+                </div>
+              </div>
+            </div>
+            <div className="review_content">
+              <div className="review_star flex">{renderStars(review.rating)}</div>
+              <p className="review_detail_content">{review.comment}</p>
+              {review.images?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {Array.isArray(review.images) && review.images.map((image, imgIndex) => (
+                    <img
+                      key={imgIndex}
+                      src={image}
+                      alt={`Review Image ${imgIndex + 1}`}
+                      className="w-24 h-24 object-cover rounded"
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="review_icon">
+                <div className="review_icon_like">
+                  <i className="fa-solid fa-thumbs-up"></i>
+                  <i className="fa-solid fa-thumbs-down"></i>
+                </div>
+                <div className="items-center">
+                  <button onClick={() => toggleReplies(review.id)}>
+                    {review.replies ? "Hide" : "Reply (0)"}
+                  </button>
+                  <i className="fa-solid fa-ellipsis-vertical ml-3"></i>
+                </div>
+              </div>
+              {review.replies && (
+                <div className="w-full border-2 p-4">
+                  {review.replies.map((reply) => (
+                    <div key={reply.id} className="reply">
+                      <div className="flex items-center justify-between">
+                        <p>
+                          <strong>Replier: {reply.userId === user?.id ? "me" : reply.userName}</strong>
+                        </p>
+                        <p className="text-gray-500">{format(new Date(reply.createdAt), "MMMM, dd yyyy")}</p>
+                      </div>
+                      <p>{reply.content}</p>
+                    </div>
+                  ))}
+                  <textarea
+                    className="w-full border rounded p-2 mb-2"
+                    value={newReply[review.id] || ""}
+                    onChange={(e) =>
+                      setNewReply((prev) => ({
+                        ...prev,
+                        [review.id]: e.target.value,
+                      }))
+                    }
+                    placeholder="Write a reply..."
+                  />
+                  <button
+                    className="bg-primary text-white px-4 py-2 rounded"
+                    onClick={() => handleReplySubmit(review.id)}
+                  >
+                    Answer
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="no_reviews">
+          <p className="text-gray-600">No reviews available for this tour.</p>
+        </div>
+      )}
+      {hasMore && (
+        <button onClick={loadMoreReviews} className="load-more-button">
+          Load More Reviews
+        </button>
+      )}
+    </div>
+  );
+};
+
+// Main Component
 const DetailTour = () => {
-    const {id} = useParams();
-    const navigate = useNavigate();
-    const [tour, setTour] = useState(null);
-    const [selectedNotes, setSelectedNotes] = useState([]);
-    const [showImages, setShowImages] = useState(false);
-    const [randomImage, setRandomImage] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [tour, setTour] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedNotes, setSelectedNotes] = useState([]);
+  const [showImages, setShowImages] = useState(false);
+  const [randomImage, setRandomImage] = useState(null);
+  const [adults, setAdults] = useState(0);
+  const [children, setChildren] = useState(0);
+  const [babies, setBabies] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [discountCode, setDiscountCode] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState("");
+  const [rating, setRating] = useState(0); // New state for rating
+  const [images, setImages] = useState([]); // New state for images
+  const [user, setUser] = useState(null);
+  const [newReply, setNewReply] = useState({});
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [relatedTours, setRelatedTours] = useState([]);
+  const [userCache, setUserCache] = useState({});
 
-    const [adults, setAdults] = useState(0);
-    const [children, setChildren] = useState(0);
-    const [babies, setBabies] = useState(0);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [discountCode, setDiscountCode] = useState("");
+  // Fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const verifiedUser = await verifyUser();
+        setUser(verifiedUser);
+      } catch (error) {
+        console.error("User not authenticated:", error);
+      }
+    };
+    fetchUser();
+  }, []);
 
-    const [reviews, setReviews] = useState([]);
-    const [newReview, setNewReview] = useState("");
-    const [user, setUser] = useState(null);
+  // Fetch tour details
+  useEffect(() => {
+    const fetchTourDetails = async () => {
+      if (!id) {
+        setError("Invalid tour ID");
+        setLoading(false);
+        return;
+      }
 
-    // Cập nhật số lượng người
-    const addAdult = () => setAdults(adults + 1);
-    const minusAdult = () => setAdults(Math.max(0, adults - 1));
-    const addChild = () => setChildren(children + 1);
-    const minusChild = () => setChildren(Math.max(0, children - 1));
-    const addBaby = () => setBabies(babies + 1);
-    const minusBaby = () => setBabies(Math.max(0, babies - 1));
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const verifiedUser = await verifyUser();
-                setUser(verifiedUser);
-            } catch (error) {
-                console.error("User not authenticated:", error);
-            }
-        };
-        fetchUser();
-    }, []);
-
-    const handleReviewSubmit = async () => {
-        if (!user) {
-            alert("Please log in to submit a review.");
-            return;
+      try {
+        setLoading(true);
+        const response = await getDetailTour(id);
+        if (!response) {
+          throw new Error("No data returned from API");
         }
-
+        setTour(response);
         try {
-            const reviewData = {
-                tourId: id, // Replace with the current tour ID
-                userId: user.id,
-                comment: newReview,
-                rating: 5, // Example rating, you can add a rating input
-            };
-            const createdReview = await createReview(reviewData);
-            const userDetails = await getUserById(createdReview.userId);
-
-            // Cập nhật danh sách reviews với userName
-            setReviews((prevReviews) => [
-                ...prevReviews,
-                { ...createdReview, userName: userDetails.userName },
-            ]);
-
-            setNewReview("");
-        } catch (error) {
-            console.error("Error submitting review:", error);
+          setSelectedNotes(JSON.parse(response.notes || "[]"));
+        } catch (e) {
+          console.error("Error parsing notes:", e);
+          setSelectedNotes([]);
         }
+        if (response.images?.length > 0) {
+          const randomIndex = Math.floor(Math.random() * response.images.length);
+          setRandomImage(response.images[randomIndex]);
+        }
+      } catch (error) {
+        console.error("Error fetching tour details:", error);
+        setError("Failed to load tour details");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Tính tổng giá tiền
-    useEffect(() => {
-        if (tour) {
-            const basePrice = tour.price || 0;
-            const total = adults * basePrice + children * basePrice * 0.7 + babies * basePrice * 0.3;
-            setTotalPrice(total);
-        }
-    }, [adults, children, babies, tour]);
+    fetchTourDetails();
+  }, [id]);
 
-    // Kiểm tra mã giảm giá
-    const checkGiamGia = () => {
-        if (discountCode === "DISCOUNT10") {
-            setTotalPrice((prev) => prev * 0.9);
+  // Fetch related tours
+  useEffect(() => {
+    const fetchRelatedTours = async () => {
+      try {
+        if (tour?.location?.id) {
+          const response = await getRelatedTourByLocationId(tour.location.id, tour.id, 5);
+          setRelatedTours(response);
         }
+      } catch (error) {
+        console.error("Error fetching related tours:", error);
+      }
     };
 
-    // Xử lý khi nhấn "BOOK NOW"
-    const handleSubmit = async () => {
-        try {
-            const user = await verifyUser();
-            navigate("/confirmbooking", {
-                state: {
-                    tour, adults, children, babies, totalPrice, discountCode, userId: user.id,
-                },
-            });
-        } catch (error) {
-            console.error("User not authenticated:", error);
-            navigate("/auth/sign_in", {state: {from: `/tour/${id}`}});
-        }
-    };
+    fetchRelatedTours();
+  }, [tour]);
 
-    // Lấy danh sách đánh giá
-    useEffect(() => {
-        const fetchReviewsWithUserDetails = async () => {
-            try {
-                const reviews = await getReviewOfTour(id); // Lấy danh sách review
-                const reviewsWithUserDetails = await Promise.all(
-                    reviews.map(async (review) => {
-                        const user = await getUserById(review.userId); // Lấy thông tin user từ userId
-                        return { ...review, userName: user.userName }; // Gắn thêm userName vào review
-                    })
-                );
-                setReviews(reviewsWithUserDetails); // Cập nhật state reviews
-            } catch (error) {
-                console.error("Error fetching reviews with user details:", error);
+  // Calculate total price
+  useEffect(() => {
+    if (tour) {
+      const basePrice = tour.price || 0;
+      const total = adults * basePrice + children * basePrice * 0.7 + babies * basePrice * 0.3;
+      setTotalPrice(total);
+    }
+  }, [adults, children, babies, tour]);
+
+  // Fetch reviews with user details
+  useEffect(() => {
+    const fetchReviewsWithUserDetails = async () => {
+      try {
+        const response = await getReviewOfTour(id, page, 5);
+        const reviewsWithUserDetails = await Promise.all(
+          (response.content || []).map(async (review) => {
+            let userDetails = userCache[review.userId];
+            if (!userDetails) {
+              userDetails = await getUserById(review.userId);
+              setUserCache((prev) => ({ ...prev, [review.userId]: userDetails }));
             }
-        };
-        fetchReviewsWithUserDetails();
-    }, [id]);
+            return { ...review, userName: userDetails.userName };
+          })
+        );
 
-    // Lấy chi tiết tour
-    useEffect(() => {
-        const fetchTourDetails = async () => {
-            try {
-                const response = await getDetailTour(id);
-                setTour(response);
-                setSelectedNotes(JSON.parse(response.notes || "[]"));
-            } catch (error) {
-                console.error("Error fetching tour details:", error);
-            }
-        };
-        fetchTourDetails();
-    }, [id]);
+        setReviews((prevReviews) => {
+          const newReviews = reviewsWithUserDetails.filter(
+            (newReview) => !prevReviews.some((prevReview) => prevReview.id === newReview.id)
+          );
+          return [...prevReviews, ...newReviews];
+        });
 
-    // Lấy hình ảnh ngẫu nhiên
-    useEffect(() => {
-        if (tour && tour.images && tour.images.length > 0) {
-            const getRandomImage = () => {
-                const randomIndex = Math.floor(Math.random() * tour.images.length);
-                return tour.images[randomIndex];
-            };
-            setRandomImage(getRandomImage());
-        }
-    }, [tour]);
+        if (response.totalPages && page + 1 >= response.totalPages) setHasMore(false);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
 
-    if (!tour) {
-        return <div>Loading...</div>;
+    if (id) fetchReviewsWithUserDetails();
+  }, [id, page, userCache]);
+
+  // Handle review submission
+  const handleReviewSubmit = useCallback(async () => {
+    if (!user) {
+      toast.info("Please log in to submit a review.");
+      return;
     }
 
-    const handleNoteChange = (note) => {
-        setSelectedNotes((prevNotes) => prevNotes.includes(note) ? prevNotes.filter((n) => n !== note) : [...prevNotes, note]);
-    };
+    try {
+      // Step 1: Create review without images
+      const reviewData = {
+        tourId: id,
+        userId: user.id,
+        comment: newReview,
+        rating,
+        images: [], // Images will be uploaded later
+      };
+      const createdReview = await createReview(reviewData);
 
-    return (<div className="detail_container">
-        <div className="detail_content">
-            <div className="title_content">
-                <h2>Trip information</h2>
-            </div>
-            <div className="trip_main">
-                <div className="trip_infor">
-                    <span className="Tour">{tour.tourType.name}</span>
-                    <label htmlFor="">
-                        <i className="fa-solid fa-location-dot"></i>
-                        <span>{tour.location.name}</span>
-                    </label>
-                </div>
-                <div className="top">
-                    <div className="image_main">
-                        <img src={tour.thumbnail} alt="Main Tour"/>
-                    </div>
-                    <div className="image_second">
-                        {tour.images.slice(0, 1).map((image, index) => (
-                            <img key={index} src={image} alt={`Tour Image ${index + 1}`}/>))}
-                        <div className="image_third w-full h-full overflow-hidden">
-                            <div
-                                className="absolute w-full h-full bg-gradient-to-b from-black to-transparent rounded-lg"></div>
-                            <img src={tour.images[1]} alt={`Tour Image 3`}/>
-                            {tour.images.length > 1 && (
-                                <button className="more_images_button" onClick={() => setShowImages(true)}>
-                                    +{tour.images.length - 2} more
-                                </button>)}
-                        </div>
-                    </div>
-                </div>
-                {showImages && (<div className="image_modal_overlay">
-                    <div className="image_modal">
-                        <button className="close_button" onClick={() => setShowImages(false)}>
-                            ×
-                        </button>
-                        <Swiper
-                            spaceBetween={10}
-                            slidesPerView={1}
-                            navigation
-                            pagination={{clickable: true}}
-                            modules={[Navigation, Pagination]}
-                        >
-                            {tour.images.map((image, index) => (<SwiperSlide key={index}>
-                                <img src={image} alt={`Tour Image ${index + 1}`} className="modal_image"/>
-                            </SwiperSlide>))}
-                        </Swiper>
-                    </div>
-                </div>)}
-            </div>
+      // Step 2: Get reviewId from the created review
+      const reviewId = createdReview.id;
 
-            <div className="top_infor">
-                <div className="review">{randomImage && <img src={randomImage} alt="Image Tour"/>}</div>
-                <div className="content">
-                    <div className="details_review">
-                        <span>{tour.averageRating}</span>
-                        <i className="fa-solid fa-star text-yellow-600"></i>
-                        <span> - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i> )</span>
-                        <span className="px-4 py-2 rounded bg-blue-200 text-blue-600 text-center">Good</span>
-                    </div>
-                    <h2 id="name">{tour.title}</h2>
-                    <div className="details">
-                        <label htmlFor="">
-                            <span>Tour Code</span>
-                            <a href="#" id="tcode">{tour.tourCode}</a>
-                        </label>
-                        <label htmlFor="">
-                            <span>Duration:</span>
-                            <a href="#" id="dura">{tour.duration}</a>
-                        </label>
-                        <label htmlFor="">
-                            <span>Place of departure</span>
-                            <a href="#" id="place">{tour.placeOfDeparture}</a>
-                        </label>
-                        <label htmlFor="">
-                            <span>Current seat:</span>
-                            <a href="#">{tour.currentParticipants} / {tour.maxParticipants}</a>
-                        </label>
-                    </div>
-                </div>
-            </div>
+      // Step 3: Upload images if any
+      let uploadedImageUrls = [];
+      if (images.length > 0) {
+        const formData = new FormData();
+        images.forEach((image) => {
+          formData.append("images", image.file);
+        });
 
-            <div className="mid_details">
-                <div className="details_left">
-                    <div className="infor_travel">
-                        <div className="infor_header">
-                            <h2>Description</h2>
-                            <div className="status">
-                                <label htmlFor="">
-                                    <i className="fa-sharp fa-solid fa-thumbs-up"></i>
-                                    <span>Like</span>
-                                </label>
-                                <label htmlFor="">
-                                    <i className="fa-solid fa-share"></i>
-                                    <span>Share</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div className="intro" dangerouslySetInnerHTML={{__html: tour.highlights}}/>
-                    </div>
-                    <div className="highlight">
-                        <h2 className="text-blue-700">Highlight</h2>
-                        <div className="mt-[10px] pl-[40px] leading-5"
-                             dangerouslySetInnerHTML={{__html: tour.highlights}}/>
-                    </div>
+        uploadedImageUrls = await uploadImages(reviewId, formData); // API trả về danh sách URL ảnh
+      }
 
-                    <div className="notes">
-                        <h3>If you have any notes, please tell us!</h3>
-                        <div className="select_notes">
-                            {["Smoke", "High Floor Room", "Hyperactive children", "Vegetarian", "There are people with disabilities", "Pregnant women"].map((note) => (
-                                <label key={note}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedNotes.includes(note)}
-                                        onChange={() => handleNoteChange(note)}
-                                    />
-                                    <span>{note}</span>
-                                </label>))}
-                        </div>
-                        <div className="mess_add">
-                            <h4>Additional Notes</h4>
-                            <textarea
-                                name=""
-                                id=""
-                                cols="30"
-                                rows="10"
-                                placeholder="Please enter your messages"
-                                className="border-2 rounded"
-                            ></textarea>
-                        </div>
-                    </div>
+      // Step 4: Update reviews list with images
+      const userDetails = userCache[user.id] || (await getUserById(user.id));
+      setUserCache((prev) => ({ ...prev, [user.id]: userDetails }));
 
-                    <div className="reviews_customer">
-                        <h3 className="font-bold">Customer Reviews</h3>
-                        <div className="review_form mb-6">
-                                <textarea
-                                    className="w-full border rounded p-2 mb-2"
-                                    placeholder="Write your review here..."
-                                    value={newReview}
-                                    onChange={(e) => setNewReview(e.target.value)}
-                                />
-                            <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
-                                onClick={handleReviewSubmit}
-                            >
-                                Submit Review
-                            </button>
-                        </div>
+      setReviews((prevReviews) => [
+        {
+          ...createdReview,
+          userName: userDetails.userName,
+          images: uploadedImageUrls, // Thêm URL ảnh vào review
+        },
+        ...prevReviews,
+      ]);
 
-                        {reviews.length > 0 ? (reviews.map((review) => (<div className="review" key={review.id}>
-                            <div className="review_header">
-                                <div className="review_avt">
-                                    <img src="https://picsum.photos/600" alt="avt-user"/>
-                                </div>
-                                <div className="review_infor">
-                                    <div>
-                                        <h4>{review.userName}</h4>
-                                        <p className="review_place">Bangkok, Thailand</p>
-                                    </div>
-                                    <div>
-                                        <p className="review_date">{review.createdAt}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="review_content">
-                                <div className="review_star">
-                                    <i className="fa-solid fa-star"></i>
-                                    <i className="fa-solid fa-star"></i>
-                                    <i className="fa-solid fa-star"></i>
-                                    <i className="fa-solid fa-star"></i>
-                                    <i className="fa-regular fa-star-half-stroke"></i>
-                                </div>
-                                <p className="review_detail_content">{review.comment}</p>
-                                <div className="review_icon">
-                                    <div className="review_icon_like">
-                                        <i className="fa-solid fa-thumbs-up"></i>
-                                        <i className="fa-solid fa-thumbs-down"></i>
-                                    </div>
-                                    <div>
-                                        <i className="fa-solid fa-ellipsis-vertical"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>))) : (<div className="no_reviews">
-                            <p className="text-gray-600">No reviews available for this tour.</p>
-                        </div>)}
-                    </div>
-                </div>
+      toast.success("Review posted! Thank you for your feedback.");
+      setNewReview("");
+      setRating(0);
+      setImages((prev) => {
+        prev.forEach((image) => URL.revokeObjectURL(image.preview));
+        return [];
+      });
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Failed to submit review");
+    }
+  }, [user, id, newReview, rating, images, userCache]);
 
-                <div className="book_container">
-                    <div className="book_now">
-                        <h2 className="font-bold text-primary">Trip summary</h2>
-                        <div className="infor_book">
-                            <img src={tour.thumbnail} alt=""/>
-                            <p>{tour.title}</p>
-                        </div>
-                        <div className="schedule">
-                            <label htmlFor="">
-                                <i className="fa-solid fa-calendar-days"></i>
-                                <span>
-                    Start your trip - {tour.startDate ? format(new Date(tour.startDate), "MMMM, dd yyyy") : "N/A"}
-                  </span>
-                            </label>
-                            <label htmlFor="">
-                                <i className="fa-solid fa-calendar-days"></i>
-                                <span>
-                    End your trip - {tour.endDate ? format(new Date(tour.endDate), "MMMM, dd yyyy") : "N/A"}
-                  </span>
-                            </label>
-                        </div>
-                        <div className="infor_booking">
-                            <label>
-                                <h4>Passenger</h4>
-                                <span>{adults + children + babies} person</span>
-                            </label>
-                            <label>
-                                <h4>Adult</h4>
-                                <div className="discrea">
-                                    <i className="fa-solid fa-minus" onClick={minusAdult}></i>
-                                    <span>{adults}</span>
-                                    <i className="fa-solid fa-plus" onClick={addAdult}></i>
-                                </div>
-                            </label>
-                            <label>
-                                <h4>Children</h4>
-                                <div className="discrea">
-                                    <i className="fa-solid fa-minus" onClick={minusChild}></i>
-                                    <span>{children}</span>
-                                    <i className="fa-solid fa-plus" onClick={addChild}></i>
-                                </div>
-                            </label>
-                            <label>
-                                <h4>Baby</h4>
-                                <div className="discrea">
-                                    <i className="fa-solid fa-minus" onClick={minusBaby}></i>
-                                    <span>{babies}</span>
-                                    <i className="fa-solid fa-plus" onClick={addBaby}></i>
-                                </div>
-                            </label>
-                            <label className="discount">
-                                <h4>Discount Code</h4>
-                                <div className="discrea">
-                                    <input
-                                        type="text"
-                                        placeholder="Add Code"
-                                        value={discountCode}
-                                        className="border-2 rounded px-2 py-4"
-                                        onChange={(e) => setDiscountCode(e.target.value)}
-                                    />
-                                    <button onClick={checkGiamGia}>Apply</button>
-                                </div>
-                            </label>
-                            <label className="total">
-                                <h4>TOTAL</h4>
-                                <div className="discrea_total">
-                                    <span>${totalPrice.toFixed(2)}</span>
-                                </div>
-                            </label>
-                            <button className="book_submit" onClick={handleSubmit}>
-                                BOOK NOW
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  // Check discount code
+  const checkGiamGia = useCallback(() => {
+    if (discountCode === "DISCOUNT10") {
+      setTotalPrice((prev) => prev * 0.9);
+      toast.success("Discount applied!");
+    } else {
+      toast.error("Invalid discount code");
+    }
+  }, [discountCode]);
+
+  // Handle booking submission
+  const handleSubmit = useCallback(async () => {
+    try {
+      const user = await verifyUser();
+      navigate("/confirmbooking", {
+        state: { tour, adults, children, babies, totalPrice, discountCode, userId: user.id },
+      });
+    } catch (error) {
+      console.error("User not authenticated:", error);
+      navigate("/auth/sign_in", { state: { from: `/tour/${id}` } });
+    }
+  }, [tour, adults, children, babies, totalPrice, discountCode, id, navigate]);
+
+  // Handle note change
+  const handleNoteChange = useCallback((note) => {
+    setSelectedNotes((prevNotes) =>
+      prevNotes.includes(note) ? prevNotes.filter((n) => n !== note) : [...prevNotes, note]
+    );
+  }, []);
+
+  // Fetch replies
+  const fetchReplies = useCallback(
+    async (reviewId) => {
+      try {
+        const fetchedReplies = await getRepliesByReviewId(reviewId);
+        const repliesWithUserDetails = await Promise.all(
+          fetchedReplies.map(async (reply) => {
+            let userDetails = userCache[reply.userId];
+            if (!userDetails) {
+              userDetails = await getUserById(reply.userId);
+              setUserCache((prev) => ({ ...prev, [reply.userId]: userDetails }));
+            }
+            return { ...reply, userName: userDetails.userName };
+          })
+        );
+
+        setReviews((prevReviews) =>
+          prevReviews.map((review) =>
+            review.id === reviewId ? { ...review, replies: repliesWithUserDetails } : review
+          )
+        );
+      } catch (error) {
+        console.error("Error fetching replies:", error);
+      }
+    },
+    [userCache]
+  );
+
+  // Handle reply submission
+  const handleReplySubmit = useCallback(
+    async (reviewId) => {
+      if (!user) {
+        toast.info("Please log in to reply.");
+        return;
+      }
+
+      try {
+        const replyData = {
+          reviewId,
+          content: newReply[reviewId] || "",
+          userId: user.id,
+        };
+        const createdReply = await addReply(replyData);
+        const userDetails = userCache[user.id] || (await getUserById(user.id));
+        setUserCache((prev) => ({ ...prev, [user.id]: userDetails }));
+
+        setReviews((prevReviews) =>
+          prevReviews.map((review) =>
+            review.id === reviewId
+              ? { ...review, replies: [...(review.replies || []), { ...createdReply, userName: userDetails.userName }] }
+              : review
+          )
+        );
+        setNewReply((prev) => ({ ...prev, [reviewId]: "" }));
+        toast.success("Reply posted!");
+      } catch (error) {
+        console.error("Error submitting reply:", error);
+        toast.error("Failed to submit reply");
+      }
+    },
+    [user, newReply, userCache]
+  );
+
+  // Toggle replies
+  const toggleReplies = useCallback(
+    (reviewId) => {
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review.id === reviewId ? { ...review, replies: review.replies ? null : [] } : review
+        )
+      );
+
+      const review = reviews.find((r) => r.id === reviewId);
+      if (!review.replies) {
+        fetchReplies(reviewId);
+      }
+    },
+    [fetchReplies, reviews]
+  );
+
+  // Load more reviews
+  const loadMoreReviews = useCallback(() => {
+    if (hasMore) setPage((prevPage) => prevPage + 1);
+  }, [hasMore]);
+
+  if (loading) {
+    return <div className="detail_container">Loading tour details...</div>;
+  }
+
+  if (error) {
+    return <div className="detail_container">{error}</div>;
+  }
+
+  return (
+    <div className="detail_container">
+      <div className="detail_content">
+        <div className="title_content">
+          <h2>Trip information</h2>
         </div>
-    </div>);
+        <TourInfo tour={tour} randomImage={randomImage} showImages={showImages} setShowImages={setShowImages} />
+        <div className="mid_details">
+          <div className="details_left">
+            <div className="infor_travel">
+              <div className="infor_header">
+                <h2>Description</h2>
+                <div className="status">
+                  <label>
+                    <i className="fa-sharp fa-solid fa-thumbs-up"></i>
+                    <span>Like</span>
+                  </label>
+                  <label>
+                    <i className="fa-solid fa-share"></i>
+                    <span>Share</span>
+                  </label>
+                </div>
+              </div>
+              <div className="intro" dangerouslySetInnerHTML={{ __html: tour.highlights }} />
+            </div>
+            <div className="highlight">
+              <h2 className="text-blue-700">Highlight</h2>
+              <div className="mt-[10px] pl-[40px] leading-5" dangerouslySetInnerHTML={{ __html: tour.highlights }} />
+            </div>
+            <div className="notes">
+              <h3>If you have any notes, please tell us!</h3>
+              <div className="select_notes">
+                {["Smoke", "High Floor Room", "Hyperactive children", "Vegetarian", "There are people with disabilities", "Pregnant women"].map((note) => (
+                  <label key={note}>
+                    <input
+                      type="checkbox"
+                      checked={selectedNotes.includes(note)}
+                      onChange={() => handleNoteChange(note)}
+                    />
+                    <span>{note}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="mess_add">
+                <h4>Additional Notes</h4>
+                <textarea
+                  name=""
+                  id=""
+                  cols="30"
+                  rows="10"
+                  placeholder="Please enter your messages"
+                  className="border-2 rounded"
+                ></textarea>
+              </div>
+            </div>
+            <ReviewSection
+              reviews={reviews}
+              user={user}
+              newReview={newReview}
+              setNewReview={setNewReview}
+              rating={rating}
+              setRating={setRating}
+              images={images}
+              setImages={setImages}
+              handleReviewSubmit={handleReviewSubmit}
+              toggleReplies={toggleReplies}
+              handleReplySubmit={handleReplySubmit}
+              newReply={newReply}
+              setNewReply={setNewReply}
+              loadMoreReviews={loadMoreReviews}
+              hasMore={hasMore}
+            />
+          </div>
+          <BookingForm
+            tour={tour}
+            adults={adults}
+            setAdults={setAdults}
+            children={children}
+            setChildren={setChildren}
+            babies={babies}
+            setBabies={setBabies}
+            discountCode={discountCode}
+            setDiscountCode={setDiscountCode}
+            totalPrice={totalPrice}
+            handleSubmit={handleSubmit}
+            checkGiamGia={checkGiamGia}
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default DetailTour;

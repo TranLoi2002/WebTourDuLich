@@ -36,14 +36,7 @@ const Sign_In = () => {
 
             // Điều hướng dựa trên vai trò
             if (res.user?.role?.roleName === "ADMIN") {
-                toast.info("Login success with Admin.", {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                });
+                toast.info("Login success with Admin.");
                 navigate("/admin");
             } else {
                 toast.info("Login successfully.", {

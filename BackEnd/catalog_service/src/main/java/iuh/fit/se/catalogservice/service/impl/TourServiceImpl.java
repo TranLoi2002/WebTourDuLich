@@ -7,6 +7,7 @@ import iuh.fit.se.catalogservice.repository.TourRepository;
 import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -136,6 +137,11 @@ public class TourServiceImpl implements TourService {
                     return tourRepository.save(existingTour);
                 })
                 .orElseThrow(() -> new RuntimeException("Tour not found with id " + id));
+    }
+
+    @Override
+    public List<Tour> getRelatedToursByLocationId(Long locationId, Long excludeTourId, Pageable pageable) {
+        return tourRepository.findRelatedToursByLocationId(locationId, excludeTourId, pageable);
     }
 
 

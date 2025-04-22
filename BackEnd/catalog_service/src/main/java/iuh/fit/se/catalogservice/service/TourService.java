@@ -1,6 +1,7 @@
 package iuh.fit.se.catalogservice.service;
 
 import iuh.fit.se.catalogservice.model.Tour;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -23,4 +24,7 @@ public interface TourService {
 
     List<Tour> getToursByLocationId(Long locationId);
     Tour updateCurrentParticipants(Long id, Integer currentParticipants);
+
+    List<Tour> getRelatedToursByLocationId(Long locationId, Long excludeTourId, Pageable pageable);
 }
+

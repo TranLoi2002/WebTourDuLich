@@ -3,7 +3,7 @@ import React, {useState, useEffect} from "react";
 import {toast} from "react-toastify";
 import {addFavouriteTourByUserId, getFavouriteTourByUserId, removeFavouriteTourByUserId} from "../api/user.api";
 
-const CardTour = ({tour, isShowDesc}) => {
+const CardTour = ({tour, isShowDesc, containerStyle}) => {
 
     const [isLiked, setIsLiked] = useState(false);
 
@@ -57,7 +57,7 @@ const CardTour = ({tour, isShowDesc}) => {
 
 
     return (
-        <div className="card-tour border rounded-lg shadow-md p-4 w-full md:w-[300px] flex flex-col relative">
+        <div className={`card-tour ${containerStyle} border rounded-lg shadow-md p-4 flex flex-col relative`}>
             <div className="img-tour h-[200px] w-full overflow-hidden rounded-lg mb-3">
                 <img
                     src={tour.thumbnail ? tour.thumbnail : "https://via.placeholder.com/300"}

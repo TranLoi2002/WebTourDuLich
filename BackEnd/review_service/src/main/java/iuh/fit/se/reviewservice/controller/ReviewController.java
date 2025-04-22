@@ -7,9 +7,17 @@ import iuh.fit.se.reviewservice.service.ReviewReplyService;
 import iuh.fit.se.reviewservice.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +55,8 @@ public class ReviewController {
         }
         String content = (String) payload.get("comment");
         List<String> imageUrls = (List<String>) payload.get("images");
-        Review review = reviewService.addReview(userId, tourId, content, imageUrls);
+        int rating = (int) payload.get("rating");
+        Review review = reviewService.addReview(userId, tourId, content, imageUrls,rating);
         return ResponseEntity.ok(review);
     }
 
@@ -70,8 +79,13 @@ public class ReviewController {
     }
 
     @GetMapping("/tour/{tourId}")
-    public ResponseEntity<List<Review>> getReviewsByTourId(@PathVariable Long tourId) {
-        List<Review> reviews = reviewService.getReviewsByTourId(tourId);
+    public ResponseEntity<?> getReviewsByTourId(@PathVariable Long tourId, @RequestParam(defaultValue = "0" ) int page, @RequestParam(defaultValue ="5") int size) {
+        if (page < 0 || size <= 0) {
+            return ResponseEntity.badRequest().body(null); // Invalid pagination parameters
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+
+        Page<Review> reviews = reviewService.getReviewsByTourId(tourId, pageable);
         return ResponseEntity.ok(reviews);
     }
 
@@ -92,6 +106,18 @@ public class ReviewController {
     public ResponseEntity<List<ReviewReply>> getRepliesByReviewId(@PathVariable Long reviewId) {
         List<ReviewReply> replies = reviewReplyService.getReviewRepliesByReviewId(reviewId);
         return ResponseEntity.ok(replies);
+    }
+
+    @PostMapping("/{reviewId}/images")
+    public ResponseEntity<?> uploadReviewImages(
+            @PathVariable Long reviewId,
+            @RequestParam("images") List<MultipartFile> imageUrls) {
+        try {
+            List<String> uploadedurls = reviewService.saveReviewImages(reviewId, imageUrls);
+            return ResponseEntity.ok(uploadedurls);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to upload images.");
+        }
     }
 
 }

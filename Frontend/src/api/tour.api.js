@@ -23,7 +23,7 @@ export const getDetailTour = async (id) => {
 }
 
 
-// http://localhost:8083/catalog-service/api/catalog/tours/activitytour/Nightlife
+// http://localhost:8080/api/catalog/tours/activitytour/Nightlife
 export const getTourByActivityType = async (activityType) => {
     try{
         const response = await axios.get(`${apiURL}/activitytour/${activityType}`);
@@ -35,7 +35,7 @@ export const getTourByActivityType = async (activityType) => {
 }
 
 // get review of tour
-// http://localhost:8083/catalog-service/api/catalog/tours/1/reviews
+// http://localhost:8080/api/catalog/tours/1/reviews
 export const getReviewOfTour = async (tourId) => {
     try{
         const response = await axios.get(`${apiURL}/${tourId}/reviews`);
@@ -54,6 +54,18 @@ export const getTourByLocationId = async (locationId) => {
         return response.data;
     }catch (e) {
         console.error("Error fetching tour by location id:", e);
+        throw e;
+    }
+}
+
+// get related tour by location id
+// http://localhost:8080/api/catalog/tours/related/1?excludeTourId=1&limit=5
+export const getRelatedTourByLocationId = async (locationId, excludeTourId, limit) => {
+    try{
+        const response = await axios.get(`${apiURL}/related/${locationId}?excludeTourId=${excludeTourId}&limit=${limit}`);
+        return response.data;
+    }catch (e) {
+        console.error("Error fetching related tour by location id:", e);
         throw e;
     }
 }

@@ -5,6 +5,8 @@ import iuh.fit.se.catalogservice.repository.TourRepository;
 import iuh.fit.se.catalogservice.service.TourService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -74,5 +76,15 @@ public class TourController {
     public ResponseEntity<List<Tour>> getToursByLocationId(@PathVariable Long locationId) {
         List<Tour> tours = tourService.getToursByLocationId(locationId);
         return ResponseEntity.ok(tours);
+    }
+
+    @GetMapping("/related/{locationId}")
+    public ResponseEntity<List<Tour>> getRelatedToursByLocationId(
+            @PathVariable Long locationId,
+            @RequestParam Long excludeTourId,
+            @RequestParam int limit) { // Thêm tham số limit
+        Pageable pageable = PageRequest.of(0, limit); // Sử dụng limit từ request
+        List<Tour> relatedTours = tourService.getRelatedToursByLocationId(locationId, excludeTourId, pageable);
+        return ResponseEntity.ok(relatedTours);
     }
 }

@@ -2,6 +2,8 @@ package iuh.fit.se.reviewservice.repository;
 
 import iuh.fit.se.reviewservice.model.Review;
 import iuh.fit.se.reviewservice.model.ReviewStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +20,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>{
 
 //    List<Review> findByTourIdAndStatus(Long tourId);
 
-    List<Review> findByTourId(Long tourId);
+    @Query("SELECT r FROM Review r WHERE r.tourId = :tourId")
+    Page<Review> findByTourId(Long tourId, Pageable pageable);
 }
