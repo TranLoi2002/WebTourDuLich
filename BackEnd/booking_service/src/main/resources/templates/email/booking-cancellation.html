@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Thông báo hủy booking</title>
+</head>
+<body>
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2>Thông báo hủy booking</h2>
+    <p>Kính gửi <span th:text="${user.fullName}">Khách hàng</span>,</p>
+    <p>Chúng tôi rất tiếc phải thông báo rằng booking của bạn đã bị hủy với các thông tin sau:</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Mã booking</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${booking.bookingCode}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Tour</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${tour.title}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Mã tour</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${tour.tourCode}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Tổng tiền</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${booking.totalPrice} + ' VNĐ'"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Số tiền hoàn</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${refundAmount}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Ngày hủy</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${cancellationDate}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Lý do hủy</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${reason}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Trạng thái hoàn tiền</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;" th:text="${refundStatus}"></td>
+        </tr>
+    </table>
+
+    <p th:if="${refundStatus == 'PENDING'}">
+        Chúng tôi đã khởi tạo quy trình hoàn tiền với số tiền <span th:text="${refundAmount}"></span>.
+        Bạn sẽ nhận được thông báo khi hoàn tiền được xử lý hoàn tất.
+        Vui lòng liên hệ với chúng tôi nếu có bất kỳ câu hỏi nào.
+    </p>
+    <p th:if="${refundStatus == 'NONE'}">
+        Rất tiếc, booking này không đủ điều kiện để hoàn tiền do thời gian hủy quá gần ngày khởi hành.
+    </p>
+    <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+    <p>Trân trọng,<br/>Đội ngũ hỗ trợ</p>
+</div>
+</body>
+</html>

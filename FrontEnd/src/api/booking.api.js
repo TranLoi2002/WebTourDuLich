@@ -64,14 +64,12 @@ export const updateBookingStatus = async (id, status) => {
 /**
  * Hủy một booking
  * @param {number} id - ID của booking
- * @param {string} [reason] - Lý do hủy (tùy chọn, mặc định là 'No reason provided')
+ * @param {string} [reason] - Lý do hủy (tùy chọn)
  * @returns {Promise} Promise chứa dữ liệu phản hồi hoặc lỗi được xử lý
  */
-export const cancelBooking = async (id, reason = 'No reason provided') => {
+export const cancelBooking = async (id, reason) => {
   try {
-    const response = await axios.post(`${apiUrl}/booking/${id}/cancel`, null, {
-      params: { reason },
-    });
+    const response = await axios.post(`${apiUrl}/booking/${id}/cancel`,reason)
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);

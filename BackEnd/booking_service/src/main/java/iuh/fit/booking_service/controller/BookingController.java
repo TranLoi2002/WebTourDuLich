@@ -7,8 +7,12 @@ import iuh.fit.booking_service.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/booking")
@@ -42,7 +46,34 @@ public class BookingController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<BookingResponseDTO> cancelBooking(
             @PathVariable Long id,
-            @RequestParam String reason) {
-        return ResponseEntity.ok(bookingService.cancelBooking(id, reason));
+            @RequestBody CancelRequest request) {
+        return ResponseEntity.ok(bookingService.cancelBooking(id, request.getReason(), Booking.CanceledBy.ADMIN));
+    }
+
+    @PostMapping("/{id}/user-cancel")
+    public ResponseEntity<BookingResponseDTO> userCancelBooking(
+            @PathVariable Long id,
+            @RequestBody CancelRequest request,
+            @RequestParam Long userId) {
+        return ResponseEntity.ok(bookingService.userCancelBooking(id, request.getReason(), userId));
+    }
+
+    @GetMapping("/refund-statistics")
+    public ResponseEntity<Map<String, Object>> getRefundStatistics(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return ResponseEntity.ok(bookingService.getRefundStatistics(start, end));
+    }
+
+    public static class CancelRequest {
+        private String reason;
+
+        public String getReason() {
+            return reason;
+        }
+
+        public void setReason(String reason) {
+            this.reason = reason;
+        }
     }
 }

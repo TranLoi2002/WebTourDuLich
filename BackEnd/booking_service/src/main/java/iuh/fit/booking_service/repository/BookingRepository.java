@@ -99,4 +99,33 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      * @return Danh sách Booking
      */
     List<Booking> findByBookingStatusAndPaymentDueTimeBefore(BookingStatus bookingStatus, LocalDateTime now);
+
+    /**
+     * Tìm danh sách booking theo trạng thái hoàn tiền.
+     * @param refundStatus Trạng thái hoàn tiền (NONE, PENDING, COMPLETED, FAILED)
+     * @return Danh sách Booking
+     */
+    List<Booking> findByRefundStatus(Booking.RefundStatus refundStatus);
+
+    /**
+     * Tổng số tiền hoàn theo trạng thái hoàn tiền.
+     * @param refundStatus Trạng thái hoàn tiền
+     * @return Tổng số tiền hoàn
+     */
+    @Query("SELECT COALESCE(SUM(b.refundAmount), 0) FROM Booking b WHERE b.refundStatus = :refundStatus")
+    Double sumRefundAmountByRefundStatus(@Param("refundStatus") Booking.RefundStatus refundStatus);
+
+    /**
+     * Tổng số tiền hoàn theo trạng thái hoàn tiền và khoảng thời gian xử lý.
+     * @param refundStatus Trạng thái hoàn tiền
+     * @param start Thời điểm bắt đầu
+     * @param end Thời điểm kết thúc
+     * @return Tổng số tiền hoàn
+     */
+    @Query("SELECT COALESCE(SUM(b.refundAmount), 0) FROM Booking b " +
+            "WHERE b.refundStatus = :refundStatus AND b.updatedAt BETWEEN :start AND :end")
+    Double sumRefundAmountByRefundStatusAndUpdatedAtBetween(
+            @Param("refundStatus") Booking.RefundStatus refundStatus,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
 }
