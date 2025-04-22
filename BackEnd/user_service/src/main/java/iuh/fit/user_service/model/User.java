@@ -34,5 +34,7 @@ public class User {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private Gender gender;
+    @Column(nullable = false)
+    private Boolean isVerified = false;
 
 }

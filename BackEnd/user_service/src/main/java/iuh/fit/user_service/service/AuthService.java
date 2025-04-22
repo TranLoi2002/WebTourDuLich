@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthService {
     public AuthResponse login(LoginRequest loginRequest);
-    public AuthResponse register(RegisterRequest registerRequest);
+    public void register(RegisterRequest registerRequest);
     public UserDetails verifyToken(String token);
     public AuthResponse refreshToken(String refreshToken);
 }

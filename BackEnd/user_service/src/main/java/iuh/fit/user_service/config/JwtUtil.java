@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import iuh.fit.user_service.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,9 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
+//    public String extractUsername(String token) {
+//        return extractClaim(token, Claims::getSubject);
+//    }
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -73,5 +74,18 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public String generateEmailVerificationToken(User user) {
+        return Jwts.builder()
+                .setSubject(user.getUserName())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000)) // 15 phút
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 }
