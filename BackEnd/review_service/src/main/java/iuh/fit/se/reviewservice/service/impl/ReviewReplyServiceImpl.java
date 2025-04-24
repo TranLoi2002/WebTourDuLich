@@ -28,4 +28,9 @@ public class ReviewReplyServiceImpl implements ReviewReplyService {
     public List<ReviewReply> getReviewRepliesByReviewId(Long reviewId) {
         return reviewReplyRepository.findByReviewId(reviewId);
     }
+
+    @Override
+    public int countReviewRepliesByReviewId(Long reviewId) {
+        return reviewReplyRepository.countByReviewId(reviewId);
+    }
 }

@@ -7,4 +7,6 @@ import java.util.List;
 public interface ReviewReplyService {
     ReviewReply addReviewReply(Long reviewId, Long userId, String content);
     List<ReviewReply> getReviewRepliesByReviewId(Long reviewId);
+
+    int countReviewRepliesByReviewId(Long reviewId);
 }

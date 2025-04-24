@@ -2,21 +2,23 @@ import axios from "axios";
 
 const apiURL = `${process.env.REACT_APP_API_BASE_URL}/catalog/tours`;
 
-export const getAllTour = async () => {
-    try{
-        const response = await axios.get(apiURL);
+// http://localhost:8080/api/catalog/tours?page=1&size=10&sortBy=id&sortDir=asc
+export const getAllTour = async (page, size, sortBy, sortDir) => {
+    try {
+        const response = await axios.get(
+            `${apiURL}?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
         return response.data;
-    }catch(error){
+    } catch (error) {
         console.error("Error fetching all tours:", error);
         throw error;
     }
-};
+}
 
 export const getDetailTour = async (id) => {
-    try{
+    try {
         const response = await axios.get(`${apiURL}/${id}`);
         return response.data;
-    }catch(error){
+    } catch (error) {
         console.error("Error fetching tour details:", error);
         throw error;
     }
@@ -25,10 +27,10 @@ export const getDetailTour = async (id) => {
 
 // http://localhost:8080/api/catalog/tours/activitytour/Nightlife
 export const getTourByActivityType = async (activityType) => {
-    try{
+    try {
         const response = await axios.get(`${apiURL}/activitytour/${activityType}`);
         return response.data;
-    }catch (e) {
+    } catch (e) {
         console.error("Error fetching tour by activity type:", e);
         throw e;
     }
@@ -37,10 +39,10 @@ export const getTourByActivityType = async (activityType) => {
 // get review of tour
 // http://localhost:8080/api/catalog/tours/1/reviews
 export const getReviewOfTour = async (tourId) => {
-    try{
+    try {
         const response = await axios.get(`${apiURL}/${tourId}/reviews`);
         return response.data;
-    }catch (e) {
+    } catch (e) {
         console.error("Error fetching review of tour:", e);
         throw e;
     }
@@ -49,10 +51,10 @@ export const getReviewOfTour = async (tourId) => {
 // get tour by location id
 // http://localhost:8083/catalog-service/api/catalog/tours/location/1
 export const getTourByLocationId = async (locationId) => {
-    try{
+    try {
         const response = await axios.get(`${apiURL}/location/${locationId}`);
         return response.data;
-    }catch (e) {
+    } catch (e) {
         console.error("Error fetching tour by location id:", e);
         throw e;
     }
@@ -61,10 +63,10 @@ export const getTourByLocationId = async (locationId) => {
 // get related tour by location id
 // http://localhost:8080/api/catalog/tours/related/1?excludeTourId=1&limit=5
 export const getRelatedTourByLocationId = async (locationId, excludeTourId, limit) => {
-    try{
+    try {
         const response = await axios.get(`${apiURL}/related/${locationId}?excludeTourId=${excludeTourId}&limit=${limit}`);
         return response.data;
-    }catch (e) {
+    } catch (e) {
         console.error("Error fetching related tour by location id:", e);
         throw e;
     }

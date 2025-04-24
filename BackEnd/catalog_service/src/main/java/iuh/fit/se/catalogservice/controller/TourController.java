@@ -1,12 +1,19 @@
 package iuh.fit.se.catalogservice.controller;
 
+import iuh.fit.se.catalogservice.dto.TourDTO;
+import iuh.fit.se.catalogservice.model.Location;
 import iuh.fit.se.catalogservice.model.Tour;
+import iuh.fit.se.catalogservice.model.TourType;
+import iuh.fit.se.catalogservice.repository.LocationRepository;
 import iuh.fit.se.catalogservice.repository.TourRepository;
+import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +28,20 @@ import java.util.Optional;
 public class TourController {
     @Autowired
     private TourService tourService;
+
     @Autowired
     private TourRepository tourRepository;
 
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Autowired
+    private TourTypeRepository tourTypeRepository;
+
     @GetMapping
-    public ResponseEntity<List<Tour>> getAllTours() {
-        List<Tour> tours = tourService.getAllTours();
-        return ResponseEntity.ok(tours);
+    public ResponseEntity<Map<String, Object>> getAllTours(@RequestParam Map<String, String> params) {
+        Map<String, Object> response = tourService.getAllTours(params);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
@@ -37,17 +51,15 @@ public class TourController {
     }
 
     @PostMapping
-    public ResponseEntity<Tour> saveTour(@RequestBody Tour tour) {
-        return ResponseEntity.ok(tourService.saveTour(tour));
+    public ResponseEntity<?> createTour(@Valid @RequestBody TourDTO tourDTO) {
+        Tour createdTour = tourService.saveTour(tourDTO);
+        return new ResponseEntity<>(createdTour, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Tour> updateTour(@PathVariable Long id, @RequestBody Tour updatedTour) {
-        if (id == null) {
-            throw new IllegalArgumentException("The given id must not be null");
-        }
-        Tour updated = tourService.updateTour(id, updatedTour);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> updateTour(@PathVariable Long id, @Valid @RequestBody TourDTO tourDTO) {
+        Tour updatedTour = tourService.updateTour(id, tourDTO);
+        return ResponseEntity.ok(updatedTour);
     }
 
     @DeleteMapping("/{id}")
@@ -87,4 +99,11 @@ public class TourController {
         List<Tour> relatedTours = tourService.getRelatedToursByLocationId(locationId, excludeTourId, pageable);
         return ResponseEntity.ok(relatedTours);
     }
+
+    @GetMapping("/update-tour-status")
+    public ResponseEntity<String> updateTourStatusesNow() {
+        tourService.updateTourStatuses();
+        return ResponseEntity.ok("Tour statuses updated");
+    }
+
 }

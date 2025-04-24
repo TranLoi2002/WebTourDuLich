@@ -1,5 +1,6 @@
 package iuh.fit.se.catalogservice.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -25,6 +26,7 @@ public class Tour extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+//    @JsonIgnore
     private String tourCode;
 
     @NotBlank(message = "Title is required")
@@ -52,16 +54,19 @@ public class Tour extends BaseEntity {
     @NotBlank(message = "Place of departure is required")
     private String placeOfDeparture;
 
-    @NotBlank(message = "Duration is required")
+//    @JsonIgnore
+//    @NotBlank(message = "Duration is required")
     private String duration;
 
     @NotNull(message = "Start date is required")
     @FutureOrPresent(message = "Start date must be in the future or present")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
     private Date startDate;
 
     @NotNull(message = "End date is required")
     @Future(message = "End date must be in the future")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
     private Date endDate;
 
     @NotNull(message = "Max participants is required")
@@ -102,11 +107,12 @@ public class Tour extends BaseEntity {
     @JsonIgnore
     private Set<ActivityType> activityTypes;
 
+    @Enumerated(EnumType.STRING)
+    private TourStatus status;
+
     @Transient
     private Double averageRating;
 
     @Transient
     private Long totalReviews;
-
-
 }

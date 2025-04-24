@@ -92,10 +92,23 @@ const CardTour = ({tour, isShowDesc, containerStyle}) => {
             {isShowDesc && (
                 <div>
                     <div className="review flex flex-wrap justify-between items-center text-sm mb-3">
-                        <div className="review-star flex items-center">
-                            <i className="fa-solid fa-star text-yellow-500 mr-1"></i>
-                            <span>4.8 (12 reviews)</span>
-                        </div>
+
+                        {tour.totalReviews > 0 ? (
+                            <div className="details_review">
+                                <span>{tour.averageRating.toFixed(1)}</span>
+                                <i className="fa-solid fa-star text-yellow-600"></i>
+                                <span>
+                                - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
+                            </span>
+                                {/*<span className="px-4 py-2 rounded bg-blue-200 text-blue-600 text-center">Good</span>*/}
+                            </div>
+                        ) : (
+                            <span className="bg-gradient-to-r from-red-500 px-6 py-1 rounded-lg mb-3 text-white w-full ">
+                                Tour is waiting for you
+                                <Link to={`/tours/detailtour/${tour.id}`} className="underline text-primary ml-2">Book now</Link>
+                            </span>
+                        )}
+
                         <div className="duration text-gray-500">Duration: {tour.duration}</div>
                     </div>
 

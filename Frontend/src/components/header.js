@@ -16,11 +16,20 @@ const Header = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const [user, setUser] = useState(null);
+
     // Kiểm tra trạng thái đăng nhập
     useEffect(() => {
-        const user = localStorage.getItem('user');
+        const userDetail = localStorage.getItem('user');
+        if (userDetail) {
+            setUser(JSON.parse(userDetail));
+        } else {
+            setUser(null);
+        }
         setIsLoggedIn(!!user);
     }, [location]);
+
+    console.log("user", user);
 
     // Lắng nghe sự thay đổi trong localStorage
     useEffect(() => {
@@ -57,14 +66,8 @@ const Header = () => {
                 setIsLoggedIn(false);
                 setShowUserMenu(false);
                 localStorage.removeItem('user');
-                toast.info("Logout successfully.", {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                });
+                toast.info("Logout successfully.",
+                   );
                 navigate('/auth/sign_in');
             })
             .catch((error) => console.error('Logout failed:', error));
@@ -120,7 +123,12 @@ const Header = () => {
 
                         {isLoggedIn ? (
                             <li className="user-menu relative" onClick={handleUserMenu}>
-                                <img src={user_avt} alt="user.png" className="border-l border-gray-300 px-5 ml-2" />
+                                <div className="border-l border-gray-300 ml-2 w-[50px] h-[50px] rounded-full overflow-hidden bg-red-300">
+                                    <img src={user.avatar} alt="user.png"
+                                         className="w-full h-full cursor-pointer object-cover"
+                                    />
+                                </div>
+
                                 <ul className={`menu absolute w-[170px] top-[55px] right-0 flex flex-col items-start shadow-[0_20px_20px_#555] py-2 px-4 bg-white rounded-xl ${showUserMenu ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                                     <li className="list-none leading-10">
                                         <Link to="/account" className="text-sm font-semibold text-gray-500">Accounts</Link>

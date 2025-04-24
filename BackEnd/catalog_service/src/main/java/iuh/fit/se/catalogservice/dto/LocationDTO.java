@@ -1,5 +1,8 @@
 package iuh.fit.se.catalogservice.dto;
 
+import iuh.fit.se.catalogservice.model.LocationType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 import java.util.List;
@@ -9,7 +12,7 @@ public class LocationDTO {
     private Long id;
     private String name;
     private String description;
-    private String thumbnail;
-    private List<String> images;
-    private boolean isActive;
+    private String imgUrl;
+    @Enumerated(EnumType.STRING)
+    private LocationType type;
 }

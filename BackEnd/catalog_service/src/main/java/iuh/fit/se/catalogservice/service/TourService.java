@@ -1,5 +1,6 @@
 package iuh.fit.se.catalogservice.service;
 
+import iuh.fit.se.catalogservice.dto.TourDTO;
 import iuh.fit.se.catalogservice.model.Tour;
 import org.springframework.data.domain.Pageable;
 
@@ -8,11 +9,11 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface TourService {
-    List<Tour> getAllTours();
+    Map<String, Object> getAllTours(Map<String, String> params);
     List<Tour> getTourByIsActive(boolean isActive);
 //    Optional<Tour> getTourById(Long id);
-    Tour saveTour(Tour tour);
-    Tour updateTour(Long id, Tour tour);
+    Tour saveTour(TourDTO dto);
+    Tour updateTour(Long id, TourDTO dto);
     void deleteTour(Long id);
     List<Tour> getToursByTourTypeId(Long tourTypeId);
 
@@ -26,5 +27,7 @@ public interface TourService {
     Tour updateCurrentParticipants(Long id, Integer currentParticipants);
 
     List<Tour> getRelatedToursByLocationId(Long locationId, Long excludeTourId, Pageable pageable);
+
+    void updateTourStatuses();
 }
 

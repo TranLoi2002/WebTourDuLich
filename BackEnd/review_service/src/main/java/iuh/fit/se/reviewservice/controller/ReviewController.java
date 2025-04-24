@@ -120,4 +120,10 @@ public class ReviewController {
         }
     }
 
+    @GetMapping("/{reviewId}/reply/count")
+    public ResponseEntity<Integer> countReviewReplies(@PathVariable Long reviewId) {
+        int count = reviewReplyService.countReviewRepliesByReviewId(reviewId);
+        return ResponseEntity.ok(count);
+    }
+
 }

@@ -75,3 +75,18 @@ export const removeFavouriteTourByUserId = async (userId, tourId) => {
         throw error.response?.data || {error: "Something went wrong"};
     }
 }
+
+// update user /user/id/update
+export const updateUserProfile = async (userId, formData) => {
+    const response = await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/user/${userId}/update-profile`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+        }
+    );
+    return response.data;
+};

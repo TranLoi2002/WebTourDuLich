@@ -23,79 +23,90 @@ const Show = () => {
     const [selectedTourType, setSelectedTourType] = useState(null);
     const [tourByTourType, setTourByTourType] = useState([]);
 
+    // const [currentPage, setCurrentPage] = useState(1);
+    // const [totalPages, setTotalPages] = useState(0);
+
     // get tour have discount from tour.api.js
-    useEffect(() => {
-        const fetchSaleTours = async () => {
-            try {
-                setIsLoading(true);
-                const response = await getAllTour();
-                const filterTours = response.filter(tour => tour.discount > 10);
-                setTourSale(filterTours);
-            } catch (error) {
-                console.error("Error fetching tours:", error);
-            } finally {
-                setTimeout(() => {
-                    setIsLoading(false);
-                }, 1000);
-            }
-        };
 
-        fetchSaleTours();
-    }, [setIsLoading]);
+    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'desc') => {
+        let allData = [];
+        let currentPage = 0;
+        let totalPages = 1;
 
-    useEffect(() => {
-        const fetchFavTours = async () => {
-            try {
-                setIsLoading(true);
-                const response = await getAllTour();
-                const filterTours = response.filter(tour => tour.currentParticipants > 0);
-                setTourFav(filterTours);
-            } catch (error) {
-                console.error("Error fetching tours:", error);
-            } finally {
+        while (currentPage < totalPages) {
+            const response = await fetchFunction(currentPage, size, sortBy, sortDir);
+            allData = [...allData, ...response.content];
+            currentPage = response.currentPage + 1;
+            totalPages = response.totalPages;
+        }
+
+        return allData;
+    };
+
+    const fetchSaleTours = async () => {
+        try {
+            setIsLoading(true);
+            const allTours = await fetchAllPages(getAllTour);
+            const filterTours = allTours.filter(tour => tour.discount > 10);
+            setTourSale(filterTours);
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+        } finally {
+            setTimeout(() => {
                 setIsLoading(false);
-            }
-        };
+            }, 1000);
+        }
+    };
 
+    const fetchFavTours = async () => {
+        try {
+            setIsLoading(true);
+            const allTours = await fetchAllPages(getAllTour);
+            const filterTours = allTours.filter(tour => tour.currentParticipants > 0);
+            setTourFav(filterTours);
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchTourTypes = async () => {
+        try {
+            setIsLoading(true);
+            const allTourTypes = await fetchAllPages(getAllTourType);
+            setTourTypes(allTourTypes);
+            if (allTourTypes.length > 0) {
+                setSelectedTourType(allTourTypes[0].id); // Set the first tour type as default
+            }
+        } catch (error) {
+            console.error("Error fetching tour types:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const fetchLocations = async () => {
+        try {
+            setIsLoading(true);
+            const allLocations = await fetchAllPages(getAllLocation);
+            setLocations(allLocations);
+        } catch (error) {
+            console.error("Error fetching locations:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchSaleTours();
         fetchFavTours();
-    }, [setIsLoading]);
+        fetchTourTypes();
+        fetchLocations();
+    }, []);
 
     // get location from location.api.js
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                setIsLoading(true);
-                const response = await getAllLocation();
-                setLocations(response);
-            } catch (error) {
-                console.error("Error fetching locations:", error);
-            }finally {
-                setIsLoading(false);
-            }
-        };
 
-        fetchLocations();
-    }, [setIsLoading]);
-
-    // get tour type from tourtype.api.js
-    useEffect(() => {
-        const fetchTourTypes = async () => {
-            try {
-                setIsLoading(true);
-                const response = await getAllTourType();
-                setTourTypes(response);
-                if (response.length > 0) {
-                    setSelectedTourType(response[0].id); // Set the first tour type as default
-                }
-            } catch (error) {
-                console.error("Error fetching tour types:", error);
-            }finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchTourTypes();
-    }, [setIsLoading]);
 
     useEffect(() => {
         const fetchToursByTourType = async () => {

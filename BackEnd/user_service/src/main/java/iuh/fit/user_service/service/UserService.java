@@ -10,5 +10,8 @@ public interface UserService {
 
     void addFavouriteTour(Long userId, Long tourId);
 
+    // update user information
+    User updateUserProfile(Long id, String fullName, String address, String dateOfBirth, String gender, String avatarUrl);
+
     void removeFavouriteTour(Long userId, Long tourId);
 }

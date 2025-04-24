@@ -90,3 +90,15 @@ export const uploadImages = async (reviewId, images) => {
         throw error;
     }
 };
+
+// get count replies of review
+// http://localhost:8080/api/reviews/1/reply/count
+export const getCountReplies = async (reviewId) => {
+    try {
+        const response = await axios.get(`${apiUrl}/reviews/${reviewId}/reply/count`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching count replies:", error);
+        throw error;
+    }
+}
