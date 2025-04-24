@@ -3,9 +3,7 @@ package iuh.fit.user_service.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import iuh.fit.user_service.config.JwtUtil;
-import iuh.fit.user_service.dto.AuthResponse;
-import iuh.fit.user_service.dto.LoginRequest;
-import iuh.fit.user_service.dto.RegisterRequest;
+import iuh.fit.user_service.dto.*;
 import iuh.fit.user_service.model.Role;
 import iuh.fit.user_service.model.User;
 import iuh.fit.user_service.model.VerificationToken;
@@ -126,6 +124,19 @@ public class AuthController {
         AuthResponse response = authService.verifyOtp(email, otp);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("OTP đã được gửi về email của bạn");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
 
     private void addJwtCookie(HttpServletResponse response, String token, String cookieName) {
         Cookie jwtCookie = new Cookie(cookieName, token);

@@ -6,6 +6,7 @@ import iuh.fit.user_service.config.JwtUtil;
 import iuh.fit.user_service.dto.AuthResponse;
 import iuh.fit.user_service.dto.LoginRequest;
 import iuh.fit.user_service.dto.RegisterRequest;
+import iuh.fit.user_service.dto.ResetPasswordRequest;
 import iuh.fit.user_service.model.Role;
 import iuh.fit.user_service.model.User;
 import iuh.fit.user_service.model.VerificationToken;
@@ -66,8 +67,9 @@ public class AuthServiceImpl implements AuthService {
     }
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUserName(loginRequest.getUserName())
-                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+        // Tìm user theo email
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
         // Kiểm tra tài khoản đã xác thực chưa
         if (!user.getIsActive()) {
@@ -80,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Load UserDetails
-        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUserName());
+        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
 
         // Tạo Access Token và Refresh Token
         String accessToken = jwtUtil.generateToken(userDetails);
@@ -175,11 +177,11 @@ public class AuthServiceImpl implements AuthService {
         VerificationToken token = verificationTokenRepository.findByEmailAndOtp(email, otp)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mã OTP"));
 
-        // Kiểm tra hết hạn
-        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            verificationTokenRepository.delete(token);
-            throw new RuntimeException("Mã OTP đã hết hạn");
-        }
+//        // Kiểm tra hết hạn
+//        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+//            verificationTokenRepository.delete(token);
+//            throw new RuntimeException("Mã OTP đã hết hạn");
+//        }
 
         // Tạo user từ thông tin tạm
         User user = new User();
@@ -200,7 +202,7 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenRepository.delete(token);
 
         // Tạo token
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUserName());
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
         String accessToken = jwtUtil.generateToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
@@ -237,4 +239,42 @@ public class AuthServiceImpl implements AuthService {
         }
         throw new RuntimeException("Refresh Token không hợp lệ");
     }
+
+    @Override
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+
+        VerificationToken token = new VerificationToken();
+        token.setEmail(email);
+        token.setOtp(otp);
+        token.setExpiryDate(LocalDateTime.now().plusMinutes(3));
+        verificationTokenRepository.save(token);
+
+        String content = "<p>Mã OTP khôi phục mật khẩu của bạn là: <strong>" + otp + "</strong></p>";
+        emailService.sendEmail(email, "Khôi phục mật khẩu", content);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        VerificationToken token = verificationTokenRepository
+                .findByEmailAndOtp(request.getEmail(), request.getOtp())
+                .orElseThrow(() -> new RuntimeException("OTP không hợp lệ hoặc đã hết hạn"));
+
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP đã hết hạn");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        user.setPassWord(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        // Xóa OTP sau khi dùng
+        verificationTokenRepository.delete(token);
+    }
+
 }

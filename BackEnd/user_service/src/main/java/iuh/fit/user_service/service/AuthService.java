@@ -3,6 +3,7 @@ package iuh.fit.user_service.service;
 import iuh.fit.user_service.dto.AuthResponse;
 import iuh.fit.user_service.dto.LoginRequest;
 import iuh.fit.user_service.dto.RegisterRequest;
+import iuh.fit.user_service.dto.ResetPasswordRequest;
 import iuh.fit.user_service.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,4 +14,6 @@ public interface AuthService {
     public AuthResponse refreshToken(String refreshToken);
     AuthResponse verifyOtp(String email, String otp);
     public void requestOtp(RegisterRequest request);
+    public void forgotPassword(String email);
+    public void resetPassword(ResetPasswordRequest request);
 }
