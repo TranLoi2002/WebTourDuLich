@@ -1,5 +1,7 @@
 package iuh.fit.user_service.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import iuh.fit.user_service.config.JwtUtil;
 import iuh.fit.user_service.dto.AuthResponse;
 import iuh.fit.user_service.dto.LoginRequest;
@@ -14,6 +16,7 @@ import iuh.fit.user_service.service.AuthService;
 import iuh.fit.user_service.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -86,120 +89,124 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(accessToken, refreshToken, user);
     }
 
-//    @Override
-//    public AuthResponse login(LoginRequest loginRequest) {
-//        // Xác thực người dùng
-//        authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        loginRequest.getUserName(),
-//                        loginRequest.getPassWord()
-//                )
-//        );
-//
-//        // Load UserDetails
-//        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUserName());
-//
-//        // Tạo Access Token và Refresh Token
-//        String accessToken = jwtUtil.generateToken(userDetails);
-//        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-//
-//        // Truy vấn đối tượng User từ database
-//        User user = userRepository.findByUserName(loginRequest.getUserName())
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//        return new AuthResponse(accessToken, refreshToken, user);
-//    }
     @Override
     public void register(RegisterRequest registerRequest) {
         if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
             throw new IllegalArgumentException("Username đã tồn tại");
         }
 
+        // Tìm role (để sau xác thực dùng)
         Role role = roleRepository.findByRoleName(registerRequest.getRoleName())
                 .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại"));
 
-        User user = new User();
-        user.setUserName(registerRequest.getUserName());
-        user.setPassWord(passwordEncoder.encode(registerRequest.getPassWord()));
-        user.setEmail(registerRequest.getEmail());
-        user.setPhoneNumber(registerRequest.getPhoneNumber());
-        user.setIsActive(false); // Chưa active
-        user.setCreateAt(LocalDateTime.now());
-        user.setRole(role);
-
-        userRepository.save(user);
-
-        // Tạo và lưu OTP
+        // Tạo OTP
         String otp = String.format("%06d", new Random().nextInt(999999));
+
+        // Lưu dữ liệu tạm vào VerificationToken
         VerificationToken token = new VerificationToken();
-        token.setUser(user);
+        token.setTempUserName(registerRequest.getUserName());
+        token.setTempPassword(passwordEncoder.encode(registerRequest.getPassWord()));
+        token.setEmail(registerRequest.getEmail());
+        token.setPhoneNumber(registerRequest.getPhoneNumber());
+        token.setRoleName(role.getRoleName());
         token.setOtp(otp);
         token.setExpiryDate(LocalDateTime.now().plusMinutes(10));
         verificationTokenRepository.save(token);
 
-        // Gửi email
+        // Gửi mail
         String emailContent = "<p>Mã xác thực của bạn là: <strong>" + otp + "</strong></p>";
-        emailService.sendEmail(user.getEmail(), "Mã xác thực OTP", emailContent);
+        emailService.sendEmail(registerRequest.getEmail(), "Mã xác thực OTP", emailContent);
     }
 
-//    @Override
-//    public AuthResponse register(RegisterRequest registerRequest) {
-//        // Kiểm tra xem username đã tồn tại chưa
-//        if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
-//            throw new IllegalArgumentException("Username đã tồn tại: " + registerRequest.getUserName());
-//        }
-//
-//        // Kiểm tra xem role có tồn tại không
-//        Role role = roleRepository.findByRoleName(registerRequest.getRoleName())
-//                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại: " + registerRequest.getRoleName()));
-//
-//        User user = new User();
-//        user.setUserName(registerRequest.getUserName());
-//        user.setPassWord(passwordEncoder.encode(registerRequest.getPassWord()));
-////        user.setFullName(registerRequest.getFullName());
-//        user.setEmail(registerRequest.getEmail());
-//        user.setPhoneNumber(registerRequest.getPhoneNumber());
-//        user.setIsActive(true);
-//        user.setCreateAt(LocalDateTime.now());
-//        user.setRole(role);
-//
-//        userRepository.save(user);
-//
-//        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(registerRequest.getUserName());
-//
-//        // Tạo Access Token và Refresh Token
-//        String accessToken = jwtUtil.generateToken(userDetails);
-//        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-//
-//        return new AuthResponse(accessToken, refreshToken,user);
-//    }
+    @Override
+    public void requestOtp(RegisterRequest request) {
+        // Kiểm tra domain email hợp lệ trước khi gửi OTP
+        if (!request.getEmail().matches("^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|outlook\\.com)$")) {
+            throw new IllegalArgumentException("Chỉ chấp nhận email từ gmail.com, yahoo.com hoặc outlook.com");
+        }
 
-//    @Override
-//    public String register(RegisterRequest registerRequest) {
-//        // Kiểm tra xem username đã tồn tại chưa
-//        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
-//            throw new IllegalArgumentException("Username đã tồn tại: " + registerRequest.getUsername());
-//        }
-//
-//        // Kiểm tra xem role có tồn tại không
-//        Role role = roleRepository.findByRoleName(registerRequest.getRoleName())
-//                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại: " + registerRequest.getRoleName()));
-//
-//        User user = new User();
-//        user.setUsername(registerRequest.getUsername());
-//        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-//        user.setName(registerRequest.getName());
-//        user.setEmail(registerRequest.getEmail());
-//        user.setPhone(registerRequest.getPhone());
-//        user.setIsActive(true);
-//        user.setCreateAt(LocalDateTime.now());
-//        user.setRole(role);
-//
-//        userRepository.save(user);
-//
-//        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(registerRequest.getUsername());
-//        return jwtUtil.generateToken(userDetails);
-//    }
+        // Kiểm tra email đã tồn tại trong DB
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email đã tồn tại");
+        }
+
+        // Kiểm tra email đã yêu cầu OTP trước đó chưa
+        if (verificationTokenRepository.existsByEmailAndExpiryDateAfter(request.getEmail(), LocalDateTime.now())) {
+            throw new IllegalArgumentException("Bạn đã yêu cầu OTP, vui lòng kiểm tra email hoặc đợi hết hạn");
+        }
+
+        // Tìm role (để sau xác thực dùng)
+        Role role = roleRepository.findByRoleName(request.getRoleName())
+                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại"));
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json;
+        try {
+            json = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Lỗi khi xử lý dữ liệu người dùng", e);
+        }
+
+        VerificationToken token = new VerificationToken();
+
+        token.setTempUserName(request.getUserName());
+        token.setTempPassword(passwordEncoder.encode(request.getPassWord()));
+        token.setEmail(request.getEmail());
+        token.setPhoneNumber(request.getPhoneNumber());
+        token.setRoleName(role.getRoleName());
+
+        token.setOtp(otp);
+        token.setUserData(json);
+        token.setExpiryDate(LocalDateTime.now().plusMinutes(1));
+        verificationTokenRepository.save(token);
+
+        String emailContent = "<p>OTP của bạn là: <strong>" + otp + "</strong></p>";
+        try {
+            emailService.sendEmail(request.getEmail(), "Mã OTP xác thực", emailContent);
+        } catch (MailException e) {
+            throw new IllegalArgumentException("Email không tồn tại hoặc không thể gửi email đến địa chỉ này");
+        }
+    }
+
+    @Override
+    public AuthResponse verifyOtp(String email, String otp) {
+        VerificationToken token = verificationTokenRepository.findByEmailAndOtp(email, otp)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy mã OTP"));
+
+        // Kiểm tra hết hạn
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            verificationTokenRepository.delete(token);
+            throw new RuntimeException("Mã OTP đã hết hạn");
+        }
+
+        // Tạo user từ thông tin tạm
+        User user = new User();
+        user.setUserName(token.getTempUserName());
+        user.setPassWord(token.getTempPassword());
+        user.setEmail(token.getEmail());
+        user.setPhoneNumber(token.getPhoneNumber());
+        user.setIsActive(true);
+        user.setCreateAt(LocalDateTime.now());
+
+        Role role = roleRepository.findByRoleName(token.getRoleName())
+                .orElseThrow(() -> new RuntimeException("Role không tồn tại"));
+        user.setRole(role);
+
+        userRepository.save(user);
+
+        // Xóa token sau khi xác thực thành công
+        verificationTokenRepository.delete(token);
+
+        // Tạo token
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUserName());
+        String accessToken = jwtUtil.generateToken(userDetails);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+        return new AuthResponse(accessToken, refreshToken, user);
+    }
+
 
     @Override
     public UserDetails verifyToken(String token) {

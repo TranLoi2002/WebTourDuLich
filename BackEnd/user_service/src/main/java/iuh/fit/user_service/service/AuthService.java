@@ -11,4 +11,6 @@ public interface AuthService {
     public void register(RegisterRequest registerRequest);
     public UserDetails verifyToken(String token);
     public AuthResponse refreshToken(String refreshToken);
+    AuthResponse verifyOtp(String email, String otp);
+    public void requestOtp(RegisterRequest request);
 }
