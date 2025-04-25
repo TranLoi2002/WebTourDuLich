@@ -74,5 +74,19 @@ public class PaymentServiceImpl implements PaymentService {
         dto.setUserId(p.getUserId());
         return dto;
     }
+    public void create(Payment payment) {
+        paymentRepository.save(payment);
+    }
+
+    @Override
+    public void update(Long id, Payment payment) {
+        Payment existing = paymentRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        existing.setAmount(payment.getAmount());
+        existing.setStatus(payment.getStatus());
+        existing.setPaymentMethod(payment.getPaymentMethod());
+        existing.setUserId(payment.getUserId());
+        existing.setCreatedAt(payment.getCreatedAt());
+        paymentRepository.save(existing);
+    }
 
 }

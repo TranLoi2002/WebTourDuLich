@@ -21,4 +21,6 @@ public interface PaymentService {
     void deleteById(Long id);
     RevenueDTO getRevenueStats(Optional<LocalDate> from, Optional<LocalDate> to);
     StatisticDTO getStatsSummary();
+    void create(Payment payment);
+    void update(Long id, Payment payment);
 }

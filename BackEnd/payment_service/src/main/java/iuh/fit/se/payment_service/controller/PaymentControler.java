@@ -51,4 +51,14 @@ public class PaymentControler {
     public StatisticDTO getStatsSummary() {
         return paymentService.getStatsSummary();
     }
+
+    @PostMapping
+    public void create(@RequestBody Payment payment) {
+        paymentService.create(payment);
+    }
+
+    @PutMapping("/{id}")
+    public void update(@PathVariable Long id, @RequestBody Payment payment) {
+        paymentService.update(id, payment);
+    }
 }
