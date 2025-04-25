@@ -25,6 +25,8 @@ public class VerificationToken {
 
     private String tempPassword;
 
+    private String fullName;
+
     private String email;
 
     private String phoneNumber;

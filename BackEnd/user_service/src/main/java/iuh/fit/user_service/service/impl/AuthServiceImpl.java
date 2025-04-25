@@ -3,10 +3,7 @@ package iuh.fit.user_service.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import iuh.fit.user_service.config.JwtUtil;
-import iuh.fit.user_service.dto.AuthResponse;
-import iuh.fit.user_service.dto.LoginRequest;
-import iuh.fit.user_service.dto.RegisterRequest;
-import iuh.fit.user_service.dto.ResetPasswordRequest;
+import iuh.fit.user_service.dto.*;
 import iuh.fit.user_service.model.Role;
 import iuh.fit.user_service.model.User;
 import iuh.fit.user_service.model.VerificationToken;
@@ -91,34 +88,35 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(accessToken, refreshToken, user);
     }
 
-    @Override
-    public void register(RegisterRequest registerRequest) {
-        if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
-            throw new IllegalArgumentException("Username đã tồn tại");
-        }
-
-        // Tìm role (để sau xác thực dùng)
-        Role role = roleRepository.findByRoleName(registerRequest.getRoleName())
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại"));
-
-        // Tạo OTP
-        String otp = String.format("%06d", new Random().nextInt(999999));
-
-        // Lưu dữ liệu tạm vào VerificationToken
-        VerificationToken token = new VerificationToken();
-        token.setTempUserName(registerRequest.getUserName());
-        token.setTempPassword(passwordEncoder.encode(registerRequest.getPassWord()));
-        token.setEmail(registerRequest.getEmail());
-        token.setPhoneNumber(registerRequest.getPhoneNumber());
-        token.setRoleName(role.getRoleName());
-        token.setOtp(otp);
-        token.setExpiryDate(LocalDateTime.now().plusMinutes(10));
-        verificationTokenRepository.save(token);
-
-        // Gửi mail
-        String emailContent = "<p>Mã xác thực của bạn là: <strong>" + otp + "</strong></p>";
-        emailService.sendEmail(registerRequest.getEmail(), "Mã xác thực OTP", emailContent);
-    }
+//    @Override
+//    public void register(RegisterRequest registerRequest) {
+//        if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
+//            throw new IllegalArgumentException("Username đã tồn tại");
+//        }
+//
+//        // Tìm role (để sau xác thực dùng)
+//        Role role = roleRepository.findByRoleName(registerRequest.getRoleName())
+//                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại"));
+//
+//        // Tạo OTP
+//        String otp = String.format("%06d", new Random().nextInt(999999));
+//
+//        // Lưu dữ liệu tạm vào VerificationToken
+//        VerificationToken token = new VerificationToken();
+//        token.setTempUserName(registerRequest.getUserName());
+//        token.setTempPassword(passwordEncoder.encode(registerRequest.getPassWord()));
+//        token.setFullName(registerRequest.getFullName());
+//        token.setEmail(registerRequest.getEmail());
+//        token.setPhoneNumber(registerRequest.getPhoneNumber());
+//        token.setRoleName(role.getRoleName());
+//        token.setOtp(otp);
+//        token.setExpiryDate(LocalDateTime.now().plusMinutes(10));
+//        verificationTokenRepository.save(token);
+//
+//        // Gửi mail
+//        String emailContent = "<p>Mã xác thực của bạn là: <strong>" + otp + "</strong></p>";
+//        emailService.sendEmail(registerRequest.getEmail(), "Mã xác thực OTP", emailContent);
+//    }
 
     @Override
     public void requestOtp(RegisterRequest request) {
@@ -155,6 +153,7 @@ public class AuthServiceImpl implements AuthService {
 
         token.setTempUserName(request.getUserName());
         token.setTempPassword(passwordEncoder.encode(request.getPassWord()));
+        token.setFullName(request.getFullName());
         token.setEmail(request.getEmail());
         token.setPhoneNumber(request.getPhoneNumber());
         token.setRoleName(role.getRoleName());
@@ -187,6 +186,7 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setUserName(token.getTempUserName());
         user.setPassWord(token.getTempPassword());
+        user.setFullName(token.getFullName());
         user.setEmail(token.getEmail());
         user.setPhoneNumber(token.getPhoneNumber());
         user.setIsActive(true);
@@ -277,4 +277,20 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenRepository.delete(token);
     }
 
+    @Override
+    public void changePassword(String usernameOrEmail, ChangePasswordRequest request) {
+        // Tìm user theo username/email
+        User user = userRepository.findByUserName(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        // So sánh mật khẩu cũ
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassWord())) {
+            throw new RuntimeException("Mật khẩu cũ không đúng");
+        }
+
+        // Gán mật khẩu mới đã mã hoá
+        user.setPassWord(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
 }

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +30,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,11 +69,11 @@ public class AuthController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        authService.register(registerRequest); // Chỉ tạo user và gửi OTP, chưa tạo token
-        return ResponseEntity.ok("Đăng ký thành công! Vui lòng kiểm tra email để xác thực OTP.");
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
+//        authService.register(registerRequest); // Chỉ tạo user và gửi OTP, chưa tạo token
+//        return ResponseEntity.ok("Đăng ký thành công! Vui lòng kiểm tra email để xác thực OTP.");
+//    }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
@@ -87,13 +89,14 @@ public class AuthController {
             UserDetails userDetails = authService.verifyToken(token);
 
             // Fetch additional user details from the database
-            User user = userRepository.findByUserName(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Email not found"));
 
             // Return a custom response with user details
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("username", user.getUserName());
+            response.put("fullName", user.getFullName());
             response.put("email", user.getEmail());
             response.put("role", user.getRole().getRoleName());
             return ResponseEntity.ok(response);
@@ -132,8 +135,16 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody  ChangePasswordRequest request,
+                                                 Principal principal) {
+        authService.changePassword(principal.getName(), request);
         return ResponseEntity.ok("Đổi mật khẩu thành công");
     }
 

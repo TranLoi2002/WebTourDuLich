@@ -12,7 +12,7 @@ import logo from "../../assets/images/logo.png";
 import { login } from "../../api/auth.api"; // Đảm bảo API login được định nghĩa đúng
 
 const Sign_In = () => {
-    const [formData, setFormData] = useState({ userName: "", passWord: "" });
+    const [formData, setFormData] = useState({ email: "", passWord: "" });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -72,13 +72,13 @@ const Sign_In = () => {
                     noValidate
                 >
                     <TextField
-                        label="Username"
-                        name="userName"
+                        label="email"
+                        name="email"
                         variant="outlined"
                         fullWidth
-                        value={formData.userName}
+                        value={formData.email}
                         onChange={handleChange}
-                        // required
+                        required
                         margin="normal"
                     />
                     <TextField
@@ -89,7 +89,7 @@ const Sign_In = () => {
                         fullWidth
                         value={formData.passWord}
                         onChange={handleChange}
-                        // required
+                        required
                         margin="normal"
                     />
 
