@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/payment-methods")
+@RequestMapping("/admin/payment-methods")
 @RequiredArgsConstructor
 public class PaymentMethodController {
     private final PaymentMethodService paymentMethodService;
@@ -30,7 +30,10 @@ public class PaymentMethodController {
     }
 
     @GetMapping
-    public List<PaymentMethodResponseDTO> getAll() {
-        return paymentMethodService.getAll();
+    public List<PaymentMethodResponseDTO> getAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean active
+    ) {
+        return paymentMethodService.getAllFiltered(name, active);
     }
 }

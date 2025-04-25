@@ -39,8 +39,12 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     }
 
     @Override
-    public List<PaymentMethodResponseDTO> getAll() {
-        return paymentMethodRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<PaymentMethodResponseDTO> getAllFiltered(String name, Boolean active) {
+        return paymentMethodRepository.findAll().stream()
+                .filter(pm -> name == null || pm.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(pm -> active == null || pm.isActive() == active)
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     private PaymentMethodResponseDTO toDTO(PaymentMethod m) {
