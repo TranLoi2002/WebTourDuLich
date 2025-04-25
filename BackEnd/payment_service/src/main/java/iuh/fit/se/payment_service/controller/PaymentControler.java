@@ -61,4 +61,8 @@ public class PaymentControler {
     public void update(@PathVariable Long id, @RequestBody Payment payment) {
         paymentService.update(id, payment);
     }
+    @PutMapping("/{id}/status")
+    public void updateStatus(@PathVariable Long id, @RequestParam String status) {
+        paymentService.updateStatus(id, status);
+    }
 }

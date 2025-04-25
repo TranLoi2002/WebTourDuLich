@@ -23,4 +23,5 @@ public interface PaymentService {
     StatisticDTO getStatsSummary();
     void create(Payment payment);
     void update(Long id, Payment payment);
+    void updateStatus(Long id, String status);
 }

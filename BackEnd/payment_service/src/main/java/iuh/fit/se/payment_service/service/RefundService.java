@@ -16,4 +16,6 @@ public interface RefundService {
     Page<RefundResponseDTO> getRefundsByDateRange(Optional<LocalDate> from, Optional<LocalDate> to, Pageable pageable);
     void approveRefund(Long id);
     void rejectRefund(Long id, String reason);
+    void createRefund(Refund refund);
+    void updateRefund(Long id, Refund refund);
 }

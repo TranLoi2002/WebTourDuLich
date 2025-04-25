@@ -33,6 +33,23 @@ public class RefundServiceImpl implements RefundService {
         refund.setStatus("APPROVED");
         refundRepository.save(refund);
     }
+    @Override
+    public void createRefund(Refund refund) {
+        refundRepository.save(refund);
+    }
+
+    @Override
+    public void updateRefund(Long id, Refund refund) {
+        Refund existing = refundRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Refund not found"));
+
+        existing.setReason(refund.getReason());
+        existing.setStatus(refund.getStatus());
+        existing.setCreatedAt(refund.getCreatedAt());
+        existing.setPayment(refund.getPayment());
+
+        refundRepository.save(existing);
+    }
 
     @Override
     public void rejectRefund(Long id, String reason) {

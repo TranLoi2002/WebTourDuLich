@@ -36,4 +36,13 @@ public class RefundController {
     public void reject(@PathVariable Long id, @RequestBody Map<String, String> body) {
         refundService.rejectRefund(id, body.get("reason"));
     }
+    @PostMapping
+    public void create(@RequestBody Refund refund) {
+        refundService.createRefund(refund);
+    }
+
+    @PutMapping("/{id}")
+    public void update(@PathVariable Long id, @RequestBody Refund refund) {
+        refundService.updateRefund(id, refund);
+    }
 }

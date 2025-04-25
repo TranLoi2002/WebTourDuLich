@@ -88,5 +88,13 @@ public class PaymentServiceImpl implements PaymentService {
         existing.setCreatedAt(payment.getCreatedAt());
         paymentRepository.save(existing);
     }
+    @Override
+    public void updateStatus(Long id, String status) {
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy payment"));
+
+        payment.setStatus(status); // Bạn nên validate nếu status hợp lệ (PAID, FAILED, v.v.)
+        paymentRepository.save(payment);
+    }
 
 }
