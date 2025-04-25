@@ -21,9 +21,7 @@ public class BookingResponseDTO {
     private String notes;
     private boolean paymentDueTimeRelevant;
     private Double totalPrice;
-    private CancelReason refundReason;
-    private Double refundAmount;
-    private RefundStatus refundStatus;
+    private CancelReason reason;
     private CanceledBy canceledBy;
 
     @Data

@@ -22,5 +22,5 @@ public interface BookingService {
     boolean canUserBookTour(Long tourId, Long userId);
     List<Booking> getAllBookingByUser(Long userId);
     List<Booking> getBookingsByStatus(BookingStatus status);
-    Map<String, Object> getRefundStatistics(LocalDateTime start, LocalDateTime end);
+
 }

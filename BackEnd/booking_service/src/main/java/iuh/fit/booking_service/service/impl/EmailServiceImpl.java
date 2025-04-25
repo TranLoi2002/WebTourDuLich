@@ -156,8 +156,7 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("tour", tour);
             context.setVariable("reason", reason);
             context.setVariable("cancellationDate", booking.getUpdatedAt().format(DATE_FORMATTER));
-            context.setVariable("refundStatus", booking.getRefundStatus().toString());
-            context.setVariable("refundAmount", booking.getRefundAmount() != null ? booking.getRefundAmount() + " VNĐ" : "0 VNĐ");
+            context.setVariable("canceledBy", booking.getCanceledBy() != null ? booking.getCanceledBy().toString() : "N/A");
 
             String htmlContent = templateEngine.process("email/booking-cancellation", context);
             helper.setText(htmlContent, true);

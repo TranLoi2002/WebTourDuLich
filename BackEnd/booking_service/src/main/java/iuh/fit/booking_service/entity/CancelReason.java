@@ -9,14 +9,13 @@ public enum CancelReason {
     OPERATIONAL_ISSUE("Vấn đề vận hành tour"),
     LEGAL_RESTRICTION("Hạn chế pháp lý hoặc quy định"),
     OTHER("Lý do khác");
-
     private final String description;
-
     CancelReason(String description) {
         this.description = description;
     }
-
     public String getDescription() {
         return description;
     }
+
+
 }

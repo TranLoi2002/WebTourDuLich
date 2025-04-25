@@ -2,7 +2,6 @@ package iuh.fit.booking_service.repository;
 
 import iuh.fit.booking_service.entity.Booking;
 import iuh.fit.booking_service.entity.BookingStatus;
-import iuh.fit.booking_service.entity.RefundStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -101,32 +100,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      */
     List<Booking> findByBookingStatusAndPaymentDueTimeBefore(BookingStatus bookingStatus, LocalDateTime now);
 
-    /**
-     * Tìm danh sách booking theo trạng thái hoàn tiền.
-     * @param refundStatus Trạng thái hoàn tiền (NONE, PENDING, COMPLETED, FAILED)
-     * @return Danh sách Booking
-     */
-    List<Booking> findByRefundStatus(RefundStatus refundStatus);
 
-    /**
-     * Tổng số tiền hoàn theo trạng thái hoàn tiền.
-     * @param refundStatus Trạng thái hoàn tiền
-     * @return Tổng số tiền hoàn
-     */
-    @Query("SELECT COALESCE(SUM(b.refundAmount), 0) FROM Booking b WHERE b.refundStatus = :refundStatus")
-    Double sumRefundAmountByRefundStatus(@Param("refundStatus") RefundStatus refundStatus);
 
-    /**
-     * Tổng số tiền hoàn theo trạng thái hoàn tiền và khoảng thời gian xử lý.
-     * @param refundStatus Trạng thái hoàn tiền
-     * @param start Thời điểm bắt đầu
-     * @param end Thời điểm kết thúc
-     * @return Tổng số tiền hoàn
-     */
-    @Query("SELECT COALESCE(SUM(b.refundAmount), 0) FROM Booking b " +
-            "WHERE b.refundStatus = :refundStatus AND b.updatedAt BETWEEN :start AND :end")
-    Double sumRefundAmountByRefundStatusAndUpdatedAtBetween(
-            @Param("refundStatus") RefundStatus refundStatus,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
 }

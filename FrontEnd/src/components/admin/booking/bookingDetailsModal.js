@@ -1,18 +1,9 @@
 import React from 'react';
 import StatusBadge from './statusBadge';
 import PaymentStatus from './paymentStatus';
-import { formatPrice, getValidStatusOptions } from './utils';
+import { formatPrice } from './utils';
 
-const BookingDetailsModal = ({
-  isOpen,
-  onClose,
-  selectedBooking,
-  newStatus,
-  setNewStatus,
-  handleStatusUpdate,
-  isUpdating,
-  handleStatusChange,
-}) => {
+const BookingDetailsModal = ({ isOpen, onClose, selectedBooking }) => {
   if (!isOpen || !selectedBooking) return null;
 
   return (
@@ -91,68 +82,9 @@ const BookingDetailsModal = ({
                     <span className="font-medium">Reason:</span>{' '}
                     {selectedBooking.refundReason || 'Not paid on time'}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    <span className="font-medium">Refund Amount:</span>{' '}
-                    {selectedBooking.refundAmount || 'Not paid on time'}
-                  </p>
                 </>
               ) : (
                 <p className="text-sm text-gray-500">No cancellation details</p>
-              )}
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Update Status</h4>
-              <div className="mt-2">
-                <select
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                  value={newStatus}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                >
-                  {getValidStatusOptions(selectedBooking.bookingStatus).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {newStatus !== 'CANCELLED' && (
-                <button
-                  onClick={handleStatusUpdate}
-                  disabled={newStatus === selectedBooking.bookingStatus || isUpdating}
-                  className={`mt-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                    newStatus === selectedBooking.bookingStatus || isUpdating
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-700'
-                  }`}
-                >
-                  {isUpdating ? (
-                    <span className="flex items-center">
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Updating...
-                    </span>
-                  ) : (
-                    'Update Status'
-                  )}
-                </button>
               )}
             </div>
           </div>

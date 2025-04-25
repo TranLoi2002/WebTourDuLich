@@ -60,13 +60,8 @@ public class Booking {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private RefundStatus refundStatus = RefundStatus.NONE;
+    private CancelReason reason;
 
-    @Column
-    private Double refundAmount;
-    @Column
-    @Enumerated(EnumType.STRING)
-    private CancelReason refundReason;
     @Column
     @Enumerated(EnumType.STRING)
     private CanceledBy canceledBy;
@@ -105,6 +100,7 @@ public class Booking {
                 case BABY -> total += basePrice * 0.3;
             }
         }
+
         this.totalPrice = total;
     }
 }
