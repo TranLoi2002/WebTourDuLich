@@ -1,8 +1,7 @@
 package iuh.fit.se.payment_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import iuh.fit.se.payment_service.entity.PaymentMethod;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,11 +9,13 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class PaymentResponseDTO {
     private Long id;
     private BigDecimal amount;
     private String status;
-    private String methodName;
+    private PaymentMethod methodName;
     private LocalDateTime createdAt;
     private Long userId;
 }

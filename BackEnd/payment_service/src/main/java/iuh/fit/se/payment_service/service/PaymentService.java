@@ -1,5 +1,6 @@
 package iuh.fit.se.payment_service.service;
 
+import iuh.fit.se.payment_service.dto.PaymentMethodDTO;
 import iuh.fit.se.payment_service.dto.PaymentResponseDTO;
 import iuh.fit.se.payment_service.dto.RevenueDTO;
 import iuh.fit.se.payment_service.dto.StatisticDTO;
@@ -21,7 +22,6 @@ public interface PaymentService {
     void deleteById(Long id);
     RevenueDTO getRevenueStats(Optional<LocalDate> from, Optional<LocalDate> to);
     StatisticDTO getStatsSummary();
-    void create(Payment payment);
-    void update(Long id, Payment payment);
-    void updateStatus(Long id, String status);
+    void create(PaymentResponseDTO dto);
+    void update(Long id, PaymentResponseDTO dto);
 }

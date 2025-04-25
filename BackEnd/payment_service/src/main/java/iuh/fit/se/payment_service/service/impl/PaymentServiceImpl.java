@@ -1,20 +1,25 @@
 package iuh.fit.se.payment_service.service.impl;
 
+import iuh.fit.se.payment_service.controller.PaymentControler;
 import iuh.fit.se.payment_service.dto.PaymentResponseDTO;
 import iuh.fit.se.payment_service.dto.RevenueDTO;
 import iuh.fit.se.payment_service.dto.StatisticDTO;
 import iuh.fit.se.payment_service.entity.Payment;
+import iuh.fit.se.payment_service.entity.PaymentMethod;
+import iuh.fit.se.payment_service.repository.PaymentMethodRepository;
 import iuh.fit.se.payment_service.repository.PaymentRepository;
 import iuh.fit.se.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jdbc.core.JdbcAggregateOperations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +29,7 @@ import jakarta.persistence.criteria.Predicate;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
 
     @Override
     public Page<PaymentResponseDTO> searchPayments(Optional<String> status, Optional<Long> methodId, Optional<Long> userId,
@@ -64,37 +70,48 @@ public class PaymentServiceImpl implements PaymentService {
         return new StatisticDTO((long) payments.size(), 0L, total);
     }
 
+    @Override
+    public void create(PaymentResponseDTO dto) {
+        Payment payment = new Payment();
+        payment.setAmount(dto.getAmount());
+        payment.setStatus("PENDING");  // Mặc định trạng thái là PENDING
+        payment.setPaymentMethod(dto.getMethodName());  // Đặt PaymentMethod cho thanh toán
+        payment.setUserId(dto.getUserId());  // Đặt userId cho thanh toán
+        payment.setCreatedAt(LocalDateTime.now());  // Đặt thời gian tạo thanh toán là thời gian hiện tại
+
+        // Lưu Payment vào cơ sở dữ liệu
+        paymentRepository.save(payment);
+    }
+
+    @Override
+    public void update(Long id, PaymentResponseDTO dto) {
+        // Tìm Payment theo id
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + id));
+
+        // Cập nhật các thông tin thanh toán từ DTO
+        payment.setAmount(dto.getAmount());
+        payment.setStatus(dto.getStatus());  // Cập nhật trạng thái thanh toán
+        payment.setPaymentMethod(paymentMethodRepository.findById(dto.getMethodName().getId())
+                .orElseThrow(() -> new RuntimeException("Payment method not found")));  // Cập nhật PaymentMethod
+        payment.setUserId(dto.getUserId());  // Cập nhật userId
+        payment.setCreatedAt(dto.getCreatedAt());  // Cập nhật thời gian tạo thanh toán (nếu cần)
+
+        // Lưu Payment đã cập nhật vào cơ sở dữ liệu
+        paymentRepository.save(payment);
+    }
+
     private PaymentResponseDTO toDTO(Payment p) {
         PaymentResponseDTO dto = new PaymentResponseDTO();
         dto.setId(p.getId());
         dto.setAmount(p.getAmount());
         dto.setStatus(p.getStatus());
-        dto.setMethodName(p.getPaymentMethod().getName());
+        dto.setMethodName(p.getPaymentMethod());
         dto.setCreatedAt(p.getCreatedAt());
         dto.setUserId(p.getUserId());
         return dto;
     }
-    public void create(Payment payment) {
-        paymentRepository.save(payment);
-    }
 
-    @Override
-    public void update(Long id, Payment payment) {
-        Payment existing = paymentRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
-        existing.setAmount(payment.getAmount());
-        existing.setStatus(payment.getStatus());
-        existing.setPaymentMethod(payment.getPaymentMethod());
-        existing.setUserId(payment.getUserId());
-        existing.setCreatedAt(payment.getCreatedAt());
-        paymentRepository.save(existing);
-    }
-    @Override
-    public void updateStatus(Long id, String status) {
-        Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy payment"));
 
-        payment.setStatus(status); // Bạn nên validate nếu status hợp lệ (PAID, FAILED, v.v.)
-        paymentRepository.save(payment);
-    }
 
 }

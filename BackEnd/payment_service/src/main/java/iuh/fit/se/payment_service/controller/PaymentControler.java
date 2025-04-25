@@ -1,15 +1,13 @@
 package iuh.fit.se.payment_service.controller;
 
+import iuh.fit.se.payment_service.dto.PaymentMethodDTO;
 import iuh.fit.se.payment_service.dto.PaymentResponseDTO;
 import iuh.fit.se.payment_service.dto.RevenueDTO;
 import iuh.fit.se.payment_service.dto.StatisticDTO;
-import iuh.fit.se.payment_service.entity.Payment;
 import iuh.fit.se.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -53,16 +51,13 @@ public class PaymentControler {
     }
 
     @PostMapping
-    public void create(@RequestBody Payment payment) {
-        paymentService.create(payment);
+    public void create(@RequestBody PaymentResponseDTO dto) {
+        paymentService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public void update(@PathVariable Long id, @RequestBody Payment payment) {
-        paymentService.update(id, payment);
+    public void update(@PathVariable Long id, @RequestBody PaymentResponseDTO dto) {
+        paymentService.update(id, dto);
     }
-    @PutMapping("/{id}/status")
-    public void updateStatus(@PathVariable Long id, @RequestParam String status) {
-        paymentService.updateStatus(id, status);
-    }
+
 }

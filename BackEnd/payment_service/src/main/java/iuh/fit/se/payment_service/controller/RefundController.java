@@ -1,5 +1,6 @@
 package iuh.fit.se.payment_service.controller;
 
+import iuh.fit.se.payment_service.dto.PaymentResponseDTO;
 import iuh.fit.se.payment_service.dto.RefundResponseDTO;
 import iuh.fit.se.payment_service.entity.Refund;
 import iuh.fit.se.payment_service.service.RefundService;
@@ -37,12 +38,12 @@ public class RefundController {
         refundService.rejectRefund(id, body.get("reason"));
     }
     @PostMapping
-    public void create(@RequestBody Refund refund) {
-        refundService.createRefund(refund);
+    public void create(@RequestBody RefundResponseDTO dto) {
+        refundService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public void update(@PathVariable Long id, @RequestBody Refund refund) {
-        refundService.updateRefund(id, refund);
+    public void update(@PathVariable Long id, @RequestBody RefundResponseDTO dto) {
+        refundService.update(id, dto);
     }
 }
