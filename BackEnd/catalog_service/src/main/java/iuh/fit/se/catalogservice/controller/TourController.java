@@ -4,6 +4,8 @@ import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.TourRepository;
 import iuh.fit.se.catalogservice.service.TourService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ import java.util.Optional;
 @RequestMapping("/catalog/tours")
 @RequiredArgsConstructor
 public class TourController {
+    private static final Logger logger = LoggerFactory.getLogger(TourController.class);
     @Autowired
     private TourService tourService;
     @Autowired
@@ -60,10 +63,32 @@ public class TourController {
         return ResponseEntity.ok(tours);
     }
     @PutMapping("/update/current-participants/{id}")
-    public ResponseEntity<Tour> updateCurrentParticipants(@PathVariable Long id, @RequestParam Integer currentParticipants) {
-        Tour updatedTour = tourService.updateCurrentParticipants(id, currentParticipants);
-        return ResponseEntity.ok(updatedTour);
+    public ResponseEntity<Tour> updateCurrentParticipants(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> requestBody) {
+        logger.info("Received request to update participants for tour {} with body: {}", id, requestBody);
+
+        if (requestBody == null || !requestBody.containsKey("currentParticipants")) {
+            logger.error("Invalid request body: currentParticipants is missing");
+            throw new IllegalArgumentException("currentParticipants is required in the request body");
+        }
+
+        Integer currentParticipants = requestBody.get("currentParticipants");
+        if (currentParticipants == null) {
+            logger.error("currentParticipants cannot be null for tour {}", id);
+            throw new IllegalArgumentException("currentParticipants cannot be null");
+        }
+
+        try {
+            Tour updatedTour = tourService.updateCurrentParticipants(id, currentParticipants);
+            logger.info("Successfully updated tour {} with currentParticipants: {}", id, currentParticipants);
+            return ResponseEntity.ok(updatedTour);
+        } catch (Exception e) {
+            logger.error("Failed to update participants for tour {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to update tour participants", e);
+        }
     }
+
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<Map<String, Object>>> getReviewsByTourId(@PathVariable Long id) {
         List<Map<String, Object>> reviews = tourService.getReviewsByTourId(id);

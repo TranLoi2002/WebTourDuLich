@@ -6,6 +6,8 @@ import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.TourRepository;
 import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.Optional;
 
 @Service
 public class TourServiceImpl implements TourService {
+    private static final Logger logger = LoggerFactory.getLogger(TourService.class);
     @Autowired
     private TourRepository tourRepository;
 
@@ -125,19 +128,25 @@ public class TourServiceImpl implements TourService {
     public List<Map<String, Object>> getReviewsByTourId(Long tourId) {
         return reviewServiceFeignClient.getReviewsByTourId(tourId);
     }
-    @Override
     public Tour updateCurrentParticipants(Long id, Integer currentParticipants) {
-        return tourRepository.findById(id)
-                .map(existingTour -> {
-                    if (currentParticipants < 0 || currentParticipants > existingTour.getMaxParticipants()) {
-                        throw new IllegalArgumentException("Current participants must be between 0 and max participants.");
-                    }
-                    existingTour.setCurrentParticipants(currentParticipants);
-                    return tourRepository.save(existingTour);
-                })
-                .orElseThrow(() -> new RuntimeException("Tour not found with id " + id));
-    }
+        logger.info("Updating current participants for tour {} to {}", id, currentParticipants);
 
+        if (currentParticipants < 0) {
+            logger.error("currentParticipants cannot be negative: {}", currentParticipants);
+            throw new IllegalArgumentException("currentParticipants cannot be negative");
+        }
+
+        Tour tour = tourRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Tour not found with id: {}", id);
+                    return new IllegalArgumentException("Tour not found with id: " + id);
+                });
+
+        tour.setCurrentParticipants(currentParticipants);
+        Tour updatedTour = tourRepository.save(tour);
+        logger.info("Successfully updated tour {} with currentParticipants: {}", id, currentParticipants);
+        return updatedTour;
+    }
 
     @Override
     public List<Tour> getToursByLocationId(Long locationId) {

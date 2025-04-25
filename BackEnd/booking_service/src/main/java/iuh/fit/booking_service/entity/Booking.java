@@ -23,14 +23,6 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Booking {
 
-    public enum RefundStatus {
-        NONE, PENDING, COMPLETED, FAILED
-    }
-
-    public enum CanceledBy {
-        USER, ADMIN
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -72,7 +64,9 @@ public class Booking {
 
     @Column
     private Double refundAmount;
-
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CancelReason refundReason;
     @Column
     @Enumerated(EnumType.STRING)
     private CanceledBy canceledBy;

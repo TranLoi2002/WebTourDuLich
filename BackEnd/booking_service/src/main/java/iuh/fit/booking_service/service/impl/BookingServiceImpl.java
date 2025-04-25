@@ -6,10 +6,7 @@ import iuh.fit.booking_service.dto.BookingResponseDTO;
 import iuh.fit.booking_service.dto.LightTourDTO;
 import iuh.fit.booking_service.dto.TourDTO;
 import iuh.fit.booking_service.dto.UserDTO;
-import iuh.fit.booking_service.entity.AgeType;
-import iuh.fit.booking_service.entity.Booking;
-import iuh.fit.booking_service.entity.BookingStatus;
-import iuh.fit.booking_service.entity.Participant;
+import iuh.fit.booking_service.entity.*;
 import iuh.fit.booking_service.exception.BookingException;
 import iuh.fit.booking_service.exception.InvalidBookingStatusException;
 import iuh.fit.booking_service.repository.BookingRepository;
@@ -29,18 +26,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-
     private static final Logger logger = LoggerFactory.getLogger(BookingServiceImpl.class);
     private static final String TIMEZONE = "Asia/Ho_Chi_Minh";
     private static final String BOOKING_TOPIC = "/topic/bookings";
     private static final String UPDATE_TOPIC = "/topic/booking-updates";
     private static final long THREE_DAYS_IN_MILLIS = 3 * 24 * 60 * 60 * 1000L;
+    private static final double FULL_REFUND_RATE = 1.0;
+    private static final double HALF_REFUND_RATE = 0.5;
+    private static final int PAYMENT_DUE_HOURS = 48;
 
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
@@ -56,20 +54,52 @@ public class BookingServiceImpl implements BookingService {
 
         LightTourDTO tour = fetchTour(bookingRequest.getTourId());
         UserDTO user = fetchUser(bookingRequest.getUserId());
-        validateBooking(tour, user, bookingRequest);
+        validateTour(tour);
 
-        Booking savedBooking = bookingRepository.save(prepareBooking(bookingRequest, user, tour));
-        updateTourParticipants(tour, bookingRequest.getParticipants().size());
-
-        BookingResponseDTO response = convertToResponseDTO(savedBooking, tour, user);
-        try {
-            messagingTemplate.convertAndSend(BOOKING_TOPIC, response);
-            logger.info("Broadcasted new booking to {} with code: {}", BOOKING_TOPIC, savedBooking.getBookingCode());
-        } catch (Exception e) {
-            logger.error("Failed to send WebSocket message to {}: {}", BOOKING_TOPIC, e.getMessage());
+        // Kiểm tra booking hiện có
+        Booking existingBooking = bookingRepository.findBookingByTourIdAndUserId(bookingRequest.getTourId(), bookingRequest.getUserId());
+        if (existingBooking != null) {
+            if (existingBooking.getBookingStatus() == BookingStatus.PENDING || existingBooking.getBookingStatus() == BookingStatus.CONFIRMED) {
+                throw new BookingException(
+                        "Bạn đã có booking đang hoạt động cho tour này",
+                        HttpStatus.CONFLICT,
+                        "BOOKING_041"
+                );
+            } else if (existingBooking.getBookingStatus() == BookingStatus.CANCELLED) {
+                logger.info("Deleting cancelled booking with code: {}", existingBooking.getBookingCode());
+                bookingRepository.delete(existingBooking);
+            }
         }
 
+        // Tạo booking mới
+        validateParticipants(bookingRequest.getParticipants());
+        Booking newBooking = prepareBooking(bookingRequest, user, tour);
+
+        // Giữ nguyên bookingCode cũ nếu có
+        if (existingBooking != null && existingBooking.getBookingStatus() == BookingStatus.CANCELLED) {
+            newBooking.setBookingCode(existingBooking.getBookingCode());
+        }
+
+        int totalParticipants = bookingRepository.countTotalParticipantsByTourId(bookingRequest.getTourId());
+        int remaining = tour.getMaxParticipants() - totalParticipants;
+        if (newBooking.getParticipants().size() > remaining) {
+            throw new BookingException(
+                    BookingErrorCode.INSUFFICIENT_SEATS.getMessage() + ": " + remaining,
+                    HttpStatus.CONFLICT,
+                    BookingErrorCode.INSUFFICIENT_SEATS.getCode()
+            );
+        }
+
+        Booking savedBooking = bookingRepository.save(newBooking);
+        logger.info("Saved new booking with code: {}", savedBooking.getBookingCode());
+
+        updateTourParticipants(tour, savedBooking.getParticipants().size(), true);
+        logger.info("Updated tour participants for tour: {}", tour.getTourId());
+
+        BookingResponseDTO response = convertToResponseDTO(savedBooking, tour, user);
+        broadcastBookingEvent(BOOKING_TOPIC, response, savedBooking.getBookingCode());
         sendBookingConfirmationAsync(savedBooking, user, tour);
+
         logger.info("Booking created successfully with code: {}", savedBooking.getBookingCode());
         return response;
     }
@@ -79,7 +109,11 @@ public class BookingServiceImpl implements BookingService {
     public Booking getBooking(Long id) {
         logger.info("Fetching booking with id: {}", id);
         return bookingRepository.findByIdWithParticipants(id)
-                .orElseThrow(() -> new BookingException("Booking không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_003"));
+                .orElseThrow(() -> new BookingException(
+                        BookingErrorCode.NOT_FOUND.getMessage(),
+                        HttpStatus.NOT_FOUND,
+                        BookingErrorCode.NOT_FOUND.getCode()
+                ));
     }
 
     @Override
@@ -108,115 +142,55 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking updatedBooking = bookingRepository.save(booking);
-        BookingResponseDTO response = convertToResponseDTO(
-                updatedBooking,
-                fetchTour(updatedBooking.getTourId()),
-                fetchUser(updatedBooking.getUserId())
-        );
+        LightTourDTO tour = fetchTour(updatedBooking.getTourId());
+        UserDTO user = fetchUser(updatedBooking.getUserId());
+        BookingResponseDTO response = convertToResponseDTO(updatedBooking, tour, user);
 
-        try {
-            messagingTemplate.convertAndSend(UPDATE_TOPIC, response);
-            logger.info("Broadcasted status update to {} for booking: {}", UPDATE_TOPIC, updatedBooking.getBookingCode());
-        } catch (Exception e) {
-            logger.error("Failed to send WebSocket message to {}: {}", UPDATE_TOPIC, e.getMessage());
+        // Gửi email xác nhận thanh toán nếu trạng thái mới là CONFIRMED
+        if (newStatus == BookingStatus.CONFIRMED) {
+            logger.info("Booking status updated to CONFIRMED for booking {}. Sending payment confirmation email.", updatedBooking.getBookingCode());
+            sendPaymentConfirmationAsync(updatedBooking, user, tour);
         }
 
+        broadcastBookingEvent(UPDATE_TOPIC, response, updatedBooking.getBookingCode());
         return response;
     }
 
     @Override
     @Transactional
-    public BookingResponseDTO cancelBooking(Long id, String reason, Booking.CanceledBy canceledBy) {
+    public BookingResponseDTO cancelBooking(Long id, CancelReason reason, CanceledBy canceledBy) {
         logger.info("Cancelling booking with id: {}, reason: {}, canceledBy: {}", id, reason, canceledBy);
         Booking booking = getBooking(id);
-        if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
-            throw new InvalidBookingStatusException(booking.getBookingStatus(), BookingStatus.CANCELLED);
-        }
-        if (booking.getBookingStatus() == BookingStatus.COMPLETED) {
-            throw new BookingException("Không thể hủy booking đã hoàn thành", HttpStatus.BAD_REQUEST, "BOOKING_038");
-        }
-        if (booking.getBookingStatus() == BookingStatus.CONFIRMED && (reason == null || reason.trim().isEmpty())) {
-            throw new BookingException("Phải cung cấp lý do khi hủy booking đã xác nhận", HttpStatus.BAD_REQUEST, "BOOKING_036");
-        }
+        validateCancelRequest(booking, reason);
 
-        // Lấy thông tin tour
         LightTourDTO tour = fetchTour(booking.getTourId());
         UserDTO user = fetchUser(booking.getUserId());
         int participantsToRemove = booking.getParticipants().size();
 
-        // Giảm số lượng người tham gia
-        int currentParticipants = tour.getCurrentParticipants() != null ? tour.getCurrentParticipants() : 0;
-        int newParticipants = currentParticipants - participantsToRemove;
-        if (newParticipants < 0) {
-            logger.error("Invalid participant count for tour {}: {}", tour.getTourCode(), newParticipants);
-            throw new BookingException("Số lượng người tham gia không hợp lệ sau khi hủy", HttpStatus.BAD_REQUEST, "BOOKING_033");
-        }
-
-        // Xử lý hoàn tiền
-        booking.setBookingStatus(BookingStatus.CANCELLED);
-        booking.setUpdatedAt(LocalDateTime.now());
-        booking.setPaymentDueTime(null);
-        booking.setNotes(reason);
-        booking.setCanceledBy(canceledBy);
-
-        if (booking.getBookingStatus() == BookingStatus.CONFIRMED) {
-            if (canceledBy == Booking.CanceledBy.ADMIN && reason.toLowerCase().contains("tour bị hủy")) {
-                // Admin hủy do tour: hoàn 100%
-                booking.setRefundStatus(Booking.RefundStatus.PENDING);
-                booking.setRefundAmount(booking.getTotalPrice());
-                logger.info("Initiated 100% refund for booking {} due to tour cancellation", booking.getBookingCode());
-            } else if (canceledBy == Booking.CanceledBy.USER) {
-                // Người dùng hủy: kiểm tra thời gian
-                long timeToStart = tour.getStartDate().getTime() - new Date().getTime();
-                if (timeToStart > THREE_DAYS_IN_MILLIS) {
-                    // Trước 3 ngày: hoàn 50%
-                    booking.setRefundStatus(Booking.RefundStatus.PENDING);
-                    booking.setRefundAmount(booking.getTotalPrice() * 0.5);
-                    logger.info("Initiated 50% refund for booking {} (canceled before 3 days)", booking.getBookingCode());
-                } else {
-                    // Dưới 3 ngày: không hoàn
-                    booking.setRefundStatus(Booking.RefundStatus.NONE);
-                    booking.setRefundAmount(0.0);
-                    logger.info("No refund for booking {} (canceled within 3 days)", booking.getBookingCode());
-                }
-            }
-            sendBookingCancellationNotificationAsync(booking, user, tour, reason);
-        }
-
-        // Lưu booking đã hủy
+        int newParticipants = calculateNewParticipantCount(tour, participantsToRemove);
+        updateBookingForCancellation(booking, reason, canceledBy, tour);
         Booking cancelledBooking = bookingRepository.save(booking);
 
-        // Cập nhật số lượng người tham gia trong tour
-        try {
-            catalogClient.updateCurrentParticipants(tour.getTourId(), newParticipants);
-            tour.setCurrentParticipants(newParticipants);
-            logger.info("Reduced participant count for tour {} by {}: new count {}", tour.getTourCode(), participantsToRemove, newParticipants);
-        } catch (Exception e) {
-            logger.error("Failed to update tour participants for tour {}: {}", tour.getTourCode(), e.getMessage());
-            throw new BookingException("Không thể cập nhật số lượng người tham gia", HttpStatus.INTERNAL_SERVER_ERROR, "BOOKING_034");
-        }
-
+        updateTourParticipants(tour, newParticipants, false);
         BookingResponseDTO response = convertToResponseDTO(cancelledBooking, tour, user);
-
-        try {
-            messagingTemplate.convertAndSend(UPDATE_TOPIC, response);
-            logger.info("Broadcasted cancellation to {} for booking: {}", UPDATE_TOPIC, cancelledBooking.getBookingCode());
-        } catch (Exception e) {
-            logger.error("Failed to send WebSocket message to {}: {}", UPDATE_TOPIC, e.getMessage());
-        }
+        broadcastBookingEvent(UPDATE_TOPIC, response, cancelledBooking.getBookingCode());
 
         return response;
     }
 
     @Override
     @Transactional
-    public BookingResponseDTO userCancelBooking(Long id, String reason, Long userId) {
+    public BookingResponseDTO userCancelBooking(Long id, CancelReason reason, Long userId) {
         logger.info("User {} cancelling booking with id: {}, reason: {}", userId, id, reason);
         Booking booking = getBooking(id);
         if (!booking.getUserId().equals(userId)) {
-            throw new BookingException("Bạn không có quyền hủy booking này", HttpStatus.FORBIDDEN, "BOOKING_039");
+            throw new BookingException(
+                    "Bạn không có quyền hủy booking này",
+                    HttpStatus.FORBIDDEN,
+                    "BOOKING_039"
+            );
         }
-        return cancelBooking(id, reason, Booking.CanceledBy.USER);
+        return cancelBooking(id, reason, CanceledBy.USER);
     }
 
     @Override
@@ -224,7 +198,7 @@ public class BookingServiceImpl implements BookingService {
     public boolean canUserBookTour(Long tourId, Long userId) {
         logger.debug("Checking if user {} can book tour {}", userId, tourId);
         Booking existing = bookingRepository.findBookingByTourIdAndUserId(tourId, userId);
-        return existing == null || existing.getBookingStatus() == BookingStatus.CANCELLED;
+        return existing == null || (existing.getBookingStatus() == BookingStatus.CANCELLED);
     }
 
     @Override
@@ -244,25 +218,22 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Map<String, Object> getRefundStatistics(LocalDateTime start, LocalDateTime end) {
         Map<String, Object> stats = new HashMap<>();
+        stats.put("pendingCount", bookingRepository.findByRefundStatus(RefundStatus.PENDING).size());
+        stats.put("completedCount", bookingRepository.findByRefundStatus(RefundStatus.COMPLETED).size());
+        stats.put("failedCount", bookingRepository.findByRefundStatus(RefundStatus.FAILED).size());
 
-        // Số lượng booking theo trạng thái hoàn tiền
-        stats.put("pendingCount", bookingRepository.findByRefundStatus(Booking.RefundStatus.PENDING).size());
-        stats.put("completedCount", bookingRepository.findByRefundStatus(Booking.RefundStatus.COMPLETED).size());
-        stats.put("failedCount", bookingRepository.findByRefundStatus(Booking.RefundStatus.FAILED).size());
-
-        // Tổng số tiền hoàn cho trạng thái COMPLETED
-        Double completedAmount = bookingRepository.sumRefundAmountByRefundStatus(Booking.RefundStatus.COMPLETED);
+        Double completedAmount = bookingRepository.sumRefundAmountByRefundStatus(RefundStatus.COMPLETED);
         stats.put("completedAmount", completedAmount != null ? completedAmount : 0.0);
 
-        // Tổng số tiền hoàn trong khoảng thời gian
         Double periodAmount = bookingRepository.sumRefundAmountByRefundStatusAndUpdatedAtBetween(
-                Booking.RefundStatus.COMPLETED, start, end
+                RefundStatus.COMPLETED, start, end
         );
         stats.put("periodCompletedAmount", periodAmount != null ? periodAmount : 0.0);
 
         return stats;
     }
-    @Scheduled(cron = "0 0 * * * *") // Chạy mỗi giờ
+
+    @Scheduled(cron = "0 * * * * *") // Chạy mỗi phút
     @Transactional
     public void completeStartedBookings() {
         logger.info("Checking for bookings to complete based on tour start date");
@@ -271,29 +242,52 @@ public class BookingServiceImpl implements BookingService {
 
         for (Booking booking : confirmedBookings) {
             LightTourDTO tour = fetchTour(booking.getTourId());
-            if (tour.getStartDate() != null && tour.getStartDate().before(now)) {
+            if (tour.getStartDate() != null && tour.getStartDate().getTime() + 1000 <= now.getTime()) { // 1 giây sau khi tour bắt đầu
                 booking.setBookingStatus(BookingStatus.COMPLETED);
                 booking.setUpdatedAt(LocalDateTime.now());
                 booking.setPaymentDueTime(null);
                 bookingRepository.save(booking);
                 logger.info("Updated booking {} to COMPLETED for tour {}", booking.getBookingCode(), tour.getTourCode());
 
-                // Gửi thông báo (tùy chọn)
-                try {
-                    UserDTO user = fetchUser(booking.getUserId());
-                    BookingResponseDTO response = convertToResponseDTO(booking, tour, user);
-                    messagingTemplate.convertAndSend(UPDATE_TOPIC, response);
-                    logger.info("Broadcasted completion to {} for booking: {}", UPDATE_TOPIC, booking.getBookingCode());
-                } catch (Exception e) {
-                    logger.error("Failed to send WebSocket message for booking {}: {}", booking.getBookingCode(), e.getMessage());
-                }
+                UserDTO user = fetchUser(booking.getUserId());
+                BookingResponseDTO response = convertToResponseDTO(booking, tour, user);
+                broadcastBookingEvent(UPDATE_TOPIC, response, booking.getBookingCode());
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 0 * * * *") // Chạy mỗi giờ
+    @Transactional
+    public void cancelOverdueBookings() {
+        logger.info("Checking for overdue bookings to cancel");
+        List<Booking> pendingBookings = bookingRepository.findBookingByBookingStatus(BookingStatus.PENDING);
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Booking booking : pendingBookings) {
+            if (booking.getPaymentDueTime() != null && now.isAfter(booking.getPaymentDueTime())) {
+                LightTourDTO tour = fetchTour(booking.getTourId());
+                UserDTO user = fetchUser(booking.getUserId());
+                int participantsToRemove = booking.getParticipants().size();
+
+                int newParticipants = calculateNewParticipantCount(tour, participantsToRemove);
+                updateBookingForCancellation(booking, CancelReason.OTHER, CanceledBy.SYSTEM, tour);
+                Booking cancelledBooking = bookingRepository.save(booking);
+
+                updateTourParticipants(tour, newParticipants, false);
+                BookingResponseDTO response = convertToResponseDTO(cancelledBooking, tour, user);
+                broadcastBookingEvent(UPDATE_TOPIC, response, cancelledBooking.getBookingCode());
+                logger.info("Automatically cancelled overdue booking {} due to payment timeout", booking.getBookingCode());
             }
         }
     }
 
     private void validateBookingRequest(Booking booking) {
         if (booking.getTourId() == null || booking.getUserId() == null) {
-            throw new BookingException("Tour ID và User ID là bắt buộc", HttpStatus.BAD_REQUEST, "BOOKING_001");
+            throw new BookingException(
+                    BookingErrorCode.MISSING_IDS.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.MISSING_IDS.getCode()
+            );
         }
     }
 
@@ -302,7 +296,11 @@ public class BookingServiceImpl implements BookingService {
         logger.info("Fetching tour with id: {}", tourId);
         LightTourDTO tour = catalogClient.getTourById(tourId);
         if (tour == null) {
-            throw new BookingException("Tour không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_010");
+            throw new BookingException(
+                    BookingErrorCode.TOUR_NOT_FOUND.getMessage(),
+                    HttpStatus.NOT_FOUND,
+                    BookingErrorCode.TOUR_NOT_FOUND.getCode()
+            );
         }
         return tour;
     }
@@ -312,7 +310,11 @@ public class BookingServiceImpl implements BookingService {
         logger.info("Fetching user with id: {}", userId);
         UserDTO user = userClient.getUserById(userId);
         if (user == null) {
-            throw new BookingException("User không tồn tại", HttpStatus.NOT_FOUND, "BOOKING_004");
+            throw new BookingException(
+                    BookingErrorCode.USER_NOT_FOUND.getMessage(),
+                    HttpStatus.NOT_FOUND,
+                    BookingErrorCode.USER_NOT_FOUND.getCode()
+            );
         }
         return user;
     }
@@ -320,59 +322,92 @@ public class BookingServiceImpl implements BookingService {
     private void validateBooking(LightTourDTO tour, UserDTO user, Booking booking) {
         validateTour(tour);
         validateParticipants(booking.getParticipants());
-        if (!canUserBookTour(booking.getTourId(), booking.getUserId())) {
-            throw new BookingException("Bạn đã có booking cho tour này rồi", HttpStatus.CONFLICT, "BOOKING_002");
-        }
-
-        int totalParticipants = bookingRepository.countTotalParticipantsByTourId(booking.getTourId());
-        int remaining = tour.getMaxParticipants() - totalParticipants;
-        if (booking.getParticipants().size() > remaining) {
-            throw new BookingException("Tour không đủ chỗ. Số chỗ còn lại: " + remaining,
-                    HttpStatus.CONFLICT, "BOOKING_005");
-        }
     }
 
     private void validateTour(LightTourDTO tour) {
         Date now = new Date();
         if (tour.getPrice() <= 0) {
-            throw new BookingException("Giá tour không hợp lệ", HttpStatus.BAD_REQUEST, "BOOKING_015");
+            throw new BookingException(
+                    BookingErrorCode.INVALID_MAX_PARTICIPANTS.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.INVALID_MAX_PARTICIPANTS.getCode()
+            );
         }
         if (tour.getMaxParticipants() <= 0) {
-            throw new BookingException("Số lượng người tham gia tối đa không hợp lệ", HttpStatus.BAD_REQUEST, "BOOKING_011");
+            throw new BookingException(
+                    BookingErrorCode.INVALID_MAX_PARTICIPANTS.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.INVALID_MAX_PARTICIPANTS.getCode()
+            );
         }
         if (tour.getStartDate() != null && tour.getStartDate().before(now)) {
-            throw new BookingException("Tour đã khởi hành", HttpStatus.BAD_REQUEST, "BOOKING_007");
+            throw new BookingException(
+                    BookingErrorCode.TOUR_STARTED.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.TOUR_STARTED.getCode()
+            );
         }
-        if (tour.getStartDate() != null && tour.getStartDate().before(new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000))) {
-            throw new BookingException("Phải đặt tour ít nhất 3 ngày trước khi khởi hành",
-                    HttpStatus.BAD_REQUEST, "BOOKING_008");
+        if (tour.getStartDate() != null && tour.getStartDate().before(new Date(now.getTime() + THREE_DAYS_IN_MILLIS))) {
+            throw new BookingException(
+                    BookingErrorCode.BOOKING_TOO_LATE.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.BOOKING_TOO_LATE.getCode()
+            );
         }
     }
 
     private void validateParticipants(List<Participant> participants) {
         if (participants == null || participants.isEmpty()) {
-            throw new BookingException("Phải có ít nhất 1 người tham gia", HttpStatus.BAD_REQUEST, "BOOKING_009");
+            throw new BookingException(
+                    BookingErrorCode.NO_PARTICIPANTS.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.NO_PARTICIPANTS.getCode()
+            );
         }
 
         Set<String> fullNames = new HashSet<>();
         for (Participant p : participants) {
             if (p.getFullName() == null || p.getFullName().trim().isEmpty()) {
-                throw new BookingException("Tên người tham gia không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_012");
+                throw new BookingException(
+                        BookingErrorCode.INVALID_PARTICIPANT.getMessage(),
+                        HttpStatus.BAD_REQUEST,
+                        BookingErrorCode.INVALID_PARTICIPANT.getCode()
+                );
             }
             if (p.getFullName().length() < 2) {
-                throw new BookingException("Tên người tham gia phải có ít nhất 2 ký tự", HttpStatus.BAD_REQUEST, "BOOKING_017");
+                throw new BookingException(
+                        "Tên người tham gia phải có ít nhất 2 ký tự",
+                        HttpStatus.BAD_REQUEST,
+                        "BOOKING_017"
+                );
             }
             if (!p.getFullName().matches("^[a-zA-Z\\sÀ-ỹ]+$")) {
-                throw new BookingException("Tên người tham gia chỉ được chứa chữ cái và khoảng trắng", HttpStatus.BAD_REQUEST, "BOOKING_018");
+                throw new BookingException(
+                        "Tên người tham gia chỉ được chứa chữ cái và khoảng trắng",
+                        HttpStatus.BAD_REQUEST,
+                        "BOOKING_018"
+                );
             }
             if (p.getGender() == null) {
-                throw new BookingException("Giới tính không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_026");
+                throw new BookingException(
+                        "Giới tính không được để trống",
+                        HttpStatus.BAD_REQUEST,
+                        "BOOKING_026"
+                );
             }
             if (p.getAgeType() == null) {
-                throw new BookingException("Loại tuổi không được để trống", HttpStatus.BAD_REQUEST, "BOOKING_027");
+                throw new BookingException(
+                        "Loại tuổi không được để trống",
+                        HttpStatus.BAD_REQUEST,
+                        "BOOKING_027"
+                );
             }
             if (!fullNames.add(p.getFullName().toLowerCase())) {
-                throw new BookingException("Người tham gia trùng lặp: " + p.getFullName(), HttpStatus.BAD_REQUEST, "BOOKING_020");
+                throw new BookingException(
+                        "Người tham gia trùng lặp: " + p.getFullName(),
+                        HttpStatus.BAD_REQUEST,
+                        "BOOKING_020"
+                );
             }
         }
     }
@@ -385,7 +420,7 @@ public class BookingServiceImpl implements BookingService {
                 .bookingCode(bookingCode)
                 .bookingDate(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .paymentDueTime(LocalDateTime.now().plusHours(24))
+                .paymentDueTime(LocalDateTime.now().plusHours(PAYMENT_DUE_HOURS))
                 .bookingStatus(BookingStatus.PENDING)
                 .participants(new ArrayList<>())
                 .build();
@@ -397,7 +432,6 @@ public class BookingServiceImpl implements BookingService {
             booking.getParticipants().addAll(participants);
         }
         booking.calculateTotalPrice(tour.getPrice());
-
         return booking;
     }
 
@@ -422,35 +456,167 @@ public class BookingServiceImpl implements BookingService {
                 .build();
     }
 
-    private void updateTourParticipants(LightTourDTO tour, int additionalParticipants) {
+    private void updateTourParticipants(LightTourDTO tour, int participantChange, boolean isAdding) {
         if (tour.getTourId() == null) {
-            logger.error("Tour ID is null for tour code: {}", tour.getTourCode());
-            throw new BookingException("Tour ID không được null", HttpStatus.BAD_REQUEST, "BOOKING_014");
+            throw new BookingException(
+                    "Tour ID không được null",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_014"
+            );
         }
 
-        int newParticipants = tour.getCurrentParticipants() != null
-                ? tour.getCurrentParticipants() + additionalParticipants
-                : additionalParticipants;
+        int currentParticipants = tour.getCurrentParticipants() != null ? tour.getCurrentParticipants() : 0;
+        int newParticipants = isAdding ? currentParticipants + participantChange : participantChange;
 
         if (newParticipants < 0 || newParticipants > tour.getMaxParticipants()) {
-            logger.error("Invalid participant count for tour {}: {}", tour.getTourCode(), newParticipants);
-            throw new BookingException("Không còn đủ chỗ cho số lượng người tham gia của bạn", HttpStatus.BAD_REQUEST, "BOOKING_013");
+            throw new BookingException(
+                    isAdding ? "Không còn đủ chỗ cho số lượng người tham gia" : "Số lượng người tham gia không hợp lệ sau khi hủy",
+                    HttpStatus.BAD_REQUEST,
+                    isAdding ? "BOOKING_013" : "BOOKING_033"
+            );
         }
 
-        catalogClient.updateCurrentParticipants(tour.getTourId(), newParticipants);
-        tour.setCurrentParticipants(newParticipants);
-        logger.info("Updated tour {} with new participant count: {}", tour.getTourCode(), newParticipants);
+        try {
+            Map<String, Integer> requestBody = Map.of("currentParticipants", newParticipants);
+            catalogClient.updateCurrentParticipants(tour.getTourId(), requestBody);
+            tour.setCurrentParticipants(newParticipants);
+            logger.info("Updated tour {} with new participant count: {}", tour.getTourCode(), newParticipants);
+        } catch (Exception e) {
+            logger.error("Failed to update tour participants for tour {}: {}", tour.getTourCode(), e.getMessage());
+            throw new BookingException(
+                    "Không thể cập nhật số lượng người tham gia",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "BOOKING_034"
+            );
+        }
     }
 
     private void validateStatusTransition(BookingStatus currentStatus, BookingStatus newStatus) {
         if (currentStatus == BookingStatus.COMPLETED) {
-            throw new BookingException("Không thể chuyển trạng thái từ COMPLETED", HttpStatus.BAD_REQUEST, "BOOKING_030");
+            throw new BookingException(
+                    "Không thể chuyển trạng thái từ COMPLETED",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_030"
+            );
         }
-        if (currentStatus == BookingStatus.PENDING && newStatus == BookingStatus.COMPLETED) {
-            throw new BookingException("Không thể chuyển trạng thái từ PENDING sang COMPLETED", HttpStatus.BAD_REQUEST, "BOOKING_031");
+        if (newStatus == BookingStatus.COMPLETED) {
+            throw new BookingException(
+                    "Không thể chuyển trạng thái sang COMPLETED thủ công. Hệ thống sẽ tự động cập nhật sau khi tour bắt đầu 1 giây.",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_042"
+            );
         }
         if (currentStatus == BookingStatus.CANCELLED && newStatus != BookingStatus.CANCELLED) {
-            throw new BookingException("Không thể chuyển trạng thái khi đang là CANCELLED", HttpStatus.BAD_REQUEST, "BOOKING_032");
+            throw new BookingException(
+                    "Không thể chuyển trạng thái khi đang là CANCELLED",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_032"
+            );
+        }
+    }
+
+    private void validateCancelRequest(Booking booking, CancelReason reason) {
+        if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new InvalidBookingStatusException(booking.getBookingStatus(), BookingStatus.CANCELLED);
+        }
+        if (booking.getBookingStatus() == BookingStatus.COMPLETED) {
+            throw new BookingException(
+                    "Không thể hủy booking đã hoàn thành",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_038"
+            );
+        }
+        if (booking.getBookingStatus() == BookingStatus.CONFIRMED && reason == null) {
+            throw new BookingException(
+                    "Phải cung cấp lý do khi hủy booking đã xác nhận",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_036"
+            );
+        }
+    }
+
+    private int calculateNewParticipantCount(LightTourDTO tour, int participantsToRemove) {
+        int currentParticipants = tour.getCurrentParticipants() != null ? tour.getCurrentParticipants() : 0;
+        int newParticipants = currentParticipants - participantsToRemove;
+        if (newParticipants < 0) {
+            logger.error("Invalid participant count for tour {}: {}", tour.getTourCode(), newParticipants);
+            throw new BookingException(
+                    "Số lượng người tham gia không hợp lệ sau khi hủy",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_033"
+            );
+        }
+        return newParticipants;
+    }
+
+    private void updateBookingForCancellation(Booking booking, CancelReason reason, CanceledBy canceledBy, LightTourDTO tour) {
+        logger.info("Updating booking {} for cancellation: status={}, canceledBy={}, reason={}",
+                booking.getBookingCode(), booking.getBookingStatus(), canceledBy, reason);
+
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+        booking.setUpdatedAt(LocalDateTime.now());
+        booking.setPaymentDueTime(null);
+        booking.setRefundReason(reason);
+        booking.setCanceledBy(canceledBy);
+
+        if (booking.getBookingStatus() == BookingStatus.CONFIRMED) {
+            handleRefundPolicy(booking, canceledBy, reason, tour);
+            logger.info("Applied refund policy for booking {} in CONFIRMED status", booking.getBookingCode());
+        } else {
+            booking.setRefundStatus(RefundStatus.NONE);
+            booking.setRefundAmount(0.0);
+            logger.info("No refund for booking {}: status is not CONFIRMED (current status: {})",
+                    booking.getBookingCode(), booking.getBookingStatus());
+        }
+
+        logger.info("Preparing to send cancellation email for booking {}", booking.getBookingCode());
+        sendBookingCancellationNotificationAsync(booking, fetchUser(booking.getUserId()), tour,
+                reason != null ? reason.getDescription() : "Không có lý do cụ thể");
+    }
+
+    private void handleRefundPolicy(Booking booking, CanceledBy canceledBy, CancelReason reason, LightTourDTO tour) {
+        logger.info("Handling refund policy for booking {}: canceledBy={}, reason={}, totalPrice={}",
+                booking.getBookingCode(), canceledBy, reason, booking.getTotalPrice());
+
+        if (booking.getTotalPrice() == null || booking.getTotalPrice() <= 0) {
+            logger.warn("Total price is invalid for booking {}: {}", booking.getBookingCode(), booking.getTotalPrice());
+            booking.setRefundStatus(RefundStatus.NONE);
+            booking.setRefundAmount(0.0);
+            return;
+        }
+
+        if (canceledBy == CanceledBy.ADMIN) {
+            if (reason == CancelReason.TOUR_QUALITY_CONCERN ||
+                    reason == CancelReason.WEATHER_CONDITION ||
+                    reason == CancelReason.OPERATIONAL_ISSUE ||
+                    reason == CancelReason.LEGAL_RESTRICTION) {
+                booking.setRefundStatus(RefundStatus.PENDING);
+                booking.setRefundAmount(booking.getTotalPrice() * FULL_REFUND_RATE);
+                logger.info("Initiated 100% refund for booking {} due to reason: {}", booking.getBookingCode(), reason);
+            } else if (reason == CancelReason.PERSONAL_REASON || reason == CancelReason.SCHEDULE_CONFLICT || reason == CancelReason.FINANCIAL_ISSUE) {
+                booking.setRefundStatus(RefundStatus.PENDING);
+                booking.setRefundAmount(booking.getTotalPrice() * HALF_REFUND_RATE);
+                logger.info("Initiated 50% refund for booking {} due to reason: {}", booking.getBookingCode(), reason);
+            } else {
+                booking.setRefundStatus(RefundStatus.NONE);
+                booking.setRefundAmount(0.0);
+                logger.info("No refund for booking {} due to reason: {}", booking.getBookingCode(), reason);
+            }
+        } else if (canceledBy == CanceledBy.USER) {
+            long timeToStart = tour.getStartDate().getTime() - new Date().getTime();
+            if (timeToStart > THREE_DAYS_IN_MILLIS) {
+                booking.setRefundStatus(RefundStatus.PENDING);
+                booking.setRefundAmount(booking.getTotalPrice() * HALF_REFUND_RATE);
+                logger.info("Initiated 50% refund for booking {} (canceled before 3 days)", booking.getBookingCode());
+            } else {
+                booking.setRefundStatus(RefundStatus.NONE);
+                booking.setRefundAmount(0.0);
+                logger.info("No refund for booking {} (canceled within 3 days)", booking.getBookingCode());
+            }
+        } else if (canceledBy == CanceledBy.SYSTEM) {
+            booking.setRefundStatus(RefundStatus.NONE);
+            booking.setRefundAmount(0.0);
+            logger.info("No refund for booking {}: cancelled by SYSTEM due to payment timeout", booking.getBookingCode());
         }
     }
 
@@ -468,6 +634,10 @@ public class BookingServiceImpl implements BookingService {
         dto.setBookingStatus(booking.getBookingStatus());
         dto.setNotes(booking.getNotes());
         dto.setPaymentDueTimeRelevant(booking.getBookingStatus() == BookingStatus.PENDING);
+        dto.setRefundReason(booking.getRefundReason());
+        dto.setRefundAmount(booking.getRefundAmount());
+        dto.setRefundStatus(booking.getRefundStatus());
+        dto.setCanceledBy(booking.getCanceledBy());
 
         List<BookingResponseDTO.ParticipantInfo> participantInfos = booking.getParticipants().stream()
                 .map(p -> {
@@ -495,6 +665,15 @@ public class BookingServiceImpl implements BookingService {
         return tourDTO;
     }
 
+    private void broadcastBookingEvent(String topic, BookingResponseDTO response, String bookingCode) {
+        try {
+            messagingTemplate.convertAndSend(topic, response);
+            logger.info("Broadcasted event to {} for booking: {}", topic, bookingCode);
+        } catch (Exception e) {
+            logger.error("Failed to send WebSocket message to {} for booking {}: {}", topic, bookingCode, e.getMessage());
+        }
+    }
+
     @Async
     public void sendBookingConfirmationAsync(Booking booking, UserDTO user, LightTourDTO tour) {
         try {
@@ -512,6 +691,18 @@ public class BookingServiceImpl implements BookingService {
             logger.info("Sent cancellation notification for booking: {}", booking.getBookingCode());
         } catch (Exception e) {
             logger.error("Failed to send cancellation notification for booking {}: {}", booking.getBookingCode(), e.getMessage());
+            logger.error("Exception details: ", e);
+        }
+    }
+
+    @Async
+    public void sendPaymentConfirmationAsync(Booking booking, UserDTO user, LightTourDTO tour) {
+        try {
+            emailService.sendPaymentConfirmation(booking, booking.getBookingCode());
+            logger.info("Sent payment confirmation email for booking: {}", booking.getBookingCode());
+        } catch (Exception e) {
+            logger.error("Failed to send payment confirmation email for booking {}: {}", booking.getBookingCode(), e.getMessage());
+            logger.error("Exception details: ", e);
         }
     }
 }

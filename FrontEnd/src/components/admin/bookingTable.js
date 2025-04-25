@@ -1,11 +1,102 @@
-import { useState, useEffect } from 'react';
-import { getAllBookings, updateBookingStatus, cancelBooking } from '../../api/booking.api';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAllBookings, updateBookingStatus, cancelBooking } from '../../api/booking.api';
 
-function BookingTable() {
+// Constants
+const BOOKING_STATUSES = ['ALL', 'PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
+const PAYMENT_FILTERS = ['ALL', 'PENDING', 'OTHERS'];
+const CANCEL_REASONS = [
+  { value: 'TOUR_QUALITY_CONCERN', label: 'Lo ngại về chất lượng tour' },
+  { value: 'WEATHER_CONDITION', label: 'Điều kiện thời tiết bất lợi' },
+  { value: 'OPERATIONAL_ISSUE', label: 'Vấn đề vận hành tour' },
+  { value: 'LEGAL_RESTRICTION', label: 'Hạn chế pháp lý hoặc quy định' },
+  { value: 'OTHER', label: 'Lý do khác' },
+];
+const WEBSOCKET_URL = 'http://localhost:8082/ws';
+const PAGE_SIZE = 10;
+
+// Custom Hook for WebSocket
+const useWebSocket = (onNewBooking, onBookingUpdate) => {
+  const [client, setClient] = useState(null);
+
+  useEffect(() => {
+    const socket = new SockJS(WEBSOCKET_URL);
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+
+    stompClient.onConnect = () => {
+      console.log('Connected to WebSocket');
+      stompClient.subscribe('/topic/bookings', (message) => {
+        const newBooking = JSON.parse(message.body);
+        onNewBooking(newBooking);
+        toast.success(`New booking: ${newBooking.bookingCode}`);
+      });
+      stompClient.subscribe('/topic/booking-updates', (message) => {
+        const updatedBooking = JSON.parse(message.body);
+        onBookingUpdate(updatedBooking);
+        toast.info(`Booking ${updatedBooking.bookingCode} updated to ${updatedBooking.bookingStatus}`);
+      });
+    };
+
+    stompClient.onStompError = (error) => {
+      console.error('WebSocket error:', error);
+      toast.error('Failed to connect to WebSocket.');
+    };
+
+    stompClient.activate();
+    setClient(stompClient);
+
+    return () => {
+      stompClient.deactivate();
+      console.log('Disconnected from WebSocket');
+    };
+  }, [onNewBooking, onBookingUpdate]);
+
+  return client;
+};
+
+// Components
+const StatusBadge = ({ status }) => {
+  const styles = {
+    CONFIRMED: 'bg-green-100 text-green-800',
+    CANCELLED: 'bg-red-100 text-red-800',
+    PENDING: 'bg-yellow-100 text-yellow-800',
+    COMPLETED: 'bg-blue-100 text-blue-800',
+  }[status] || 'bg-gray-100 text-gray-800';
+
+  return (
+    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${styles}`}>
+      {status || 'N/A'}
+    </span>
+  );
+};
+
+const PaymentStatus = ({ booking }) => {
+  if (booking.paymentDueTimeRelevant) {
+    return (
+      <>
+        <div className="font-medium text-amber-600">
+          {booking.paymentDueTime ? new Date(booking.paymentDueTime).toLocaleString() : 'N/A'}
+        </div>
+        <div className="text-xs text-amber-500">Before this time</div>
+      </>
+    );
+  }
+  return booking.bookingStatus === 'CANCELLED' ? (
+    <span className="text-red-500">Payment canceled</span>
+  ) : (
+    <span className="text-green-500">Payment completed</span>
+  );
+};
+
+const BookingTable = () => {
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,91 +108,57 @@ function BookingTable() {
   const [newStatus, setNewStatus] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
-  const [stompClient, setStompClient] = useState(null);
 
-  // Fetch bookings from API
+  // WebSocket handlers
+  const handleNewBooking = useCallback((newBooking) => {
+    setBookings((prev) => {
+      if (!prev.some((b) => b.id === newBooking.id)) {
+        return [newBooking, ...prev].slice(0, PAGE_SIZE);
+      }
+      return prev;
+    });
+    setTotalElements((prev) => prev + 1);
+  }, []);
+
+  const handleBookingUpdate = useCallback((updatedBooking) => {
+    setBookings((prev) =>
+      prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
+    );
+    setFilteredBookings((prev) =>
+      prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
+    );
+  }, []);
+
+  useWebSocket(handleNewBooking, handleBookingUpdate);
+
+  // Fetch bookings
   useEffect(() => {
     const fetchBookings = async () => {
+      setIsLoading(true);
       try {
-        setError(null);
-        const response = await getAllBookings(currentPage, pageSize);
-        const content = response.data.content || [];
-        setBookings(content);
-        setFilteredBookings(content);
-        setTotalPages(response.data.totalPages || 1);
-        setTotalElements(response.data.totalElements || 0);
+        const response = await getAllBookings(currentPage, PAGE_SIZE);
+        const { content, totalPages, totalElements } = response.data;
+        setBookings(content || []);
+        setFilteredBookings(content || []);
+        setTotalPages(totalPages || 1);
+        setTotalElements(totalElements || 0);
       } catch (error) {
         console.error('Error fetching bookings:', error);
-        toast.error('Failed to load bookings.');
+        toast.error(error.response?.data?.message || 'Failed to load bookings.');
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchBookings();
-  }, [currentPage, pageSize]);
+  }, [currentPage]);
 
-  // Setup WebSocket connection
-  useEffect(() => {
-    const socket = new SockJS('http://localhost:8082/ws');
-    const client = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-
-    client.onConnect = () => {
-      console.log('Connected to WebSocket');
-      client.subscribe('/topic/bookings', (message) => {
-        const newBooking = JSON.parse(message.body);
-        setBookings((prev) => {
-          if (!prev.some((b) => b.id === newBooking.id)) {
-            toast.success(`New booking: ${newBooking.bookingCode}`);
-            return [newBooking, ...prev].slice(0, pageSize);
-          }
-          return prev;
-        });
-        setTotalElements((prev) => prev + 1);
-      });
-      client.subscribe('/topic/booking-updates', (message) => {
-        const updatedBooking = JSON.parse(message.body);
-        setBookings((prev) =>
-          prev.map((booking) =>
-            booking.id === updatedBooking.id ? updatedBooking : booking
-          )
-        );
-        setFilteredBookings((prev) =>
-          prev.map((booking) =>
-            booking.id === updatedBooking.id ? updatedBooking : booking
-          )
-        );
-        toast.info(`Booking ${updatedBooking.bookingCode} updated to ${updatedBooking.bookingStatus}`);
-      });
-    };
-
-    client.onStompError = (error) => {
-      console.error('WebSocket error:', error);
-      setError('Failed to connect to WebSocket.');
-      toast.error('Failed to connect to WebSocket.');
-    };
-
-    client.activate();
-    setStompClient(client);
-
-    return () => {
-      if (client) {
-        client.deactivate();
-        console.log('Disconnected from WebSocket');
-      }
-    };
-  }, [pageSize]);
-
-  // Apply filters
-  useEffect(() => {
+  // Filter bookings
+  const filteredBookingsMemo = useMemo(() => {
     let results = bookings;
 
     if (searchTerm) {
@@ -109,7 +166,7 @@ function BookingTable() {
         [
           booking.user?.fullName?.toLowerCase(),
           booking.user?.email?.toLowerCase(),
-          booking.bookingCode?.toString(),
+          booking.bookingCode?.toLowerCase(),
         ].some((field) => field?.includes(searchTerm.toLowerCase()))
       );
     }
@@ -120,125 +177,99 @@ function BookingTable() {
 
     if (paymentFilter !== 'ALL') {
       results = results.filter((booking) =>
-        paymentFilter === 'PENDING'
-          ? booking.paymentDueTimeRelevant
-          : !booking.paymentDueTimeRelevant
+        paymentFilter === 'PENDING' ? booking.paymentDueTimeRelevant : !booking.paymentDueTimeRelevant
       );
     }
 
-    setFilteredBookings(results);
-  }, [searchTerm, statusFilter, paymentFilter, bookings]);
+    return results;
+  }, [bookings, searchTerm, statusFilter, paymentFilter]);
 
-  // Handle booking click
-  const handleBookingClick = (booking) => {
+  // Handlers
+  const handleBookingClick = useCallback((booking) => {
     setSelectedBooking(booking);
     setNewStatus(booking.bookingStatus);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  // Handle status change in dropdown
-  const handleStatusChange = (status) => {
+  const handleStatusChange = useCallback((status) => {
     setNewStatus(status);
     if (status === 'CANCELLED') {
       setIsModalOpen(false);
-      setCancelReason('');
+      setCancelReason(CANCEL_REASONS[0].value);
       setIsCancelModalOpen(true);
     }
-  };
+  }, []);
 
-  // Handle status update (excluding CANCELLED)
-  const handleStatusUpdate = async () => {
+  const handleStatusUpdate = useCallback(async () => {
+    if (!selectedBooking) return;
     setIsUpdating(true);
-    setError(null);
     try {
       const response = await updateBookingStatus(selectedBooking.id, newStatus);
       const updatedBooking = response.data;
       setBookings((prev) =>
-        prev.map((booking) =>
-          booking.id === selectedBooking.id ? updatedBooking : booking
-        )
+        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
       );
       setFilteredBookings((prev) =>
-        prev.map((booking) =>
-          booking.id === selectedBooking.id ? updatedBooking : booking
-        )
+        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
       );
       setSelectedBooking(updatedBooking);
       setIsModalOpen(false);
       toast.success(`Booking ${updatedBooking.bookingCode} updated to ${newStatus}`);
     } catch (error) {
-      console.error('Error updating status:', error);
       const errorMessage =
         error.response?.data?.message || 'Failed to update booking status. Please try again.';
-      setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }
-  };
+  }, [selectedBooking, newStatus]);
 
-  // Handle booking cancellation
-  const handleCancelBooking = async () => {
+  const handleCancelBooking = useCallback(async () => {
+    if (!selectedBooking) return;
     setIsCanceling(true);
-    setError(null);
     try {
       const response = await cancelBooking(selectedBooking.id, { reason: cancelReason });
       const updatedBooking = response.data;
       setBookings((prev) =>
-        prev.map((booking) =>
-          booking.id === selectedBooking.id ? updatedBooking : booking
-        )
+        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
       );
       setFilteredBookings((prev) =>
-        prev.map((booking) =>
-          booking.id === selectedBooking.id ? updatedBooking : booking
-        )
+        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
       );
       setIsCancelModalOpen(false);
       toast.success(`Booking ${updatedBooking.bookingCode} canceled successfully.`);
     } catch (error) {
-      console.error('Error canceling booking:', error);
       const errorMessage =
         error.response?.data?.message || 'Failed to cancel booking. Please try again.';
-      setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setIsCanceling(false);
     }
-  };
+  }, [selectedBooking, cancelReason]);
 
-  // Handle page change
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     if (newPage >= 0 && newPage < totalPages) {
       setCurrentPage(newPage);
     }
-  };
-
-  // Format price
+  }, [totalPages]);
+  console.log(selectedBooking);
   const formatPrice = (price) => (price ? `$${price.toFixed(2)}` : 'N/A');
 
-  // Get valid status options (include CANCELLED)
   const getValidStatusOptions = (currentStatus) => {
-    const allStatuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
     if (currentStatus === 'COMPLETED' || currentStatus === 'CANCELLED') {
       return [currentStatus];
     }
     if (currentStatus === 'PENDING') {
-      return allStatuses.filter((status) => status !== 'COMPLETED');
+      return BOOKING_STATUSES.filter((status) => status !== 'COMPLETED' && status !== 'ALL');
     }
-    return allStatuses;
+    return BOOKING_STATUSES.filter((status) => status !== 'ALL');
   };
 
   return (
     <div className="p-4">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
 
-      {/* Search and Filters */}
+      {/* Filters */}
       <div className="mb-4 flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <label htmlFor="search" className="sr-only">
@@ -270,11 +301,11 @@ function BookingTable() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="CONFIRMED">Confirmed</option>
-            <option value="CANCELLED">Cancelled</option>
-            <option value="COMPLETED">Completed</option>
+            {BOOKING_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {status === 'ALL' ? 'All Statuses' : status}
+              </option>
+            ))}
           </select>
         </div>
         <div className="w-full md:w-auto">
@@ -283,134 +314,133 @@ function BookingTable() {
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
           >
-            <option value="ALL">All Payments</option>
-            <option value="PENDING">Pending</option>
-            <option value="OTHERS">Others</option>
+            {PAYMENT_FILTERS.map((filter) => (
+              <option key={filter} value={filter}>
+                {filter === 'ALL' ? 'All Payments' : filter === 'PENDING' ? 'Pending' : 'Others'}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
-      {/* Data Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Booking Code
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Customer
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tour Code
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Booking Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Payment Due
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              {[
+                'Booking Code',
+                'Customer',
+                'Tour Code',
+                'Status',
+                'Booking Date',
+                'Payment Due',
+                'Total Price',
+                'Actions',
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredBookings.map((booking) => (
-              <tr
-                key={booking.id}
-                onClick={() => handleBookingClick(booking)}
-                className="cursor-pointer hover:bg-gray-50"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {booking.bookingCode || 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {booking.user?.fullName || 'N/A'}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {booking.user?.email || 'N/A'}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {booking.tour?.tourCode || 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      booking.bookingStatus === 'CONFIRMED'
-                        ? 'bg-green-100 text-green-800'
-                        : booking.bookingStatus === 'CANCELLED'
-                        ? 'bg-red-100 text-red-800'
-                        : booking.bookingStatus === 'PENDING'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-blue-100 text-blue-800'
-                    }`}
+            {isLoading ? (
+              <tr>
+                <td colSpan={8} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <svg
+                    className="animate-spin mx-auto h-8 w-8 text-indigo-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
                   >
-                    {booking.bookingStatus || 'N/A'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {booking.bookingDate
-                    ? new Date(booking.bookingDate).toLocaleString()
-                    : 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {booking.paymentDueTimeRelevant ? (
-                    <>
-                      <div className="font-medium text-amber-600">
-                        {booking.paymentDueTime
-                          ? new Date(booking.paymentDueTime).toLocaleString()
-                          : 'N/A'}
-                      </div>
-                      <div className="text-xs text-amber-500">Before this time</div>
-                    </>
-                  ) : booking.bookingStatus === 'CANCELLED' ? (
-                    <span className="text-red-500">Payment canceled</span>
-                  ) : (
-                    <span className="text-green-500">Payment completed</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatPrice(booking.totalPrice)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {booking.bookingStatus !== 'CANCELLED' &&
-                    booking.bookingStatus !== 'COMPLETED' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedBooking(booking);
-                          setNewStatus('CANCELLED');
-                          setCancelReason('');
-                          setIsCancelModalOpen(true);
-                        }}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Cancel
-                      </button>
-                    )}
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
                 </td>
               </tr>
-            ))}
+            ) : filteredBookingsMemo.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-6 py-4 text-center text-sm text-gray-500">
+                  No bookings found. Try adjusting your search or filter criteria.
+                </td>
+              </tr>
+            ) : (
+              filteredBookingsMemo.map((booking) => (
+                <tr
+                  key={booking.id}
+                  onClick={() => handleBookingClick(booking)}
+                  className="cursor-pointer hover:bg-gray-50"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {booking.bookingCode || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {booking.user?.fullName || 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500">{booking.user?.email || 'N/A'}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {booking.tour?.tourCode || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <StatusBadge status={booking.bookingStatus} />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {booking.bookingDate ? new Date(booking.bookingDate).toLocaleString() : 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <PaymentStatus booking={booking} />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatPrice(booking.totalPrice)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {booking.bookingStatus !== 'CANCELLED' &&
+                      booking.bookingStatus !== 'COMPLETED' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedBooking(booking);
+                            setNewStatus('CANCELLED');
+                            setCancelReason(CANCEL_REASONS[0].value);
+                            setIsCancelModalOpen(true);
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <div className="mt-4 flex justify-between items-center">
         <div>
           <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{currentPage * pageSize + 1}</span> to{' '}
+            Showing <span className="font-medium">{currentPage * PAGE_SIZE + 1}</span> to{' '}
             <span className="font-medium">
-              {Math.min((currentPage + 1) * pageSize, totalElements)}
+              {Math.min((currentPage + 1) * PAGE_SIZE, totalElements)}
             </span>{' '}
             of <span className="font-medium">{totalElements}</span> bookings
           </p>
@@ -432,29 +462,6 @@ function BookingTable() {
           </button>
         </div>
       </div>
-
-      {/* No Results Message */}
-      {filteredBookings.length === 0 && (
-        <div className="text-center py-8">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Try adjusting your search or filter criteria.
-          </p>
-        </div>
-      )}
 
       {/* Booking Details Modal */}
       {isModalOpen && selectedBooking && (
@@ -484,19 +491,16 @@ function BookingTable() {
                 <div>
                   <h4 className="font-medium text-gray-900">Customer Information</h4>
                   <p className="mt-1 text-sm text-gray-500">
-                    <span className="font-medium">Name:</span>{' '}
-                    {selectedBooking.user?.fullName || 'N/A'}
+                    <span className="font-medium">Name:</span> {selectedBooking.user?.fullName || 'N/A'}
                   </p>
                   <p className="text-sm text-gray-500">
-                    <span className="font-medium">Email:</span>{' '}
-                    {selectedBooking.user?.email || 'N/A'}
+                    <span className="font-medium">Email:</span> {selectedBooking.user?.email || 'N/A'}
                   </p>
                   <p className="text-sm text-gray-500">
                     <span className="font-medium">Phone:</span>{' '}
                     {selectedBooking.user?.phoneNumber || 'N/A'}
                   </p>
                 </div>
-
                 <div>
                   <h4 className="font-medium text-gray-900">Booking Information</h4>
                   <p className="mt-1 text-sm text-gray-500">
@@ -518,50 +522,14 @@ function BookingTable() {
                     {formatPrice(selectedBooking.totalPrice)}
                   </p>
                 </div>
-
                 <div>
                   <h4 className="font-medium text-gray-900">Payment Information</h4>
                   <p className="mt-1 text-sm text-gray-500">
                     <span className="font-medium">Status:</span>
-                    <span
-                      className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        selectedBooking.bookingStatus === 'CONFIRMED'
-                          ? 'bg-green-100 text-green-800'
-                          : selectedBooking.bookingStatus === 'CANCELLED'
-                          ? 'bg-red-100 text-red-800'
-                          : selectedBooking.bookingStatus === 'PENDING'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}
-                    >
-                      {selectedBooking.bookingStatus || 'N/A'}
-                    </span>
+                    <StatusBadge status={selectedBooking.bookingStatus} />
                   </p>
-                  {selectedBooking.paymentDueTimeRelevant ? (
-                    <>
-                      <p className="text-sm text-gray-500">
-                        <span className="font-medium">Payment Due:</span>
-                        <span className="ml-2 font-medium text-amber-600">
-                          {selectedBooking.paymentDueTime
-                            ? new Date(selectedBooking.paymentDueTime).toLocaleString()
-                            : 'N/A'}
-                        </span>
-                      </p>
-                      <p className="text-xs text-amber-500">
-                        Payment required before this time
-                      </p>
-                    </>
-                  ) : selectedBooking.bookingStatus === 'CANCELLED' ? (
-                    <p className="text-sm text-red-600 font-medium">
-                      Payment canceled
-                    </p>
-                  ) : (
-                    <p className="text-sm text-green-600 font-medium">
-                      Payment completed
-                    </p>
-                  )}
+                  <PaymentStatus booking={selectedBooking} />
                 </div>
-
                 <div>
                   <h4 className="font-medium text-gray-900">Cancellation Information</h4>
                   {selectedBooking.bookingStatus === 'CANCELLED' ? (
@@ -572,14 +540,17 @@ function BookingTable() {
                       </p>
                       <p className="text-sm text-gray-500">
                         <span className="font-medium">Reason:</span>{' '}
-                        {selectedBooking.cancelReason || 'Not paid on time'}
+                        {selectedBooking.refundReason || 'Not paid on time'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        <span className="font-medium">Refund Amount:</span>{' '}
+                        {selectedBooking.refundAmount || 'Not paid on time'}
                       </p>
                     </>
                   ) : (
                     <p className="text-sm text-gray-500">No cancellation details</p>
                   )}
                 </div>
-
                 <div>
                   <h4 className="font-medium text-gray-900">Update Status</h4>
                   <div className="mt-2">
@@ -707,14 +678,18 @@ function BookingTable() {
                 <label htmlFor="cancelReason" className="block text-sm font-medium text-gray-700">
                   Reason for Cancellation
                 </label>
-                <textarea
+                <select
                   id="cancelReason"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                  rows="4"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  placeholder="Enter the reason for canceling this booking"
-                />
+                >
+                  {CANCEL_REASONS.map((reason) => (
+                    <option key={reason.value} value={reason.value}>
+                      {reason.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mt-4 flex justify-end gap-2">
@@ -725,12 +700,14 @@ function BookingTable() {
                   Close
                 </button>
                 <button
-                  onClick={handleCancelBooking}
-                  disabled={!cancelReason.trim() || isCanceling}
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to cancel this booking?')) {
+                      handleCancelBooking();
+                    }
+                  }}
+                  disabled={isCanceling}
                   className={`py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                    !cancelReason.trim() || isCanceling
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-red-600 hover:bg-red-700'
+                    isCanceling ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
                   }`}
                 >
                   {isCanceling ? (
@@ -768,6 +745,6 @@ function BookingTable() {
       )}
     </div>
   );
-}
+};
 
 export default BookingTable;

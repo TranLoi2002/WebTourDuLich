@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông báo hủy booking</title>
+    <title>Xác nhận thanh toán tour</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style type="text/css">
         body {
@@ -17,13 +17,13 @@
             max-width: 600px;
             margin: 20px auto;
             background-color: #ffffff;
-            border: 1px solid #e0e7ff;
+            border: 1px solid #e reda0e7ff;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .header {
-            background-color: #dc3545; /* Màu đỏ cho thông báo hủy */
+            background-color: #28a745; /* Màu xanh lá cho xác nhận thành công */
             color: #ffffff;
             padding: 15px;
             text-align: center;
@@ -37,7 +37,7 @@
             padding: 20px;
         }
         .content h2 {
-            color: #dc3545;
+            color: #28a745;
             font-size: 20px;
             margin-top: 0;
         }
@@ -57,8 +57,16 @@
         }
         .info-table th {
             background-color: #f8f9fa;
-            color: #dc3545;
+            color: #28a745;
             font-weight: bold;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code img {
+            max-width: 200px;
+            height: auto;
         }
         .footer {
             text-align: center;
@@ -81,48 +89,44 @@
             .content p, .info-table th, .info-table td {
                 font-size: 14px;
             }
+            .qr-code img {
+                max-width: 150px;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>Thông báo hủy booking</h1>
+        <h1>Xác nhận thanh toán tour</h1>
     </div>
     <div class="content">
         <p>Kính gửi <strong th:text="${user.fullName}"></strong>,</p>
-        <p>Chúng tôi xin thông báo rằng booking của bạn với mã: <strong th:text="${booking.bookingCode}"></strong> đã bị hủy. Dưới đây là thông tin chi tiết:</p>
+        <p>Chúng tôi xin xác nhận rằng thanh toán cho booking của bạn với mã: <strong th:text="${booking.bookingCode}"></strong> đã được thực hiện thành công. Dưới đây là thông tin chi tiết:</p>
 
-        <h2>Thông tin hủy</h2>
+        <h2>Thông tin thanh toán</h2>
         <table class="info-table">
             <tr>
-                <th>Mã tour</th>
-                <td th:text="${tour.tourCode}"></td>
+                <th>Mã booking</th>
+                <td th:text="${booking.bookingCode}"></td>
             </tr>
             <tr>
-                <th>Tiêu đề</th>
-                <td th:text="${tour.title}"></td>
+                <th>Ngày thanh toán</th>
+                <td th:text="${bookingDate}"></td>
             </tr>
             <tr>
-                <th>Lý do hủy</th>
-                <td th:text="${reason}"></td>
-            </tr>
-            <tr>
-                <th>Ngày hủy</th>
-                <td th:text="${cancellationDate}"></td>
-            </tr>
-            <tr>
-                <th>Trạng thái hoàn tiền</th>
-                <td th:text="${refundStatus}"></td>
-            </tr>
-            <tr>
-                <th>Số tiền hoàn</th>
-                <td th:text="${refundAmount}"></td>
+                <th>Tổng giá</th>
+                <td th:text="${booking.totalPrice} + ' VNĐ'"></td>
             </tr>
         </table>
+
+        <h2>Mã QR xác nhận</h2>
+        <div class="qr-code">
+            <img th:src="'data:image/png;base64,' + ${qrCodeBase64}" alt="QR Code">
+        </div>
     </div>
     <div class="footer">
-        <p>Nếu có thắc mắc, vui lòng liên hệ qua email <a href="mailto:nguyentruongan@tourbooking.com">nguyentruongan@tourbooking.com</a>.</p>
+        <p>Cảm ơn bạn đã chọn dịch vụ của chúng tôi! Nếu có thắc mắc, vui lòng liên hệ qua email <a href="mailto:nguyentruongan@tourbooking.com">nguyentruongan@tourbooking.com</a>.</p>
     </div>
 </div>
 </body>
