@@ -56,6 +56,8 @@ const CardTour = ({tour, isShowDesc, containerStyle}) => {
     };
 
 
+    // console.log("Tour data:", tour);
+
     return (
         <div className={`card-tour ${containerStyle} border rounded-lg shadow-md p-4 flex flex-col relative`}>
             <div className="img-tour h-[200px] w-full overflow-hidden rounded-lg mb-3">
@@ -89,11 +91,14 @@ const CardTour = ({tour, isShowDesc, containerStyle}) => {
             <Link to={`/tours/detailtour/${tour.id}`} className="text-base font-semibold mb-2 h-[48px] overflow-hidden">
                 {tour.title.length <= 40 ? tour.title : tour.title.substring(0, 40) + "..."}
             </Link>
+            <span>
+                <i className="fa-solid fa-location-dot text-gray-500 mr-2"></i>
+                {tour.location.name}</span>
             {isShowDesc && (
                 <div>
                     <div className="review flex flex-wrap justify-between items-center text-sm mb-3">
 
-                        {tour.totalReviews > 0 ? (
+                        {(tour.totalReviews > 0) ? (
                             <div className="details_review">
                                 <span>{tour.averageRating.toFixed(1)}</span>
                                 <i className="fa-solid fa-star text-yellow-600"></i>
@@ -104,7 +109,7 @@ const CardTour = ({tour, isShowDesc, containerStyle}) => {
                             </div>
                         ) : (
                             <span className="bg-gradient-to-r from-red-500 px-6 py-1 rounded-lg mb-3 text-white w-full ">
-                                Tour is waiting for you
+                                Let's review tour
                                 <Link to={`/tours/detailtour/${tour.id}`} className="underline text-primary ml-2">Book now</Link>
                             </span>
                         )}

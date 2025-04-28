@@ -23,7 +23,9 @@ export const getAllBookings = async () => {
  */
 export const createBooking = async (bookingRequest) => {
   try {
-    const response = await axios.post(`${apiUrl}/booking`, bookingRequest);
+    const response = await axios.post(`${apiUrl}/booking`, bookingRequest, {
+      withCredentials: true,
+    });
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);
@@ -52,9 +54,7 @@ export const getBooking = async (id) => {
  */
 export const updateBookingStatus = async (id, status) => {
   try {
-    const response = await axios.patch(`${apiUrl}/booking/${id}/status`, null, {
-      params: { status },
-    });
+    const response = await axios.patch(`${apiUrl}/booking/${id}/status?status=${status}`);
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);
@@ -64,14 +64,12 @@ export const updateBookingStatus = async (id, status) => {
 /**
  * Hủy một booking
  * @param {number} id - ID của booking
- * @param {string} [reason] - Lý do hủy (tùy chọn, mặc định là 'No reason provided')
+ * @param {string} [reason] - Lý do hủy (tùy chọn)
  * @returns {Promise} Promise chứa dữ liệu phản hồi hoặc lỗi được xử lý
  */
-export const cancelBooking = async (id, reason = 'No reason provided') => {
+export const cancelBooking = async (id, reason) => {
   try {
-    const response = await axios.post(`${apiUrl}/booking/${id}/cancel`, null, {
-      params: { reason },
-    });
+    const response = await axios.post(`${apiUrl}/booking/${id}/cancel`,reason)
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);

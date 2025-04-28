@@ -65,7 +65,7 @@ const ActivityTourCard = ({tour}) => {
             <div className="card_infor w-[60%]">
                 <div className="flex flex-row justify-between">
                     <h3>{tour.title}</h3>
-                    <button className="" id="add-button" onClick={handleLikeClick}>
+                    <button className="w-[250px]" onClick={handleLikeClick}>
                         {isLiked ? (<span className="bg-primary p-3 text-white rounded-lg">Added to trip</span>) : (
                             <span className="rounded-lg bg-gray-400 p-3 text-white">Add to trip</span>)}
                     </button>
@@ -87,7 +87,7 @@ const ActivityTourCard = ({tour}) => {
                     </div>
                 ) : (
                     <span className="bg-gradient-to-r from-red-400 px-3 py-1 rounded-lg mb-3 text-white">
-                        Tour is waiting for you
+                        Let's review now
                     </span>
                 )}
 
@@ -107,7 +107,7 @@ const ActivityTourCard = ({tour}) => {
                         )}
                         <Link
                             to={`/tours/detailtour/${tour.id}`}
-                            className="mt-auto bg-[#3b71fe] p-2 rounded-lg text-white text-center w-full"
+                            className="mt-auto bg-[#3b71fe] p-2 rounded-lg text-white text-center w-[250px]"
                         >
                             ${discountedPrice}
                         </Link>

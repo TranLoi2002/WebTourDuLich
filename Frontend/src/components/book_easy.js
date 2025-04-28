@@ -78,6 +78,7 @@ const BookEasy = () => {
                     <Slider {...settings}>
                         {tours.map((tour, index) => (
                             <div
+                                key={tour.id}
                                 className="flex relative bg-orange-200 py-[20px] px-[50px] rounded-2xl flex-col overflow-hidden">
                                 <div
                                     className="relative rounded-2xl py-[20px] px-[50px]"

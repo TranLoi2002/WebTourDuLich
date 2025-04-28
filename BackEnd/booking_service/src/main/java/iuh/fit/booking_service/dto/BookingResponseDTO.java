@@ -1,8 +1,6 @@
 package iuh.fit.booking_service.dto;
 
-import iuh.fit.booking_service.entity.BookingStatus;
-import iuh.fit.booking_service.entity.Gender;
-import iuh.fit.booking_service.entity.AgeType;
+import iuh.fit.booking_service.entity.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -23,6 +21,9 @@ public class BookingResponseDTO {
     private String notes;
     private boolean paymentDueTimeRelevant;
     private Double totalPrice;
+    private CancelReason reason;
+    private CanceledBy canceledBy;
+    private Long paymentMethodId;
 
     @Data
     public static class ParticipantInfo {

@@ -5,10 +5,15 @@
  */
 package iuh.fit.booking_service.client.payment;
 
+import iuh.fit.booking_service.dto.PaymentDTO;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
-//@FeignClient(name = "PAYMENT-SERVICE", path = "")
+@FeignClient(name = "PAYMENT-SERVICE", path = "/payment")
 public interface PaymentClient {
     /// CREATE PAYMENT
+    @PostMapping()
+    void createPayment(@RequestBody PaymentDTO dto);
     ///  UPDATE STATUS PAYMENT -->CANCEL ->>> PAYMENT CREATE REFUND
 }

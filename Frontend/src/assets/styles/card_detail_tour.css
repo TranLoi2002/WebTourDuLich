@@ -114,11 +114,11 @@
 .review {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
+    /*margin-top: 10px;*/
     font-size: 14px;
     color: #3b3e44;
     /*font-family: 'Roboto',sans-serif;*/
-    margin-bottom: 26px;
+    /*margin-bottom: 26px;*/
     /*padding:0 5px;*/
     /*align-items: center;*/
 }
@@ -225,7 +225,7 @@
     border-bottom-left-radius: 20px;
     overflow: hidden;
     margin-top: 50px;
-    max-height: 400px;
+    max-height: 350px;
 }
 
 .top_infor .review {
@@ -760,11 +760,13 @@
     gap: 10px;
 }
 
-.ReactModal__Content{
-    inset: unset !important;
-    right: 0 !important;
-    padding-top: 30px !important;
-}
+/*.ReactModal__Content{*/
+/*    inset: unset !important;*/
+/*    right: 0 !important;*/
+/*    padding-top: 30px !important;*/
+/*    padding-left:0 !important;*/
+/*    padding-right: 0 !important;*/
+/*}*/
 
 
 

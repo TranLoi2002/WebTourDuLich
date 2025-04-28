@@ -28,7 +28,7 @@ const Show = () => {
 
     // get tour have discount from tour.api.js
 
-    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'desc') => {
+    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'asc') => {
         let allData = [];
         let currentPage = 0;
         let totalPages = 1;
@@ -47,7 +47,7 @@ const Show = () => {
         try {
             setIsLoading(true);
             const allTours = await fetchAllPages(getAllTour);
-            const filterTours = allTours.filter(tour => tour.discount > 10);
+            const filterTours = allTours.filter(tour => tour.discount > 10 && tour.active === true && tour.status === "UPCOMING");
             setTourSale(filterTours);
         } catch (error) {
             console.error("Error fetching tours:", error);
@@ -62,7 +62,7 @@ const Show = () => {
         try {
             setIsLoading(true);
             const allTours = await fetchAllPages(getAllTour);
-            const filterTours = allTours.filter(tour => tour.currentParticipants > 0);
+            const filterTours = allTours.filter(tour => tour.currentParticipants > 0 && tour.active === true && tour.status === "UPCOMING");
             setTourFav(filterTours);
         } catch (error) {
             console.error("Error fetching tours:", error);
@@ -75,22 +75,24 @@ const Show = () => {
         try {
             setIsLoading(true);
             const allTourTypes = await fetchAllPages(getAllTourType);
-            setTourTypes(allTourTypes);
-            if (allTourTypes.length > 0) {
-                setSelectedTourType(allTourTypes[0].id); // Set the first tour type as default
+            const activeTourTypes = allTourTypes.filter(tourType => tourType.active === true); // Filter active tour types
+            setTourTypes(activeTourTypes);
+            if (activeTourTypes.length > 0) {
+                setSelectedTourType(activeTourTypes[0].id); // Set the first active tour type as default
             }
         } catch (error) {
             console.error("Error fetching tour types:", error);
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     const fetchLocations = async () => {
         try {
             setIsLoading(true);
             const allLocations = await fetchAllPages(getAllLocation);
-            setLocations(allLocations);
+            const activeLocations = allLocations.filter(location => location.active === true); // Filter active locations
+            setLocations(activeLocations);
         } catch (error) {
             console.error("Error fetching locations:", error);
         } finally {

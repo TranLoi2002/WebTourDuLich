@@ -25,7 +25,7 @@ const Things_to_do = () => {
 
             while (hasMorePages) {
                 const response = await getAllTour(page, toursPerPage, 'id', 'asc');
-                allData = [...allData, ...response.content.filter(tour => tour.activityTour === true)];
+                allData = [...allData, ...response.content.filter(tour => tour.activityTour === true && tour.active === true && tour.status === "UPCOMING")];
                 hasMorePages = page + 1 < response.totalPages;
                 page++;
             }
@@ -59,7 +59,8 @@ const Things_to_do = () => {
     const fetchActivityTypes = async () => {
         try {
             const allTours = await fetchAllPages(getActivityType);
-            setActivityTypes(allTours);
+            const activeTours = allTours.filter(tour => tour.active === true);
+            setActivityTypes(activeTours);
         } catch (error) {
             console.error("Error fetching tours:", error);
         }
@@ -83,7 +84,7 @@ const Things_to_do = () => {
             // Filter by location
             if (searchLocation.trim()) {
                 tours = tours.filter(tour =>
-                    tour.location?.name?.toLowerCase().includes(searchLocation.toLowerCase())
+                    tour.location?.name?.toLowerCase().includes(searchLocation.toLowerCase()) || tour.title.toLowerCase().includes(searchLocation.toLowerCase())
                 );
             }
 
@@ -171,6 +172,7 @@ const Things_to_do = () => {
                             activityTypes.map(activityType => (
                                 <label key={activityType.id} className="activity_type">
                                     <input
+                                        className="cursor-pointer mr-2 w-5 h-5 rounded-lg"
                                         type="checkbox"
                                         name={activityType.name}
                                         checked={selectedActivityTypes.includes(activityType.name)}
@@ -187,6 +189,7 @@ const Things_to_do = () => {
                         {['10-100', '100-500', '500+'].map(range => (
                             <label key={range}>
                                 <input
+                                    className="cursor-pointer mr-2 w-5 h-5 rounded-lg"
                                     type="checkbox"
                                     value={range}
                                     checked={selectedPriceRanges.includes(range)}
@@ -203,7 +206,7 @@ const Things_to_do = () => {
                 </div>
 
                 <div className="things_right w-[60%]" id="thing_right_items">
-                    <div>
+                    <div className="flex flex-col gap-3 ">
                         {loading ? (
                             <p>Loading tours...</p>
                         ) : getPaginatedTours().length > 0 ? (
@@ -219,19 +222,19 @@ const Things_to_do = () => {
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="bg-gray-300 text-gray-700 px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Previous
+                            <i className="fa-solid fa-chevron-left"></i>
                         </button>
                         <span>
-                            Page {currentPage} of {totalPages}
+                            {currentPage} / {totalPages}
                         </span>
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="bg-gray-300 text-gray-700 px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Next
+                            <i className="fa-solid fa-chevron-right"></i>
                         </button>
                     </div>
                 </div>

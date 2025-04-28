@@ -22,7 +22,6 @@ import java.util.List;
 @Builder
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Booking {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,6 +57,16 @@ public class Booking {
     @Column
     private String notes;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CancelReason reason;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CanceledBy canceledBy;
+
+    @Column
+    private Long paymentMethodId;
     public void addParticipant(Participant participant) {
         participants.add(participant);
         participant.setBooking(this);
@@ -92,6 +101,7 @@ public class Booking {
                 case BABY -> total += basePrice * 0.3;
             }
         }
+
         this.totalPrice = total;
     }
 }

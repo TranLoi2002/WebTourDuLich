@@ -8,15 +8,21 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import {format} from "date-fns";
 import {verifyUser} from "../../api/auth.api";
-import {createReview, getReviewOfTour, addReply, getRepliesByReviewId} from "../../api/review.api";
+import {
+    createReview,
+    getReviewOfTour,
+    addReply,
+    getRepliesByReviewId,
+    uploadImages,
+    getCountReplies
+} from "../../api/review.api";
 import {getUserById} from "../../api/user.api";
 import {toast} from "react-toastify";
-import {uploadImages, getCountReplies} from "../../api/review.api";
 import HorizontalLayout from "../../components/horizontalLayout";
 import Modal from "react-modal";
 
-// Placeholder for HorizontalLayout
-// const HorizontalLayout = ({children}) => <div>{children}</div>;
+// Bind modal to app element for accessibility
+Modal.setAppElement("#root");
 
 // Sub-component for Tour Information (unchanged)
 const TourInfo = ({tour, randomImage, showImages, setShowImages}) => (
@@ -79,12 +85,11 @@ const TourInfo = ({tour, randomImage, showImages, setShowImages}) => (
                     <span>
                         - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
                     </span>
-                    {/*<span className="px-4 py-2 rounded bg-blue-200 text-blue-600 text-center">Good</span>*/}
                 </div>
                 <h2 id="name">{tour.title}</h2>
                 <div className="details">
                     <label>
-                        <span>Tour Code</span>
+                        <span>Tour Code:</span>
                         <a href="#" id="tcode">{tour.tourCode}</a>
                     </label>
                     <label>
@@ -92,7 +97,7 @@ const TourInfo = ({tour, randomImage, showImages, setShowImages}) => (
                         <a href="#" id="dura">{tour.duration}</a>
                     </label>
                     <label>
-                        <span>Place of departure</span>
+                        <span>Place of departure:</span>
                         <a href="#" id="place">{tour.placeOfDeparture}</a>
                     </label>
                     <label>
@@ -139,7 +144,6 @@ const BookingForm = ({
         if (type === "babies") setBabies(value);
     };
 
-
     return (
         <div className="book_container">
             <div className="book_now">
@@ -161,8 +165,7 @@ const BookingForm = ({
                 <div className="infor_booking">
                     <label>
                         <h4>Passenger
-                            <span
-                                className="text-[0.8rem] text-gray-500">(Available : {availableSeats} seat)</span>
+                            <span className="text-[0.8rem] text-gray-500">(Available : {availableSeats} seat)</span>
                         </h4>
                         <span>{totalPassengers}</span>
                     </label>
@@ -215,16 +218,19 @@ const BookingForm = ({
                             <span>${totalPrice.toFixed(2)}</span>
                         </div>
                     </label>
-                    <button className="book_submit" onClick={handleSubmit}>
+                    <button
+                        disabled={adults < 1}
+                        className={`book_submit ${adults < 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={handleSubmit}>
                         BOOK NOW
                     </button>
                 </div>
             </div>
         </div>
-    )
+    );
 };
 
-// Updated ReviewSection with Star Rating and Image Upload
+// Updated ReviewSection with Star Rating, Image Upload, and Modal
 const ReviewSection = ({
                            reviews,
                            user,
@@ -242,14 +248,23 @@ const ReviewSection = ({
                            loadMoreReviews,
                            hasMore,
                            tour,
-                           isViewingAll,
-                           setIsViewingAll
+                           allReviews,
+                           setModalIsOpen
                        }) => {
+    const [modalIsOpen, setModalIsOpenLocal] = useState(false);
 
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    // Handle image selection
+    // Sync local modal state with parent
+    const handleModalToggle = (isOpen) => {
+        setModalIsOpenLocal(isOpen);
+        setModalIsOpen(isOpen);
+    };
+
+    // Handle image selection with limit
     const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
+        const files = Array.from(e.target.files).slice(0, 5 - images.length);
+        if (files.length < e.target.files.length) {
+            toast.warn("Maximum 5 images allowed.");
+        }
         const newImages = files.map((file) => ({
             file,
             preview: URL.createObjectURL(file),
@@ -276,13 +291,94 @@ const ReviewSection = ({
                     key={i}
                     className={`fa-solid fa-star ${i <= currentRating ? "text-yellow-600" : "text-gray-300"} ${isEditable ? "cursor-pointer" : ""}`}
                     onClick={isEditable ? () => setRating(i) : undefined}
+                    aria-label={`Rate ${i} star${i > 1 ? "s" : ""}`}
+                    role={isEditable ? "button" : "img"}
                 ></i>
             );
         }
         return stars;
     };
 
-    // console.log("reviews", reviews);
+    // Render a single review (reused in main section and modal)
+    const renderReview = (review, index) => (
+        <div className="review flex-col" key={`${review.id}-${index}`}>
+            <div className="review_header">
+                <div className="review_avt">
+                    <img src={review.avatar || "https://picsum.photos/600"} alt="avt-user"/>
+                </div>
+                <div className="review_infor flex items-center justify-between">
+                    <div>
+                        <h4 className="font-bold">{review.userName}</h4>
+                    </div>
+                    <div>
+                        <p className="text-gray-400">posted in {format(new Date(review.createdAt), "MMMM, dd yyyy")}</p>
+                    </div>
+                </div>
+            </div>
+            <div className="review_content">
+                <div className="review_star flex">{renderStars(review.rating)}</div>
+                <p className="review_detail_content">{review.comment}</p>
+                {review.images?.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {Array.isArray(review.images) && review.images.map((image, imgIndex) => (
+                            <img
+                                key={imgIndex}
+                                src={image}
+                                alt={`Review Image ${imgIndex + 1}`}
+                                className="w-24 h-24 object-cover rounded"
+                                loading="lazy"
+                            />
+                        ))}
+                    </div>
+                )}
+                <div className="review_icon">
+                    <div className="review_icon_like">
+                        <i className="fa-solid fa-thumbs-up"></i>
+                        <i className="fa-solid fa-thumbs-down"></i>
+                    </div>
+                    <div className="items-center">
+                        <button onClick={() => toggleReplies(review.id)}>
+                            {review.replies ? "Hide" : `Reply (${review.countReplies || 0})`}
+                        </button>
+                        <i className="fa-solid fa-ellipsis-vertical ml-3"></i>
+                    </div>
+                </div>
+                {review.replies && (
+                    <div className="w-full border-2 p-4">
+                        {review.replies.map((reply) => (
+                            <div key={reply.id} className="reply">
+                                <div className="flex items-center justify-between">
+                                    <p>
+                                        <strong>Replier: {reply.userId === user?.id ? "me" : reply.userName}</strong>
+                                    </p>
+                                    <p className="text-gray-500">posted
+                                        in {format(new Date(reply.createdAt), "MMMM, dd yyyy")}</p>
+                                </div>
+                                <p className="w-[70%] ml-6">{reply.content}</p>
+                            </div>
+                        ))}
+                        <textarea
+                            className="w-full border rounded p-2 mb-2 mt-3"
+                            value={newReply[review.id] || ""}
+                            onChange={(e) =>
+                                setNewReply((prev) => ({
+                                    ...prev,
+                                    [review.id]: e.target.value,
+                                }))
+                            }
+                            placeholder="Write a reply..."
+                        />
+                        <button
+                            className="bg-primary text-white px-4 py-2 rounded"
+                            onClick={() => handleReplySubmit(review.id)}
+                        >
+                            Answer
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 
     return (
         <div className="reviews_customer">
@@ -293,115 +389,15 @@ const ReviewSection = ({
                         <span>{tour.averageRating.toFixed(1)}</span>
                         <i className="fa-solid fa-star text-yellow-600"></i>
                         <span>
-                        - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
-                    </span>
-                        {/*<span className="px-4 py-2 rounded bg-blue-200 text-blue-600 text-center">Good</span>*/}
+                            - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
+                        </span>
                     </div>
                 </div>
                 <div>
-                    <span className="text-primary" onClick={() => {
-                        setIsViewingAll(true);
-                        setModalIsOpen(true);
-                    }}>See all</span>
+                    <span className="text-primary cursor-pointer" onClick={() => handleModalToggle(true)}>
+                        See all
+                    </span>
                 </div>
-
-                <Modal
-                    isOpen={modalIsOpen}
-                    onRequestClose={() => setModalIsOpen(false)}
-                    style={{
-                        content: {
-                            position: "absolute",
-                            top: "0",
-                            right: "0",
-                            bottom: "0",
-                            width: "50vw",
-                            height: "100vh",
-                            padding: "20px",
-                            overflow: "auto",
-                            backgroundColor: "#fff",
-                            border: "none",
-                            boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
-                        },
-                        overlay: {
-                            backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        },
-                    }}
-                >
-                    <div className="modal-header">
-                        <h2>All Reviews</h2>
-                        <button onClick={() => setModalIsOpen(false)} style={{fontSize: "1.5rem", cursor: "pointer"}}>
-                            &#x2715;
-                        </button>
-                    </div>
-                    <div className="modal-body">
-                        {reviews.map((review) => (
-                            <div key={review.id} className="review-item">
-                                <div className="flex items-center gap-1">
-                                    <div className="review_avt">
-                                        <img src={review.avatar} alt="avt-user"/>
-                                    </div>
-                                    <h4>{review.userName}</h4>
-                                </div>
-
-                                <p>{review.comment}</p>
-                                {review.images?.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {Array.isArray(review.images) && review.images.map((image, imgIndex) => (
-                                            <img
-                                                key={imgIndex}
-                                                src={image}
-                                                alt={`Review Image ${imgIndex + 1}`}
-                                                className="w-24 h-24 object-cover rounded"
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                                <div className="items-center">
-                                    <button onClick={() => toggleReplies(review.id)}>
-                                        {review.replies ? "Hide" : `Reply (${review.countReplies})`}
-                                    </button>
-                                    <i className="fa-solid fa-ellipsis-vertical ml-3"></i>
-                                </div>
-
-                                {review.replies && (
-                                    <div className="w-full border-2 p-4">
-                                        {review.replies.map((reply) => (
-                                            <div key={reply.id} className="reply">
-                                                <div className="flex items-center justify-between">
-                                                    <p>
-                                                        <strong>Replier: {reply.userId === user?.id ? "me" : reply.userName}</strong>
-                                                    </p>
-                                                    <p className="text-gray-500">posted
-                                                        in {format(new Date(reply.createdAt), "MMMM, dd yyyy")}</p>
-                                                </div>
-                                                <p className="w-[70%] ml-6">{reply.content}</p>
-
-                                            </div>
-                                        ))}
-                                        <textarea
-                                            className="w-full border rounded p-2 mb-2 mt-3"
-                                            value={newReply[review.id] || ""}
-                                            onChange={(e) =>
-                                                setNewReply((prev) => ({
-                                                    ...prev,
-                                                    [review.id]: e.target.value,
-                                                }))
-                                            }
-                                            placeholder="Write a reply..."
-                                        />
-                                        <button
-                                            className="bg-primary text-white px-4 py-2 rounded"
-                                            onClick={() => handleReplySubmit(review.id)}
-                                        >
-                                            Answer
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </Modal>
-
             </div>
 
             <div className="review_form mb-6">
@@ -451,85 +447,7 @@ const ReviewSection = ({
             </div>
 
             {reviews.length > 0 ? (
-                reviews.map((review, index) => (
-                    <div className="review" key={`${review.id}-${index}`}>
-                        <div className="review_header">
-                            <div className="review_avt">
-                                <img src={review.avatar} alt="avt-user"/>
-                            </div>
-                            <div className="review_infor">
-                                <div>
-                                    <h4 className="font-bold">{review.userName}</h4>
-                                </div>
-                                <div>
-                                    <p className="text-gray-400">posted
-                                        in {format(new Date(review.createdAt), "MMMM, dd yyyy")}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="review_content">
-                            <div className="review_star flex">{renderStars(review.rating)}</div>
-                            <p className="review_detail_content">{review.comment}</p>
-                            {review.images?.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {Array.isArray(review.images) && review.images.map((image, imgIndex) => (
-                                        <img
-                                            key={imgIndex}
-                                            src={image}
-                                            alt={`Review Image ${imgIndex + 1}`}
-                                            className="w-24 h-24 object-cover rounded"
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                            <div className="review_icon">
-                                <div className="review_icon_like">
-                                    <i className="fa-solid fa-thumbs-up"></i>
-                                    <i className="fa-solid fa-thumbs-down"></i>
-                                </div>
-                                <div className="items-center">
-                                    <button onClick={() => toggleReplies(review.id)}>
-                                        {review.replies ? "Hide" : `Reply (${review.countReplies})`}
-                                    </button>
-                                    <i className="fa-solid fa-ellipsis-vertical ml-3"></i>
-                                </div>
-                            </div>
-                            {review.replies && (
-                                <div className="w-full border-2 p-4">
-                                    {review.replies.map((reply) => (
-                                        <div key={reply.id} className="reply">
-                                            <div className="flex items-center justify-between">
-                                                <p>
-                                                    <strong>Replier: {reply.userId === user?.id ? "me" : reply.userName}</strong>
-                                                </p>
-                                                <p className="text-gray-500">posted
-                                                    in {format(new Date(reply.createdAt), "MMMM, dd yyyy")}</p>
-                                            </div>
-                                            <p className="w-[70%] ml-6">{reply.content}</p>
-                                        </div>
-                                    ))}
-                                    <textarea
-                                        className="w-full border rounded p-2 mb-2 mt-3"
-                                        value={newReply[review.id] || ""}
-                                        onChange={(e) =>
-                                            setNewReply((prev) => ({
-                                                ...prev,
-                                                [review.id]: e.target.value,
-                                            }))
-                                        }
-                                        placeholder="Write a reply..."
-                                    />
-                                    <button
-                                        className="bg-primary text-white px-4 py-2 rounded"
-                                        onClick={() => handleReplySubmit(review.id)}
-                                    >
-                                        Answer
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))
+                reviews.map((review, index) => renderReview(review, index))
             ) : (
                 <div className="no_reviews">
                     <p className="text-gray-600">No reviews available for this tour.</p>
@@ -540,6 +458,52 @@ const ReviewSection = ({
                     Load More Reviews
                 </button>
             )}
+
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={() => handleModalToggle(false)}
+                style={{
+                    content: {
+                        position: "absolute",
+                        top: "0",
+                        right: "0 !important",
+                        bottom: "0",
+                        width: "50vw",
+                        height: "100vh",
+                        // padding: "20px",
+                        paddingTop: "40px !important",
+                        overflow: "auto",
+                        backgroundColor: "#fff",
+                        border: "none",
+                        zIndex: 1000,
+                        boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
+                        inset: "unset !important",
+                        paddingLeft: "0 !important",
+                        paddingRight: "0 !important",
+                    },
+                    overlay: {
+                        zIndex: 999,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    },
+                }}
+            >
+                <div className="modal-header flex justify-between items-center mb-4 mt-6">
+                    <h2 className="font-bold text-xl ml-[40px]">All Reviews ({allReviews.length})</h2>
+                    <button
+                        onClick={() => handleModalToggle(false)}
+                        style={{fontSize: "1.5rem", cursor: "pointer"}}
+                    >
+                        ✕
+                    </button>
+                </div>
+                <div className="modal-body reviews_customer">
+                    {allReviews.length > 0 ? (
+                        allReviews.map((review, index) => renderReview(review, index))
+                    ) : (
+                        <p className="text-gray-600">No reviews available for this tour.</p>
+                    )}
+                </div>
+            </Modal>
         </div>
     );
 };
@@ -561,18 +525,16 @@ const DetailTour = () => {
     const [discountCode, setDiscountCode] = useState("");
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState("");
-    const [rating, setRating] = useState(0); // New state for rating
-    const [images, setImages] = useState([]); // New state for images
+    const [rating, setRating] = useState(0);
+    const [images, setImages] = useState([]);
     const [user, setUser] = useState(null);
     const [newReply, setNewReply] = useState({});
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [relatedTours, setRelatedTours] = useState([]);
     const [userCache, setUserCache] = useState({});
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const [isViewingAll, setIsViewingAll] = useState(false); // State to track if viewing all reviews
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [allReviews, setAllReviews] = useState([]);
 
     // Fetch user
     useEffect(() => {
@@ -649,12 +611,11 @@ const DetailTour = () => {
         }
     }, [adults, children, babies, tour]);
 
-    // Fetch reviews with user details
+    // Fetch paginated reviews for main section
     useEffect(() => {
         const fetchReviewsWithUserDetails = async () => {
             try {
-                const size = isViewingAll ? 10 : 5;
-                const response = await getReviewOfTour(id, page, size);
+                const response = await getReviewOfTour(id, page, 5);
                 const reviewsWithUserDetails = await Promise.all(
                     (response.content || []).map(async (review) => {
                         let userDetails = userCache[review.userId];
@@ -662,11 +623,8 @@ const DetailTour = () => {
                             userDetails = await getUserById(review.userId);
                             setUserCache((prev) => ({...prev, [review.userId]: userDetails}));
                         }
-
                         const countReplies = await getCountReplies(review.id);
-
-
-                        return {...review, userName: userDetails.userName , avatar: userDetails.avatar , countReplies};
+                        return {...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies};
                     })
                 );
 
@@ -683,11 +641,54 @@ const DetailTour = () => {
             }
         };
 
-
         if (id) fetchReviewsWithUserDetails();
     }, [id, page, userCache]);
 
-    console.log("review", reviews)
+    // Fetch all reviews for modal
+    useEffect(() => {
+        const fetchAllReviews = async () => {
+            if (!modalIsOpen || !id || !tour?.totalReviews) return;
+
+            try {
+                // Try fetching all reviews with tour.totalReviews as size
+                const response = await getReviewOfTour(id, 0, tour.totalReviews);
+                let allFetchedReviews = response.content || [];
+
+                // If the response doesn't contain all reviews, fetch iteratively
+                if (allFetchedReviews.length < tour.totalReviews) {
+                    let currentPage = 0;
+                    const pageSize = 10; // Adjust based on backend limits
+                    allFetchedReviews = [];
+
+                    while (allFetchedReviews.length < tour.totalReviews) {
+                        const pageResponse = await getReviewOfTour(id, currentPage, pageSize);
+                        allFetchedReviews = [...allFetchedReviews, ...(pageResponse.content || [])];
+                        if (pageResponse.content.length < pageSize) break; // No more reviews
+                        currentPage++;
+                    }
+                }
+
+                const reviewsWithUserDetails = await Promise.all(
+                    allFetchedReviews.map(async (review) => {
+                        let userDetails = userCache[review.userId];
+                        if (!userDetails) {
+                            userDetails = await getUserById(review.userId);
+                            setUserCache((prev) => ({...prev, [review.userId]: userDetails}));
+                        }
+                        const countReplies = await getCountReplies(review.id);
+                        return {...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies};
+                    })
+                );
+
+                setAllReviews(reviewsWithUserDetails);
+            } catch (error) {
+                console.error("Error fetching all reviews:", error);
+                toast.error("Failed to load all reviews");
+            }
+        };
+
+        fetchAllReviews();
+    }, [modalIsOpen, id, tour, userCache]);
 
     // Handle review submission
     const handleReviewSubmit = useCallback(async () => {
@@ -703,7 +704,7 @@ const DetailTour = () => {
                 userId: user.id,
                 comment: newReview,
                 rating,
-                images: [], // Images will be uploaded later
+                images: [],
             };
             const createdReview = await createReview(reviewData);
 
@@ -717,7 +718,6 @@ const DetailTour = () => {
                 images.forEach((image) => {
                     formData.append("images", image.file);
                 });
-
                 uploadedImageUrls = await uploadImages(reviewId, formData);
             }
 
@@ -725,14 +725,16 @@ const DetailTour = () => {
             const userDetails = userCache[user.id] || (await getUserById(user.id));
             setUserCache((prev) => ({...prev, [user.id]: userDetails}));
 
-            setReviews((prevReviews) => [
-                {
-                    ...createdReview,
-                    userName: userDetails.userName,
-                    images: uploadedImageUrls, // Thêm URL ảnh vào review
-                },
-                ...prevReviews,
-            ]);
+            const newReviewWithDetails = {
+                ...createdReview,
+                userName: userDetails.userName,
+                avatar: userDetails.avatar,
+                images: uploadedImageUrls,
+                countReplies: 0,
+            };
+
+            setReviews((prevReviews) => [newReviewWithDetails, ...prevReviews]);
+            setAllReviews((prevAllReviews) => [newReviewWithDetails, ...prevAllReviews]);
 
             toast.success("Review posted! Thank you for your feedback.");
             setNewReview("");
@@ -759,6 +761,11 @@ const DetailTour = () => {
 
     // Handle booking submission
     const handleSubmit = useCallback(async () => {
+        if (adults < 1) {
+            toast.error("Please select at least one adult.");
+            return;
+        }
+
         try {
             const user = await verifyUser();
             navigate("/confirmbooking", {
@@ -798,6 +805,11 @@ const DetailTour = () => {
                         review.id === reviewId ? {...review, replies: repliesWithUserDetails} : review
                     )
                 );
+                setAllReviews((prevAllReviews) =>
+                    prevAllReviews.map((review) =>
+                        review.id === reviewId ? {...review, replies: repliesWithUserDetails} : review
+                    )
+                );
             } catch (error) {
                 console.error("Error fetching replies:", error);
             }
@@ -823,12 +835,26 @@ const DetailTour = () => {
                 const userDetails = userCache[user.id] || (await getUserById(user.id));
                 setUserCache((prev) => ({...prev, [user.id]: userDetails}));
 
+                const newReplyWithUser = {...createdReply, userName: userDetails.userName};
+
                 setReviews((prevReviews) =>
                     prevReviews.map((review) =>
                         review.id === reviewId
                             ? {
                                 ...review,
-                                replies: [...(review.replies || []), {...createdReply, userName: userDetails.userName}]
+                                replies: [...(review.replies || []), newReplyWithUser],
+                                countReplies: (review.countReplies || 0) + 1,
+                            }
+                            : review
+                    )
+                );
+                setAllReviews((prevAllReviews) =>
+                    prevAllReviews.map((review) =>
+                        review.id === reviewId
+                            ? {
+                                ...review,
+                                replies: [...(review.replies || []), newReplyWithUser],
+                                countReplies: (review.countReplies || 0) + 1,
                             }
                             : review
                     )
@@ -851,13 +877,18 @@ const DetailTour = () => {
                     review.id === reviewId ? {...review, replies: review.replies ? null : []} : review
                 )
             );
+            setAllReviews((prevAllReviews) =>
+                prevAllReviews.map((review) =>
+                    review.id === reviewId ? {...review, replies: review.replies ? null : []} : review
+                )
+            );
 
-            const review = reviews.find((r) => r.id === reviewId);
+            const review = reviews.find((r) => r.id === reviewId) || allReviews.find((r) => r.id === reviewId);
             if (!review.replies) {
                 fetchReplies(reviewId);
             }
         },
-        [fetchReplies, reviews]
+        [fetchReplies, reviews, allReviews]
     );
 
     // Load more reviews
@@ -885,16 +916,6 @@ const DetailTour = () => {
                         <div className="infor_travel">
                             <div className="infor_header">
                                 <h2>Description</h2>
-                                {/*<div className="status">*/}
-                                {/*    <label>*/}
-                                {/*        <i className="fa-sharp fa-solid fa-thumbs-up"></i>*/}
-                                {/*        <span>Like</span>*/}
-                                {/*    </label>*/}
-                                {/*    <label>*/}
-                                {/*        <i className="fa-solid fa-share"></i>*/}
-                                {/*        <span>Share</span>*/}
-                                {/*    </label>*/}
-                                {/*</div>*/}
                             </div>
                             <div className="intro" dangerouslySetInnerHTML={{__html: tour.highlights}}/>
                         </div>
@@ -918,7 +939,6 @@ const DetailTour = () => {
                                 ))}
                             </div>
                             <div className="mess_add">
-                                <h4>Additional Notes</h4>
                                 <textarea
                                     name=""
                                     id=""
@@ -937,7 +957,7 @@ const DetailTour = () => {
                             rating={rating}
                             setRating={setRating}
                             images={images}
-                            setImages={setImages}
+                            setImages={setImages} // Fixed typo: setsmages -> setImages
                             handleReviewSubmit={handleReviewSubmit}
                             toggleReplies={toggleReplies}
                             handleReplySubmit={handleReplySubmit}
@@ -946,11 +966,8 @@ const DetailTour = () => {
                             loadMoreReviews={loadMoreReviews}
                             hasMore={hasMore}
                             tour={tour}
-                            isOpen={isModalOpen}
-                            onClose={() => setIsModalOpen(false)}
-                            isViewingAll={isViewingAll}
-                            setIsViewingAll={setIsViewingAll}
-
+                            allReviews={allReviews}
+                            setModalIsOpen={setModalIsOpen}
                         />
                         {relatedTours.length > 0 && (
                             <div className="related_tours">

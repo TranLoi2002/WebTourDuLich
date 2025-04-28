@@ -1,22 +1,19 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     Modal,
     Box,
     Typography,
     TextField,
     Button,
-    MenuItem,
 } from "@mui/material";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LocationSearch from "./LocationSearch";
+import { toast } from "react-toastify";
+import { getAllTour } from "../api/tour.api";
 
-import {getAllTour} from "../api/tour.api";
-
-const CreateTripModal = ({open, handleClose}) => {
+const CreateTripModal = ({ open, handleClose }) => {
     const [location, setLocation] = useState("");
     const [selectedLocation, setSelectedLocation] = useState(null);
-
-
     const [checkIn, setCheckIn] = useState("");
     const [checkOut, setCheckOut] = useState("");
     const [guests, setGuests] = useState(1);
@@ -24,51 +21,57 @@ const CreateTripModal = ({open, handleClose}) => {
     const [budget, setBudget] = useState(500);
     const [showTravellers, setShowTravellers] = useState(false);
     const [showBudget, setShowBudget] = useState(false);
-
     const [tours, setTours] = useState([]);
-    useEffect(() => {
-        const fetchTours = async () => {
-            try {
-                const response = await getAllTour();
-                setTours(response);
-                // console.log("Tours fetched:", response);
-            } catch (error) {
-                console.error("Error fetching tours:", error);
-            }
-        };
 
-        fetchTours();
-    }, []);
+    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'asc') => {
+        let allData = [];
+        let currentPage = 0;
+        let totalPages = 1;
+
+        while (currentPage < totalPages) {
+            const response = await fetchFunction(currentPage, size, sortBy, sortDir);
+            allData = [...allData, ...response.content];
+            currentPage = response.currentPage + 1;
+            totalPages = response.totalPages;
+        }
+
+        return allData;
+    };
+
+    const fetchSaleTours = async () => {
+        try {
+
+            const allTours = await fetchAllPages(getAllTour);
+            const filterTours = allTours.filter(tour => tour.active === true && tour.status === "UPCOMING");
+            setTours(filterTours);
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchSaleTours();
+    },[]);
 
     const navigate = useNavigate();
 
     const handleSubmit = () => {
-        const filteredTours = tours.filter((tour) => {
-            const isBudgetMatch = budget ? tour.price <= budget : true;
-            const isLocationMatch = location
-                ? tour.location.name.toLowerCase().includes(location.toLowerCase())
-                : selectedLocation?.name
-                    ? tour.location.name.toLowerCase().includes(selectedLocation.name.toLowerCase())
-                    : true;
-            const isDateMatch =
-                (!checkIn || new Date(checkIn) <= new Date(tour.startDate)) &&
-                (!checkOut || new Date(checkOut) >= new Date(tour.endDate));
-
-            return isBudgetMatch && isLocationMatch && isDateMatch;
-        });
-
-        if (filteredTours.length > 0) {
-            navigate("/resulttour", {
-                state: {
-                    filteredTours,
-                    searchCriteria: { selectedLocation, location, checkIn, checkOut, budget, guests, rooms },
+        // Navigate to ResultTour with all tours and search criteria
+        navigate("/resulttour", {
+            state: {
+                allTours: tours, // Pass all tours instead of filtered ones
+                searchCriteria: {
+                    selectedLocation,
+                    location,
+                    checkIn,
+                    checkOut,
+                    budget,
+                    guests,
+                    rooms,
                 },
-            });
-        } else {
-            alert("No tours match your criteria");
-        }
+            },
+        });
     };
-
 
     return (
         <Modal open={open} onClose={handleClose}>
@@ -89,15 +92,20 @@ const CreateTripModal = ({open, handleClose}) => {
                 </Typography>
 
                 {/* Location */}
-                <LocationSearch onLocationSelect={setSelectedLocation}/>
+                <LocationSearch
+                    onLocationSelect={(loc) => {
+                        setSelectedLocation(loc);
+                        setLocation(loc?.display_name || "");
+                    }}
+                />
 
                 {/* Check-in & Check-out Dates */}
-                <Box sx={{display: "flex", gap: 2, mb: 2}}>
+                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                     <TextField
                         fullWidth
                         label="Check-in"
                         type="date"
-                        InputLabelProps={{shrink: true}}
+                        InputLabelProps={{ shrink: true }}
                         value={checkIn}
                         onChange={(e) => setCheckIn(e.target.value)}
                     />
@@ -105,68 +113,43 @@ const CreateTripModal = ({open, handleClose}) => {
                         fullWidth
                         label="Check-out"
                         type="date"
-                        InputLabelProps={{shrink: true}}
+                        InputLabelProps={{ shrink: true }}
                         value={checkOut}
                         onChange={(e) => setCheckOut(e.target.value)}
                     />
                 </Box>
 
-                {/* Travellers Section */}
-                <Button fullWidth variant="outlined" onClick={() => setShowTravellers(!showTravellers)} sx={{mb: 2}}>
-                    {rooms} Room, {guests} Guest(s)
-                </Button>
-                {showTravellers && (
-                    <Box sx={{p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2}}>
-                        <Typography>Guests</Typography>
-                        <TextField
-                            select
-                            fullWidth
-                            value={guests}
-                            onChange={(e) => setGuests(Number(e.target.value))}
-                        >
-                            {[1, 2, 3, 4, 5].map((num) => (
-                                <MenuItem key={num} value={num}>
-                                    {num} Guest(s)
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <Typography sx={{mt: 2}}>Rooms</Typography>
-                        <TextField
-                            select
-                            fullWidth
-                            value={rooms}
-                            onChange={(e) => setRooms(Number(e.target.value))}
-                        >
-                            {[1, 2, 3, 4, 5].map((num) => (
-                                <MenuItem key={num} value={num}>
-                                    {num} Room(s)
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Box>
-                )}
-
                 {/* Budget Section */}
-                <Button fullWidth variant="outlined" onClick={() => setShowBudget(!showBudget)} sx={{mb: 2}}>
+                <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={() => setShowBudget(!showBudget)}
+                    sx={{ mb: 2 }}
+                >
                     Budget: ${budget}
                 </Button>
                 {showBudget && (
-                    <Box sx={{p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2}}>
+                    <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2 }}>
                         <Typography>Set Budget</Typography>
                         <input
                             type="range"
                             min="0"
-                            max="1000"
+                            max="10000"
                             value={budget}
                             onChange={(e) => setBudget(e.target.value)}
-                            style={{width: "100%"}}
+                            style={{ width: "100%" }}
                         />
                         <Typography>Selected: ${budget}</Typography>
                     </Box>
                 )}
 
                 {/* Submit Button */}
-                <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={handleSubmit}
+                >
                     Done
                 </Button>
             </Box>

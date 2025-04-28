@@ -1,3 +1,4 @@
+
 package iuh.fit.booking_service.exception;
 
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,7 @@ public class BookingException extends RuntimeException {
         super(message);
         this.httpStatus = status;
         this.errorCode = errorCode;
-        this.errorMessage = message; // Tạm thời dùng message, cần BookingErrorCode
+        this.errorMessage = message;
     }
 
     public HttpStatus getHttpStatus() {
