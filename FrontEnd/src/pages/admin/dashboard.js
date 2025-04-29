@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import AdminNavbar from '../../components/admin/adminNavbar';
 import BookingTable from '../../components/admin/booking/bookingTable';
-import TourTable from '../../components/admin/tourTable';
-import UserTable from '../../components/admin/userTable';
+import TourTable from '../../components/admin/tour/tourTable';
+import UserTable from '../../components/admin/user/userTable';
 import SettingModal from '../../components/admin/settingModal';
 import AdminSidebar from '../../components/admin/adminSidebar';
 import { ToastContainer } from 'react-toastify';

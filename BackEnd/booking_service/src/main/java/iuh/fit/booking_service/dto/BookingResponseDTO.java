@@ -23,6 +23,7 @@ public class BookingResponseDTO {
     private Double totalPrice;
     private CancelReason reason;
     private CanceledBy canceledBy;
+    private Long paymentMethodId;
 
     @Data
     public static class ParticipantInfo {

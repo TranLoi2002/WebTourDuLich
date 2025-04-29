@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import logo from '../assets/images/logo.png';
-import user_avt from '../assets/images/user_header.png';
+import defaultAvatar from '../assets/images/user_header.png';
 import { logout } from '../api/auth.api';
+import { toast } from 'react-toastify';
 
 const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
@@ -11,18 +12,37 @@ const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showHeader, setShowHeader] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
+    const [user, setUser] = useState(null);
 
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Kiểm tra trạng thái đăng nhập
+    // Check login status and user details
     useEffect(() => {
-        const user = localStorage.getItem('user');
-        setIsLoggedIn(!!user);
-    }, [location]);
+        const userDetail = localStorage.getItem('user');
+        if (userDetail) {
+            const parsedUser = JSON.parse(userDetail);
+            setUser(parsedUser);
+            setIsLoggedIn(true);
+        } else {
+            setUser(null);
+            setIsLoggedIn(false);
+        }
+    }, [location.pathname]); // Update on pathname change
 
+    // Listen for storage changes
+    useEffect(() => {
+        const handleStorageChange = (event) => {
+            if (event.key === 'user') {
+                setIsLoggedIn(!!localStorage.getItem('user'));
+            }
+        };
 
-    // Xử lý cuộn trang
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    // Handle scroll behavior
     useEffect(() => {
         const controlHeader = () => {
             const currentScrollY = window.scrollY;
@@ -34,21 +54,28 @@ const Header = () => {
         return () => window.removeEventListener('scroll', controlHeader);
     }, [lastScrollY]);
 
-    const handleOpenMenu = () => setOpenMenu(!openMenu);
-    const handleUserMenu = () => setShowUserMenu(!showUserMenu);
+    // Memoized event handlers
+    const handleOpenMenu = useCallback(() => setOpenMenu((prev) => !prev), []);
+    const handleUserMenu = useCallback(() => setShowUserMenu((prev) => !prev), []);
 
-    const handleLogin = () => navigate('/auth/sign_in');
-    const handleLogout = () => {
-        logout()
-            .then(() => {
-                setIsLoggedIn(false);
-                setShowUserMenu(false);
-                localStorage.removeItem('user');
-                navigate('/auth/sign_in');
-            })
-            .catch((error) => console.error('Logout failed:', error));
-    };
+    const handleLogin = useCallback(() => navigate('/auth/sign_in'), [navigate]);
 
+    const handleLogout = useCallback(async () => {
+        try {
+            await logout();
+            setIsLoggedIn(false);
+            setShowUserMenu(false);
+            setUser(null);
+            localStorage.removeItem('user');
+            toast.info('Logout successfully.');
+            navigate('/auth/sign_in');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            toast.error('Failed to logout.');
+        }
+    }, [navigate]);
+
+    // Determine header class based on route
     const headerClass = location.pathname === '/thingstodo'
         ? 'things_to_do_header'
         : location.pathname === '/tours'
@@ -57,26 +84,37 @@ const Header = () => {
                 ? 'blogs_header'
                 : '';
 
+    // Navigation links
+    const navLinks = [
+        { to: '/thingstodo', label: 'Things to do' },
+        { to: '/tours', label: 'Tour' },
+        { to: '/blogs', label: 'Blog' },
+    ];
+
     return (
         <header>
             <div
-                className={`header_nav fixed top-0 w-full bg-white z-[99999] transition-transform duration-300 ease-in-out shadow-[0_20px_30px_-10px_rgba(38,57,77,0.8)] flex justify-around py-4 text-lg ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
+                className={`header_nav fixed top-0 w-full bg-white z-[99999] transition-transform duration-300 ease-in-out shadow-[0_20px_30px_-10px_rgba(38,57,77,0.8)] flex justify-around py-4 text-lg ${
+                    showHeader ? 'translate-y-0' : '-translate-y-full'
+                }`}
+            >
                 <Link to="/" className="nav_logo flex items-center cursor-pointer no-underline">
-                    <img src={logo} alt="logo" />
+                    <img src={logo} alt="Airtrav logo" />
                     <span className="font-extrabold text-[20px] leading-[25px] ml-2 text-primary">Airtrav</span>
                 </Link>
 
                 <div className={`nav_select ${headerClass} flex`}>
                     <ul className="relative flex justify-center items-center">
-                        <li className="relative list-none">
-                            <Link className="link_target mx-5 text-gray-800 text-[1.1rem]" to="/thingstodo">Things to do</Link>
-                        </li>
-                        <li className="relative list-none">
-                            <Link className="link_target mx-5 text-gray-800 text-[1.1rem]" to="/tours">Tour</Link>
-                        </li>
-                        <li className="relative list-none">
-                            <Link className="link_target mx-5 text-gray-800 text-[1.1rem]" to="/blogs">Blog</Link>
-                        </li>
+                        {navLinks.map((link) => (
+                            <li key={link.to} className="relative list-none">
+                                <Link
+                                    className="link_target mx-5 text-gray-800 text-[1.1rem]"
+                                    to={link.to}
+                                >
+                                    {link.label}
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
                 </div>
 
@@ -93,29 +131,63 @@ const Header = () => {
                                 <i className="fa-regular fa-bell" title="Notification"></i>
                             </Link>
                         </li>
-                        <li className="navbar_icon hidden text-xl cursor-pointer" onClick={handleOpenMenu}>
+                        <li
+                            className="navbar_icon hidden text-xl cursor-pointer"
+                            onClick={handleOpenMenu}
+                        >
                             <i className="fa-solid fa-bars"></i>
                         </li>
 
-                        {isLoggedIn ? (
+                        {isLoggedIn && user ? (
                             <li className="user-menu relative" onClick={handleUserMenu}>
-                                <img src={user_avt} alt="user.png" className="border-l border-gray-300 px-5 ml-2" />
-                                <ul className={`menu absolute w-[170px] top-[55px] right-0 flex flex-col items-start shadow-[0_20px_20px_#555] py-2 px-4 bg-white rounded-xl ${showUserMenu ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                                <div className="border-l border-gray-300 ml-2 w-[50px] h-[50px] rounded-full overflow-hidden bg-red-300">
+                                    <img
+                                        src={user.avatar || defaultAvatar}
+                                        alt="User avatar"
+                                        className="w-full h-full cursor-pointer object-cover"
+                                    />
+                                </div>
+
+                                <ul
+                                    className={`menu absolute w-[170px] top-[55px] right-0 flex flex-col items-start shadow-[0_20px_20px_#555] py-2 px-4 bg-white rounded-xl ${
+                                        showUserMenu ? 'opacity-100 visible' : 'opacity-0 invisible'
+                                    }`}
+                                >
                                     <li className="list-none leading-10">
-                                        <Link to="/account" className="text-sm font-semibold text-gray-500">Accounts</Link>
+                                        <Link
+                                            to="/account"
+                                            className="text-sm font-semibold text-gray-500"
+                                        >
+                                            Accounts
+                                        </Link>
                                     </li>
                                     <li className="list-none leading-10 border-b border-gray-300">
-                                        <Link to="/help" className="text-sm font-semibold text-gray-500">Helps</Link>
+                                        <Link
+                                            to="/help"
+                                            className="text-sm font-semibold text-gray-500"
+                                        >
+                                            Helps
+                                        </Link>
                                     </li>
                                     <li className="list-none leading-10 flex items-center gap-2 my-3">
                                         <i className="fa-solid fa-arrow-right-from-bracket text-red-600"></i>
-                                        <button onClick={handleLogout} className="text-sm font-semibold text-gray-500">Sign out</button>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="text-sm font-semibold text-gray-500"
+                                        >
+                                            Sign out
+                                        </button>
                                     </li>
                                 </ul>
                             </li>
                         ) : (
                             <li className="relative list-none">
-                                <button onClick={handleLogin} className="nav_sign_in px-4 py-2 bg-primary rounded-full text-white text-base">Login now</button>
+                                <button
+                                    onClick={handleLogin}
+                                    className="nav_sign_in px-4 py-2 bg-primary rounded-full text-white text-base"
+                                >
+                                    Login now
+                                </button>
                             </li>
                         )}
                     </ul>
@@ -133,9 +205,13 @@ const Header = () => {
                 </div>
                 <div className="navbar_content p-5">
                     <ul className="flex flex-col list-none p-12">
-                        <li><Link to="/thingstodo" className="text-sm text-gray-800">Things to do</Link></li>
-                        <li><Link to="/tours" className="text-sm text-gray-800">Tour</Link></li>
-                        <li><Link to="/blogs" className="text-sm text-gray-800">Blog</Link></li>
+                        {navLinks.map((link) => (
+                            <li key={link.to}>
+                                <Link to={link.to} className="text-sm text-gray-800">
+                                    {link.label}
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
                 </div>
             </Modal>

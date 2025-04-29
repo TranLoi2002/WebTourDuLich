@@ -2,11 +2,9 @@
 package iuh.fit.booking_service.service.impl;
 
 import iuh.fit.booking_service.client.catalog.CatalogClient;
+//import iuh.fit.booking_service.client.payment.PaymentClient;
 import iuh.fit.booking_service.client.user.UserClient;
-import iuh.fit.booking_service.dto.BookingResponseDTO;
-import iuh.fit.booking_service.dto.LightTourDTO;
-import iuh.fit.booking_service.dto.TourDTO;
-import iuh.fit.booking_service.dto.UserDTO;
+import iuh.fit.booking_service.dto.*;
 import iuh.fit.booking_service.entity.*;
 import iuh.fit.booking_service.exception.BookingException;
 import iuh.fit.booking_service.repository.BookingRepository;
@@ -42,6 +40,9 @@ public class BookingServiceImpl implements BookingService {
     private final EmailService emailService;
     private final CatalogClient catalogClient;
     private final UserClient userClient;
+
+
+
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
@@ -71,7 +72,13 @@ public class BookingServiceImpl implements BookingService {
                 bookingRepository.delete(existingBooking);
             }
         }
-
+//        PaymentMethodDTO paymentMethodDTO = paymentMethodClient.getPaymentMethodById(bookingRequest.getPaymentMethodId());
+//        PaymentDTO paymentDTO = new PaymentDTO();
+//        paymentDTO.setBookingId(bookingRequest.getId());
+//        paymentDTO.setAmount(bookingRequest.getTotalPrice());
+//        paymentDTO.setUserId(bookingRequest.getUserId());
+//        paymentDTO.setMethod(paymentMethodDTO);
+//        paymentClient.createPayment(paymentDTO);
         validateParticipants(bookingRequest.getParticipants());
         Booking newBooking = prepareBooking(bookingRequest, user, tour);
 
@@ -593,6 +600,7 @@ public class BookingServiceImpl implements BookingService {
                 .paymentDueTime(LocalDateTime.now().plusHours(PAYMENT_DUE_HOURS))
                 .bookingStatus(BookingStatus.PENDING)
                 .participants(new ArrayList<>())
+                .paymentMethodId(request.getPaymentMethodId())
                 .build();
 
         List<Participant> participants = request.getParticipants().stream()
@@ -800,6 +808,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setPaymentDueTimeRelevant(booking.getBookingStatus() == BookingStatus.PENDING);
         dto.setReason(booking.getReason());
         dto.setCanceledBy(booking.getCanceledBy());
+        dto.setPaymentMethodId(booking.getPaymentMethodId());
 
         List<BookingResponseDTO.ParticipantInfo> participantInfos = booking.getParticipants().stream()
                 .map(p -> {

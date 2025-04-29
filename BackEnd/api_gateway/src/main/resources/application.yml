@@ -34,14 +34,6 @@ spring:
             - Path=/api/booking/**
           filters:
             - StripPrefix=1
-#        - id: booking-websocket
-#          uri: lb://BOOKING-SERVICE
-#          predicates:
-#            - Path=/api/ws/**
-#            - WebSocket=*
-#          filters:
-#            - StripPrefix=1
-#            - name: WebSocket
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:
@@ -66,6 +58,12 @@ spring:
             - Path=/api/user/**,/api/role/**,/api/auth/**
           filters:
             - StripPrefix=1
+#        - id: payment-service
+#          uri: lb://PAYMENT-SERVICE
+#          predicates:
+#            - Path=/api/payment/**
+#          filters:
+#            - StripPrefix=1
     loadbalancer:
       health-check:
         interval: 5s
@@ -73,7 +71,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://discovery-service:8761/eureka/
+      defaultZone: http://discovery-service:8761/eureka
     register-with-eureka: true
     fetch-registry: true
   instance:

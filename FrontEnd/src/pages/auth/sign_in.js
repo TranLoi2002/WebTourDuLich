@@ -9,7 +9,8 @@ import {
     Alert,
 } from "@mui/material";
 import logo from "../../assets/images/logo.png";
-import { login } from "../../api/auth.api"; // Đảm bảo API login được định nghĩa đúng
+import { login } from "../../api/auth.api";
+import {toast} from "react-toastify";
 
 const Sign_In = () => {
     const [formData, setFormData] = useState({ userName: "", passWord: "" });
@@ -28,23 +29,31 @@ const Sign_In = () => {
         setLoading(true);
         setError("");
 
+        // validate
+        if (!formData.userName || !formData.passWord) {
+            toast.info("Please fill in all fields");
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await login(formData); // Gọi API login
-            console.log(res);
+            // console.log(res);
             localStorage.setItem("user", JSON.stringify(res.user)); // Lưu thông tin người dùng vào localStorage
 
             // Điều hướng dựa trên vai trò
             if (res.user?.role?.roleName === "ADMIN") {
-                alert("DANG NHAP THANH CONG");
+                toast.success("Login success with Admin.");
                 navigate("/admin");
             } else {
+                toast.success("Login successfully.");
                 navigate("/");
             }
         } catch (err) {
             console.error("Login error", err);
             const message =
                 err.response?.data?.error || "Login failed. Please try again.";
-            setError(message); // Hiển thị lỗi
+            toast.error(message); // Hiển thị lỗi
         } finally {
             setLoading(false);
         }

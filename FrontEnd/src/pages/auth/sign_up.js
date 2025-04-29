@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
 import { signup } from '../../api/auth.api';
+import {toast} from "react-toastify";
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
@@ -25,9 +26,36 @@ const Sign_Up = () => {
         e.preventDefault();
         setError("");
 
+        // Validate form fields
+        if (!formData.userName || !formData.email || !formData.phoneNumber || !formData.passWord || !formData.confirmPassword) {
+            toast.info("Please fill in all fields");
+            return;
+        }
+
+        // Validate email format
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(formData.email)) {
+            toast.info("Invalid email format");
+            return;
+        }
+
+        // Validate phone number format (example: 10 digits)
+        const phonePattern = /^\d{10}$/;
+        if (!phonePattern.test(formData.phoneNumber)) {
+            toast.info("Invalid phone number format");
+            return;
+        }
+
+        // Validate password length
+        if (formData.passWord.length < 6) {
+            toast.info("Password must be at least 6 characters long");
+            return;
+        }
+
+
         // Validate password and confirmPassword
         if (formData.passWord !== formData.confirmPassword) {
-            setError("Passwords do not match");
+            toast.info("Password and Confirm Password do not match");
             return;
         }
 
@@ -36,15 +64,16 @@ const Sign_Up = () => {
             email: formData.email,
             phoneNumber: formData.phoneNumber,
             passWord: formData.passWord,
-            roleName: formData.role // ✅ Chỗ này phải là roleName
+            roleName: formData.role
         };
 
         try {
             const res = await signup(user); // Call the signup API
-            console.log("Signup success:", res);
+            toast.info("Register account success. Let's complete your sign in !!");
+            // console.log("Signup success:", res);
             navigate("/auth/sign_in"); // Redirect to the login page
         } catch (err) {
-            setError(err.response?.data?.error || "Signup failed");
+            toast.error("Register account failed. Please try again !!");
         }
     };
 

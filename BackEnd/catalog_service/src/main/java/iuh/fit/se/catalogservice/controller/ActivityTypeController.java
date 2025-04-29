@@ -1,13 +1,16 @@
 package iuh.fit.se.catalogservice.controller;
 
+import iuh.fit.se.catalogservice.dto.ActivityTypeDTO;
 import iuh.fit.se.catalogservice.model.ActivityType;
 import iuh.fit.se.catalogservice.service.ActivityTypeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,9 +20,9 @@ public class ActivityTypeController {
     private ActivityTypeService activityTypeService;
 
     @GetMapping
-    public ResponseEntity<List<ActivityType>> getAllActivityTypes() {
-        List<ActivityType> activityTypes = activityTypeService.getAllActivityTypes();
-        return ResponseEntity.ok(activityTypes);
+    public ResponseEntity<Map<String, Object>> getAllActivityTypes(@RequestParam Map<String, String> params) {
+        Map<String, Object> response = activityTypeService.getAllActivityTypes(params);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
@@ -29,14 +32,14 @@ public class ActivityTypeController {
     }
 
     @PostMapping
-    public ResponseEntity<ActivityType> saveActivityType(@RequestBody ActivityType activityType) {
-        ActivityType savedActivityType = activityTypeService.saveActivityType(activityType);
+    public ResponseEntity<ActivityType> saveActivityType(@Valid @RequestBody ActivityTypeDTO dto) {
+        ActivityType savedActivityType = activityTypeService.saveActivityType(dto);
         return ResponseEntity.ok(savedActivityType);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ActivityType> updateActivityType(@PathVariable Long id, @RequestBody ActivityType activityType) {
-        ActivityType updatedActivityType = activityTypeService.updateActivityType(id, activityType);
+    public ResponseEntity<ActivityType> updateActivityType(@PathVariable Long id, @RequestBody ActivityTypeDTO dto) {
+        ActivityType updatedActivityType = activityTypeService.updateActivityType(id, dto);
         return updatedActivityType != null ? ResponseEntity.ok(updatedActivityType) : ResponseEntity.notFound().build();
     }
 

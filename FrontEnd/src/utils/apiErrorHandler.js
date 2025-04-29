@@ -18,7 +18,7 @@ export const handleApiError = (error) => {
       // Custom message theo status code
       switch (error.response.status) {
         case 400:
-          errorResponse.message = error.response.data?.message|| 'Bad Request';
+          errorResponse.message = 'Bad Request';
           break;
         case 401:
           errorResponse.message = 'Unauthorized - Please login again';
@@ -56,5 +56,4 @@ export const handleApiError = (error) => {
     success: true,
     data: response.data,
     status: response.status
-    
   });

@@ -22,7 +22,6 @@ import java.util.List;
 @Builder
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Booking {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -66,6 +65,8 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private CanceledBy canceledBy;
 
+    @Column
+    private Long paymentMethodId;
     public void addParticipant(Participant participant) {
         participants.add(participant);
         participant.setBooking(this);

@@ -13,7 +13,7 @@ const HorizontalLayout = ({ tours, title, isShowDescCard }) => {
             </div>
             <Swiper
                 spaceBetween={30}
-                slidesPerView={5} // Display 5 tours at a time
+                slidesPerView="auto" // Display 5 tours at a time
                 slidesPerGroup={1} // Slide one tour at a time
                 navigation={true}
                 modules={[Navigation]}
@@ -21,8 +21,8 @@ const HorizontalLayout = ({ tours, title, isShowDescCard }) => {
                 style={{width: '100%'}}
             >
                     {tours.map((tour, index) => (
-                        <SwiperSlide key={index} style={{display: 'flex', justifyContent: 'center'}}>
-                            <CardTour tour={tour} isShowDesc={isShowDescCard}/>
+                        <SwiperSlide key={index} style={{display: 'flex', justifyContent: 'center', width:'auto'}}>
+                            <CardTour tour={tour} isShowDesc={isShowDescCard} containerStyle="w-[300px]"/>
                         </SwiperSlide>
                     ))}
 

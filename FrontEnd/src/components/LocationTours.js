@@ -1,14 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-// import HorizontalLayout from '../components/horizontalLayout';
 import TourList from "./TourList";
 
 const LocationTours = () => {
     const { state } = useLocation();
     const tours = state?.tours || [];
 
-    console.log("LocationTours state:", state);
-    console.log("tours", tours);
+    // console.log("LocationTours state:", state);
+    // console.log("tours", tours);
 
     return (
         <div className="location-tours">

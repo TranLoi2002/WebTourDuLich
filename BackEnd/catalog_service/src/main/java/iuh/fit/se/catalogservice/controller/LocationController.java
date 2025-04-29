@@ -1,14 +1,20 @@
 package iuh.fit.se.catalogservice.controller;
 
+import iuh.fit.se.catalogservice.dto.LocationDTO;
+import iuh.fit.se.catalogservice.dto.TourDTO;
 import iuh.fit.se.catalogservice.model.Location;
+import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.LocationRepository;
 import iuh.fit.se.catalogservice.service.LocationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +24,9 @@ public class LocationController {
     private LocationService locationService;
 
     @GetMapping
-    public ResponseEntity<List<Location>> getAllLocations() {
-        return ResponseEntity.ok(locationService.getAllLocations());
+    public ResponseEntity<Map<String, Object>> getAllLocations(@RequestParam Map<String, String> params) {
+        Map<String, Object> response = locationService.getAllLocations(params);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/active")
@@ -34,17 +41,15 @@ public class LocationController {
     }
 
     @PostMapping
-    public ResponseEntity<Location> saveLocation(@RequestBody Location location) {
-        return ResponseEntity.ok(locationService.saveLocation(location));
+    public ResponseEntity<Location> saveLocation(@Valid @RequestBody LocationDTO dto) {
+        Location createdLocation = locationService.saveLocation(dto);
+        return new ResponseEntity<>(createdLocation, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Location> updateLocation(Long id, Location updatedLocation) {
-        if (id == null) {
-            throw new IllegalArgumentException("The given id must not be null");
-        }
-        Location updated = locationService.updateLocation(id, updatedLocation);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> updateLocation(@PathVariable Long id, @Valid @RequestBody LocationDTO dto) {
+        Location update = locationService.updateLocation(id, dto);
+        return ResponseEntity.ok(update);
     }
 
     @DeleteMapping("/{id}")

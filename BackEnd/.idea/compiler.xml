@@ -11,7 +11,7 @@
         <module name="api_gateway" />
         <module name="discovery_service" />
       </profile>
-      <profile name="Annotation profile for CatalogService" enabled="true">
+      <profile name="Annotation profile for payment_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,6 +20,7 @@
         </processorPath>
         <module name="blog_service" />
         <module name="user_service" />
+        <module name="payment_service" />
         <module name="catalog_service" />
         <module name="review_service" />
       </profile>
@@ -32,6 +33,7 @@
       <module name="booking_service" options="-parameters" />
       <module name="catalog_service" options="-parameters" />
       <module name="discovery_service" options="-parameters" />
+      <module name="payment_service" options="-parameters" />
       <module name="review_service" options="-parameters" />
       <module name="user_service" options="-parameters" />
     </option>

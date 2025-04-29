@@ -62,9 +62,22 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
-        clearCookie(response, "jwtToken");
-        clearCookie(response, "refreshToken");
-        return ResponseEntity.ok("Đăng xuất thành công");
+        Cookie jwtCookie = new Cookie("jwtToken", null);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true); // Chỉ sử dụng nếu bạn dùng HTTPS
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(0); // Xóa cookie
+
+        Cookie refreshCookie = new Cookie("refreshToken", null);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+
+        response.addCookie(jwtCookie);
+        response.addCookie(refreshCookie);
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     @GetMapping("/verifyUser")
@@ -92,11 +105,20 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractTokenFromCookies(request, "refreshToken");
         if (refreshToken != null) {
-            AuthResponse authResponse = authService.refreshToken(refreshToken);
-            addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
-            return ResponseEntity.ok("Token đã được làm mới");
+            try {
+                AuthResponse authResponse = authService.refreshToken(refreshToken);
+                addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
+                addJwtCookie(response, authResponse.getRefreshToken(), "refreshToken"); // Optional: Update refresh token
+                Map<String, Object> responseBody = new HashMap<>();
+                responseBody.put("accessToken", authResponse.getAccessToken());
+                responseBody.put("refreshToken", authResponse.getRefreshToken());
+                responseBody.put("message", "Token đã được làm mới");
+                return ResponseEntity.ok(responseBody);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(401).body("Refresh Token không hợp lệ hoặc đã hết hạn");
+            }
         }
-        return ResponseEntity.status(401).body("Refresh Token không hợp lệ");
+        return ResponseEntity.status(401).body("Refresh Token không tồn tại");
     }
 
     private void addJwtCookie(HttpServletResponse response, String token, String cookieName) {

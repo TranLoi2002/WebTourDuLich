@@ -105,7 +105,7 @@ const ConfirmBooking = () => {
             }
         }
 
-        setLoading(true); 
+        setLoading(true);
         try {
             const user = JSON.parse(localStorage.getItem("user"));
             const bookingData = {
@@ -125,7 +125,7 @@ const ConfirmBooking = () => {
                 });
                 setTimeout(() => {
                     navigate(`/`);
-                }, 3000); 
+                }, 3000);
             } else {
                 setNotification({
                     open: true,
@@ -140,7 +140,7 @@ const ConfirmBooking = () => {
                 severity: "error",
             });
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
 
@@ -228,7 +228,7 @@ const ConfirmBooking = () => {
                     <Typography sx={{ mb: 1, color: "#555" }}>
                         <strong>Name:</strong> {state.tour.title}
                     </Typography>
-                  
+
                     <Typography sx={{ mb: 1, color: "#555" }}>
                         <strong>Start Date:</strong>{" "}
                         {state.tour.startDate
@@ -258,7 +258,7 @@ const ConfirmBooking = () => {
                             <strong>Discount Code:</strong> {state.discountCode}
                         </Typography>
                     )}
-                 
+
                 </Box>
 
                 {/* User, Payment, and Confirm (Right Box) */}
@@ -316,7 +316,7 @@ const ConfirmBooking = () => {
                             No user information available
                         </Typography>
                     )}
-   <Typography
+                    <Typography
                         variant="h5"
                         sx={{ mb: 2, mt: 3, fontWeight: "bold", color: "#1a3c34" }}
                     >
@@ -356,7 +356,7 @@ const ConfirmBooking = () => {
                                     }
                                     label="Gender"
                                     sx={{ bgcolor: "white" }}
-                                    disabled={loading} 
+                                    disabled={loading}
                                 >
                                     <MenuItem value="MALE">Male</MenuItem>
                                     <MenuItem value="FEMALE">Female</MenuItem>

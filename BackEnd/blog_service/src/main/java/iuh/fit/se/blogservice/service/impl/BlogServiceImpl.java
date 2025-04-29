@@ -3,10 +3,14 @@ package iuh.fit.se.blogservice.service.impl;
 import iuh.fit.se.blogservice.model.Blog;
 import iuh.fit.se.blogservice.repository.BlogRepository;
 import iuh.fit.se.blogservice.service.BlogService;
+import iuh.fit.se.blogservice.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -15,8 +19,11 @@ public class BlogServiceImpl implements BlogService {
 
 
     @Override
-    public List<Blog> getAllBlogs() {
-        return blogRepository.findAll();
+    public Map<String, Object> getAllBlogs(Map<String , String> params) {
+        Pageable pageable = PaginationUtil.createPageable(params);
+        Page<Blog> page = blogRepository.findAll(pageable);
+
+        return PaginationUtil.createResponse(page);
     }
 
     @Override

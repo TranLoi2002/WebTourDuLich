@@ -19,7 +19,7 @@ const GridLayout = ({ tours, itemsPerPage, title, isShowDescCard }) => {
             <Grid container spacing={4} style={{ width: '100%' }}>
                 {selectedTours.map((tour, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index} style={{ display: 'flex', justifyContent: 'center' }}>
-                        <CardTour tour={tour} isShowDesc={isShowDescCard} />
+                        <CardTour tour={tour} isShowDesc={isShowDescCard} containerStyle="w-[400px]" />
                     </Grid>
                 ))}
             </Grid>
