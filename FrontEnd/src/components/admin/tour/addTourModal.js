@@ -14,32 +14,20 @@ const AddTourModal = ({
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-start">
-            <h3 className="text-lg font-medium text-gray-900">Add New Tour</h3>
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-8">
+          <div className="flex justify-between items-start mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Add New Tour</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-medium text-gray-900">Basic Information</h4>
-              <div className="mt-2 space-y-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Tour Code*</label>
-                  <input
-                    type="text"
-                    name="tourCode"
-                    value={tourForm.tourCode}
-                    onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                    required
-                  />
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Title*</label>
                   <input
@@ -47,7 +35,7 @@ const AddTourModal = ({
                     name="title"
                     value={tourForm.title}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -58,7 +46,7 @@ const AddTourModal = ({
                     name="placeOfDeparture"
                     value={tourForm.placeOfDeparture}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -69,21 +57,17 @@ const AddTourModal = ({
                     name="duration"
                     value={tourForm.duration}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Tour Type*</label>
                   <select
-                    name="tourType"
-                    value={tourForm.tourType?.id || ''}
-                    onChange={(e) =>
-                      handleFormChange({
-                        target: { name: 'tourType', value: { id: e.target.value } },
-                      })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    name="tourTypeId"
+                    value={tourForm.tourTypeId || ''}
+                    onChange={handleFormChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   >
                     <option value="">Select Tour Type</option>
@@ -97,14 +81,10 @@ const AddTourModal = ({
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Location*</label>
                   <select
-                    name="location"
-                    value={tourForm.location?.id || ''}
-                    onChange={(e) =>
-                      handleFormChange({
-                        target: { name: 'location', value: { id: e.target.value } },
-                      })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    name="locationId"
+                    value={tourForm.locationId || ''}
+                    onChange={handleFormChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   >
                     <option value="">Select Location</option>
@@ -117,9 +97,9 @@ const AddTourModal = ({
                 </div>
               </div>
             </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Pricing & Availability</h4>
-              <div className="mt-2 space-y-2">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Pricing & Availability</h3>
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Price ($)*</label>
                   <input
@@ -127,7 +107,7 @@ const AddTourModal = ({
                     name="price"
                     value={tourForm.price}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -138,7 +118,7 @@ const AddTourModal = ({
                     name="discount"
                     value={tourForm.discount}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     min="0"
                     max="100"
                   />
@@ -150,7 +130,7 @@ const AddTourModal = ({
                     name="maxParticipants"
                     value={tourForm.maxParticipants}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -171,7 +151,7 @@ const AddTourModal = ({
                     name="startDate"
                     value={tourForm.startDate}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -182,28 +162,71 @@ const AddTourModal = ({
                     name="endDate"
                     value={tourForm.endDate}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status*</label>
-                  <select
-                    name="status"
-                    value={tourForm.status}
-                    onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                    required
-                  >
-                    <option value="ACTIVE">Active</option>
-                    <option value="INACTIVE">Inactive</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-600">Activity Tour</label>
+                  <div className="mt-1 flex items-center">
+                    <input
+                      type="checkbox"
+                      name="activityTour"
+                      checked={tourForm.activityTour}
+                      onChange={handleFormChange}
+                      className="sr-only"
+                      id="activityTour-toggle"
+                    />
+                    <label
+                      htmlFor="activityTour-toggle"
+                      className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition-colors duration-200 ease-in-out ${
+                        tourForm.activityTour ? 'bg-indigo-600' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`absolute left-0 inline-block w-5 h-5 transform bg-white rounded-full shadow transition-transform duration-200 ease-in-out ${
+                          tourForm.activityTour ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </label>
+                    <span className="ml-3 text-sm text-gray-600">
+                      {tourForm.activityTour ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Is Active</label>
+                  <div className="mt-1 flex items-center">
+                    <input
+                      type="checkbox"
+                      name="isActive"
+                      checked={tourForm.active}
+                      onChange={handleFormChange}
+                      className="sr-only"
+                      id="isActive-toggle"
+                    />
+                    <label
+                      htmlFor="isActive-toggle"
+                      className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition-colors duration-200 ease-in-out ${
+                        tourForm.active ? 'bg-indigo-600' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`absolute left-0 inline-block w-5 h-5 transform bg-white rounded-full shadow transition-transform duration-200 ease-in-out ${
+                          tourForm.active ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </label>
+                    <span className="ml-3 text-sm text-gray-600">
+                      {tourForm.active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="md:col-span-2">
-              <h4 className="font-medium text-gray-900">Media</h4>
-              <div className="mt-2 space-y-2">
+            <div className="md:col-span-2 bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Media</h3>
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Thumbnail URL*</label>
                   <input
@@ -211,7 +234,7 @@ const AddTourModal = ({
                     name="thumbnail"
                     value={tourForm.thumbnail}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -222,58 +245,49 @@ const AddTourModal = ({
                     name="images"
                     value={tourForm.images.join(',')}
                     onChange={handleImagesChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="https://example.com/image1.jpg,https://example.com/image2.jpg"
                   />
                 </div>
               </div>
             </div>
-            <div className="md:col-span-2">
-              <h4 className="font-medium text-gray-900">Description*</h4>
-              <textarea
-                name="description"
-                value={tourForm.description}
-                onChange={handleFormChange}
-                rows="3"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                required
-              />
-            </div>
-            <div className="md:col-span-2">
-              <h4 className="font-medium text-gray-900">Highlights</h4>
-              <textarea
-                name="highlights"
-                value={tourForm.highlights}
-                onChange={handleFormChange}
-                rows="3"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  name="activityTour"
-                  checked={tourForm.activityTour}
-                  onChange={handleFormChange}
-                  className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Is Activity Tour</span>
-              </label>
+            <div className="md:col-span-2 bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Description & Highlights</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Description*</label>
+                  <textarea
+                    name="description"
+                    value={tourForm.description}
+                    onChange={handleFormChange}
+                    rows="3"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Highlights</label>
+                  <textarea
+                    name="highlights"
+                    value={tourForm.highlights}
+                    onChange={handleFormChange}
+                    rows="3"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="mr-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               onClick={handleAddTour}
               disabled={
-                !tourForm.tourCode ||
                 !tourForm.title ||
                 !tourForm.placeOfDeparture ||
                 !tourForm.duration ||
@@ -282,11 +296,10 @@ const AddTourModal = ({
                 !tourForm.startDate ||
                 !tourForm.endDate ||
                 !tourForm.thumbnail ||
-                !tourForm.location ||
-                !tourForm.tourType
+                !tourForm.locationId ||
+                !tourForm.tourTypeId
               }
               className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                !tourForm.tourCode ||
                 !tourForm.title ||
                 !tourForm.placeOfDeparture ||
                 !tourForm.duration ||
@@ -295,8 +308,12 @@ const AddTourModal = ({
                 !tourForm.startDate ||
                 !tourForm.endDate ||
                 !tourForm.thumbnail ||
-                !tourForm.location ||
-                !tourForm.tourType
+                !tourForm.locationId ||
+                !tourForm.tourTypeId ||
+                !tourForm.description ||
+                !tourForm.highlights ||
+                !tourForm.images 
+
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-indigo-600 hover:bg-indigo-700'
               }`}

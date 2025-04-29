@@ -4,7 +4,6 @@ const TourList = ({ tours, isLoading, handleTourClick }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
-        {/* Luôn hiển thị header, bất kể có dữ liệu hay không */}
         <thead className="bg-gray-50">
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
@@ -22,6 +21,9 @@ const TourList = ({ tours, isLoading, handleTourClick }) => {
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
               Price ($)
             </th>
+            {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              Active
+            </th> */}
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
               Status
             </th>
@@ -37,7 +39,6 @@ const TourList = ({ tours, isLoading, handleTourClick }) => {
           {isLoading ? (
             <tr>
               <td colSpan="8" className="text-center py-8">
-                {/* Thay "Loading..." bằng spinner */}
                 <div className="flex justify-center">
                   <svg
                     className="animate-spin h-8 w-8 text-indigo-600"
@@ -80,7 +81,7 @@ const TourList = ({ tours, isLoading, handleTourClick }) => {
                     />
                   </svg>
                   <h3 className="mt-2 text-sm font-medium text-gray-900">No tours found</h3>
-                  <p className="mt-1 text-sm text-gray-500">Try changing your search or filter criteria</p>
+                  <p className="mt-1 text-sm text-sm text-gray-500">Try changing your search or filter criteria</p>
                 </div>
               </td>
             </tr>
@@ -99,14 +100,23 @@ const TourList = ({ tours, isLoading, handleTourClick }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tour.placeOfDeparture}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tour.duration}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tour.price}</td>
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+
+                    {tour.active.toString()}
+                </td> */}
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      tour.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tour.status === 'UPCOMING'
+                        ? 'bg-blue-100 text-blue-800'
+                        : tour.status === 'ONGOING'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
                   >
-                    {tour.active ? 'ACTIVE' : 'INACTIVE'}
+                    {tour.status}
                   </span>
+
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {tour.currentParticipants}/{tour.maxParticipants}

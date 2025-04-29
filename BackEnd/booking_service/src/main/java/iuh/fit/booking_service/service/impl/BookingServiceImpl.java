@@ -67,9 +67,6 @@ public class BookingServiceImpl implements BookingService {
                         HttpStatus.CONFLICT,
                         BookingErrorCode.DUPLICATE_BOOKING.getCode()
                 );
-            } else if (existingBooking.getBookingStatus() == BookingStatus.CANCELLED) {
-                logger.info("Deleting cancelled booking with code: {}", existingBooking.getBookingCode());
-                bookingRepository.delete(existingBooking);
             }
         }
 //        PaymentMethodDTO paymentMethodDTO = paymentMethodClient.getPaymentMethodById(bookingRequest.getPaymentMethodId());

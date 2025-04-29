@@ -8,7 +8,6 @@ export const getAllTour = async (page, size, sortBy, sortDir) => {
         const response = await axios.get(
             `${apiURL}?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
         return response.data;
-
     } catch (error) {
         console.error("Error fetching all tours:", error);
         throw error;
@@ -24,7 +23,6 @@ export const getDetailTour = async (id) => {
         throw error;
     }
 }
-
 
 // http://localhost:8080/api/catalog/tours/activitytour/Nightlife
 export const getTourByActivityType = async (activityType) => {
@@ -70,5 +68,38 @@ export const getRelatedTourByLocationId = async (locationId, excludeTourId, limi
     } catch (e) {
         console.error("Error fetching related tour by location id:", e);
         throw e;
+    }
+}
+
+// create new tour
+export const createTour = async (tourData) => {
+    try {
+        const response = await axios.post(`${apiURL}`, tourData);
+        return response.data;
+    } catch (error) {
+        console.error("Error creating tour:", error);
+        throw error;
+    }
+}
+
+// update tour
+export const updateTour = async (id, tourData) => {
+    try {
+        const response = await axios.put(`${apiURL}/update/${id}`, tourData);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating tour:", error);
+        throw error;
+    }
+}
+
+// update tour status
+export const updateTourStatuses = async () => {
+    try {
+        const response = await axios.get(`${apiURL}/update-tour-status`);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating tour statuses:", error);
+        throw error;
     }
 }

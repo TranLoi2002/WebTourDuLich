@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
 import TourFilters from './tourFilters';
 import TourList from './tourList';
 import TourDetailsModal from './tourDetailsModal';
 import AddTourModal from './addTourModal';
-import { getAllTour, getDetailTour } from '../../../api/tour.api';
+import { getAllTour, getDetailTour, createTour, updateTour, updateTourStatuses } from '../../../api/tour.api';
 import { getAllTourType } from '../../../api/tourtype.api';
 import { getAllLocation } from '../../../api/location.api';
 import { getActivityType } from '../../../api/activitytour.api';
 
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
 const PAGE_SIZE = 5;
 
 function TourTable() {
@@ -38,6 +36,7 @@ function TourTable() {
     description: '',
     highlights: '',
     activityTour: false,
+    active: true,
     price: '',
     discount: 0,
     placeOfDeparture: '',
@@ -48,10 +47,9 @@ function TourTable() {
     currentParticipants: 0,
     thumbnail: '',
     images: [],
-    location: null,
-    tourType: null,
+    locationId: null,
+    tourTypeId: null,
     activityType: null,
-    status: 'ACTIVE',
   });
 
   // Fetch dữ liệu ban đầu
@@ -66,7 +64,7 @@ function TourTable() {
           getActivityType(0, 1000, 'id', 'asc'),
         ]);
 
-        const { content: toursContent, totalPages, totalElements } = toursResponse;
+        const { content: toursContent, totalPages, totalItems } = toursResponse;
         const { content: tourTypesContent } = tourTypesResponse;
         const { content: locationsContent } = locationsResponse;
         const { content: activityTypesContent } = activityTypesResponse;
@@ -74,7 +72,8 @@ function TourTable() {
         setTours(toursContent || []);
         setFilteredTours(toursContent || []);
         setTotalPages(totalPages || 1);
-        setTotalElements(totalElements || 0);
+        setTotalElements(totalItems || 0);
+        console.log(toursResponse)
         setTourTypes(tourTypesContent || []);
         setLocations(locationsContent || []);
         setActivityTypes(activityTypesContent || []);
@@ -103,7 +102,7 @@ function TourTable() {
     }
 
     if (statusFilter !== 'ALL') {
-      results = results.filter((tour) => (tour.active ? 'ACTIVE' : 'INACTIVE') === statusFilter);
+      results = results.filter((tour) => tour.status === statusFilter);
     }
 
     if (categoryFilter !== 'ALL') {
@@ -125,12 +124,15 @@ function TourTable() {
       setSelectedTour(detailedTour);
       setTourForm({
         ...detailedTour,
-        location: detailedTour.location || null,
-        tourType: detailedTour.tourType || null,
+        locationId: detailedTour.location?.id || null,
+        tourTypeId: detailedTour.tourType?.id || null,
         activityType: detailedTour.activityType || null,
         startDate: detailedTour.startDate ? new Date(detailedTour.startDate).toISOString().split('T')[0] : '',
         endDate: detailedTour.endDate ? new Date(detailedTour.endDate).toISOString().split('T')[0] : '',
-        status: detailedTour.active ? 'ACTIVE' : 'INACTIVE',
+        active: detailedTour.active ?? true,
+        description: detailedTour.description || '',
+        highlights: detailedTour.highlights || '',
+        images: detailedTour.images || [],
       });
       setIsModalOpen(true);
       setEditMode(false);
@@ -140,36 +142,29 @@ function TourTable() {
     }
   }, []);
 
-  // Xử lý cập nhật trạng thái
-  const handleStatusUpdate = useCallback(
-    async (newStatus) => {
-      if (!selectedTour) return;
-      setIsUpdating(true);
-      try {
-        const updatedTour = { ...selectedTour, active: newStatus === 'ACTIVE' };
-        await axios.put(`${apiBaseUrl}/catalog/tours/${selectedTour.id}`, updatedTour);
-        setTours((prev) =>
-          prev.map((tour) => (tour.id === selectedTour.id ? { ...tour, active: newStatus === 'ACTIVE' } : tour))
-        );
-        setFilteredTours((prev) =>
-          prev.map((tour) => (tour.id === selectedTour.id ? { ...tour, active: newStatus === 'ACTIVE' } : tour))
-        );
-        setSelectedTour(updatedTour);
-        setIsModalOpen(false);
-        toast.success(`Tour ${selectedTour.tourCode} updated to ${newStatus}`);
-      } catch (error) {
-        toast.error('Failed to update tour status.');
-        console.error(error);
-      } finally {
-        setIsUpdating(false);
-      }
-    },
-    [selectedTour]
-  );
+  // Xử lý cập nhật trạng thái tất cả tours
+  const handleStatusUpdateAll = useCallback(async () => {
+    setIsUpdating(true);
+    try {
+      await updateTourStatuses();
+      const toursResponse = await getAllTour(currentPage, PAGE_SIZE, 'id', 'asc');
+      const { content: toursContent, totalPages, totalElements } = toursResponse;
+      setTours(toursContent || []);
+      setFilteredTours(toursContent || []);
+      setTotalPages(totalPages || 1);
+      setTotalElements(totalElements || 0);
+      toast.success('Tour statuses updated successfully.');
+    } catch (error) {
+      toast.error('Failed to update tour statuses.');
+      console.error(error);
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [currentPage]);
 
   // Xử lý thay đổi form
   const handleFormChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target || e;
+    const { name, value, type, checked } = e.target;
     setTourForm((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -191,26 +186,35 @@ function TourTable() {
     setIsUpdating(true);
     try {
       const updatedTour = {
-        ...tourForm,
+        tourCode: tourForm.tourCode,
+        title: tourForm.title,
+        description: tourForm.description || null,
+        highlights: tourForm.highlights || null,
+        activityTour: tourForm.activityTour,
+        active: tourForm.active,
         price: Number(tourForm.price),
         discount: Number(tourForm.discount),
+        placeOfDeparture: tourForm.placeOfDeparture,
+        duration: tourForm.duration,
+        startDate: new Date(tourForm.startDate).toISOString(),
+        endDate: new Date(tourForm.endDate).toISOString(),
         maxParticipants: Number(tourForm.maxParticipants),
         currentParticipants: Number(tourForm.currentParticipants),
-        startDate: new Date(tourForm.startDate),
-        endDate: new Date(tourForm.endDate),
-        active: tourForm.status === 'ACTIVE',
-        location: tourForm.location ? { id: Number(tourForm.location.id) } : selectedTour.location,
-        tourType: tourForm.tourType ? { id: Number(tourForm.tourType.id) } : selectedTour.tourType,
-        activityType: tourForm.activityType ? { id: Number(tourForm.activityType.id) } : selectedTour.activityType,
+        thumbnail: tourForm.thumbnail,
+        images: tourForm.images,
+        locationId: Number(tourForm.locationId),
+        tourTypeId: Number(tourForm.tourTypeId),
+        activityType: tourForm.activityType,
       };
-      await axios.put(`${apiBaseUrl}/catalog/tours/${selectedTour.id}`, updatedTour);
+      console.log(updatedTour.isActive);
+      const response = await updateTour(selectedTour.id, updatedTour);
       setTours((prev) =>
-        prev.map((tour) => (tour.id === selectedTour.id ? { ...tour, ...updatedTour } : tour))
+        prev.map((tour) => (tour.id === selectedTour.id ? response : tour))
       );
       setFilteredTours((prev) =>
-        prev.map((tour) => (tour.id === selectedTour.id ? { ...tour, ...updatedTour } : tour))
+        prev.map((tour) => (tour.id === selectedTour.id ? response : tour))
       );
-      setSelectedTour({ ...selectedTour, ...updatedTour });
+      setSelectedTour(response);
       setEditMode(false);
       setIsModalOpen(false);
       toast.success(`Tour ${updatedTour.tourCode} updated successfully.`);
@@ -227,21 +231,28 @@ function TourTable() {
     setIsUpdating(true);
     try {
       const newTour = {
-        ...tourForm,
+        title: tourForm.title,
+        description: tourForm.description || null,
+        highlights: tourForm.highlights || null,
+        activityTour: tourForm.activityTour,
+        active: tourForm.active,
         price: Number(tourForm.price),
         discount: Number(tourForm.discount),
+        placeOfDeparture: tourForm.placeOfDeparture,
+        duration: tourForm.duration,
+        startDate: new Date(tourForm.startDate).toISOString(),
+        endDate: new Date(tourForm.endDate).toISOString(),
         maxParticipants: Number(tourForm.maxParticipants),
         currentParticipants: Number(tourForm.currentParticipants) || 0,
-        startDate: new Date(tourForm.startDate),
-        endDate: new Date(tourForm.endDate),
-        active: tourForm.status === 'ACTIVE',
-        location: tourForm.location ? { id: Number(tourForm.location.id) } : null,
-        tourType: tourForm.tourType ? { id: Number(tourForm.tourType.id) } : null,
-        activityType: tourForm.activityType ? { id: Number(tourForm.activityType.id) } : null,
+        thumbnail: tourForm.thumbnail,
+        images: tourForm.images,
+        locationId: Number(tourForm.locationId),
+        tourTypeId: Number(tourForm.tourTypeId),
+        activityType: tourForm.activityType,
       };
-      const response = await axios.post(`${apiBaseUrl}/catalog/tours`, newTour);
-      setTours((prev) => [...prev, response.data]);
-      setFilteredTours((prev) => [...prev, response.data]);
+      const response = await createTour(newTour);
+      setTours((prev) => [...prev, response]);
+      setFilteredTours((prev) => [...prev, response]);
       setIsAddModalOpen(false);
       setTourForm({
         tourCode: '',
@@ -249,6 +260,7 @@ function TourTable() {
         description: '',
         highlights: '',
         activityTour: false,
+        active: true,
         price: '',
         discount: 0,
         placeOfDeparture: '',
@@ -259,12 +271,11 @@ function TourTable() {
         currentParticipants: 0,
         thumbnail: '',
         images: [],
-        location: null,
-        tourType: null,
+        locationId: null,
+        tourTypeId: null,
         activityType: null,
-        status: 'ACTIVE',
       });
-      toast.success(`Tour ${newTour.tourCode} added successfully.`);
+      toast.success(`Tour ${response.tourCode} added successfully.`);
     } catch (error) {
       toast.error('Failed to add new tour.');
       console.error(error);
@@ -272,6 +283,32 @@ function TourTable() {
       setIsUpdating(false);
     }
   }, [tourForm]);
+
+  // Reset tourForm khi mở AddTourModal
+  const handleOpenAddTourModal = useCallback(() => {
+    setTourForm({
+      tourCode: '',
+      title: '',
+      description: '',
+      highlights: '',
+      activityTour: false,
+      active: true,
+      price: '',
+      discount: 0,
+      placeOfDeparture: '',
+      duration: '',
+      startDate: '',
+      endDate: '',
+      maxParticipants: '',
+      currentParticipants: 0,
+      thumbnail: '',
+      images: [],
+      locationId: null,
+      tourTypeId: null,
+      activityType: null,
+    });
+    setIsAddModalOpen(true);
+  }, []);
 
   // Xử lý phân trang
   const handlePageChange = useCallback(
@@ -294,14 +331,15 @@ function TourTable() {
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}
         tourTypes={tourTypes}
-        setIsAddModalOpen={setIsAddModalOpen}
+        setIsAddModalOpen={handleOpenAddTourModal}
+        handleStatusUpdateAll={handleStatusUpdateAll}
       />
       <TourList tours={filteredTours} isLoading={isLoading} handleTourClick={handleTourClick} />
       <div className="mt-4 flex justify-between items-center">
         <div>
           <p className="text-sm text-gray-700">
             Showing <span className="font-medium">{currentPage * PAGE_SIZE + 1}</span> to{' '}
-            <span className="font-medium">{Math.min((currentPage + 1) * PAGE_SIZE, totalElements)}</span> of{' '}
+            <span className="font-medium">{Math.min((currentPage + 1) * PAGE_SIZE,totalElements)}</span> of{' '}
             <span className="font-medium">{totalElements}</span> tours
           </p>
         </div>
@@ -335,7 +373,6 @@ function TourTable() {
         handleFormChange={handleFormChange}
         handleImagesChange={handleImagesChange}
         handleSaveChanges={handleSaveChanges}
-        handleStatusUpdate={handleStatusUpdate}
         tourTypes={tourTypes}
         locations={locations}
         activityTypes={activityTypes}
