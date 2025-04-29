@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/admin/payments")
+@RequestMapping("/payment/payments")
 @RequiredArgsConstructor
 public class PaymentControler {
     private final PaymentService paymentService;

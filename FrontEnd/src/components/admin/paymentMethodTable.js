@@ -16,7 +16,7 @@ function PaymentMethodTable() {
   const fetchMethods = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get('http://localhost:8080/admin/payment-methods', { params: filters });
+      const res = await axios.get('http://localhost:8080/payment/payment-methods', { params: filters });
       setMethods(res.data || []);
     } catch (err) {
       console.error('Error:', err);

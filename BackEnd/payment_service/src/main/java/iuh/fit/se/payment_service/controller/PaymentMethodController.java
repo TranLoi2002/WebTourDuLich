@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/payment-methods")
+@RequestMapping("/payment/payment-methods")
 @RequiredArgsConstructor
 public class PaymentMethodController {
     private final PaymentMethodService paymentMethodService;

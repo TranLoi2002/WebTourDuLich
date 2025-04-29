@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 public class PaymentResponseDTO {
     private Long id;
-    private BigDecimal amount;
+    private Double amount;
     private String status;
     private PaymentMethod methodName;
     private LocalDateTime createdAt;

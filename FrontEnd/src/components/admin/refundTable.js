@@ -16,7 +16,7 @@ function RefundTable() {
 
   const fetchRefunds = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/admin/refunds', { params: filters });
+      const res = await axios.get('http://localhost:8080/payment/refunds', { params: filters });
       setRefunds(res.data.content || []);
     } catch (err) {
       console.error(err);

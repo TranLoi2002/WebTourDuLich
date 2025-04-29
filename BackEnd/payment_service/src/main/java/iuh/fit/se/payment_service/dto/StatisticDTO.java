@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class StatisticDTO {
     private Long totalPayments;
     private Long totalRefunds;
-    private BigDecimal totalRevenue;
+    private Double totalRevenue;
 
     public StatisticDTO(long size, long l, BigDecimal total) {
     }

@@ -1,6 +1,5 @@
 package iuh.fit.se.payment_service.service.impl;
 
-import iuh.fit.se.payment_service.controller.PaymentControler;
 import iuh.fit.se.payment_service.dto.PaymentResponseDTO;
 import iuh.fit.se.payment_service.dto.RevenueDTO;
 import iuh.fit.se.payment_service.dto.StatisticDTO;
@@ -10,14 +9,11 @@ import iuh.fit.se.payment_service.repository.PaymentMethodRepository;
 import iuh.fit.se.payment_service.repository.PaymentRepository;
 import iuh.fit.se.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jdbc.core.JdbcAggregateOperations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -59,15 +55,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public RevenueDTO getRevenueStats(Optional<LocalDate> from, Optional<LocalDate> to) {
         List<Payment> payments = paymentRepository.findAll();
-        BigDecimal total = payments.stream().map(Payment::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        double total = payments.stream().mapToDouble(payment -> payment.getAmount().doubleValue()).sum();
         return new RevenueDTO(total, (long) payments.size());
     }
 
     @Override
     public StatisticDTO getStatsSummary() {
         List<Payment> payments = paymentRepository.findAll();
-        BigDecimal total = payments.stream().map(Payment::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return new StatisticDTO((long) payments.size(), 0L, total);
+        double total = payments.stream().mapToDouble(payment -> payment.getAmount().doubleValue()).sum();
+        return new StatisticDTO((long) payments.size(), 0L, new java.math.BigDecimal(total));
     }
 
     @Override
@@ -111,7 +107,4 @@ public class PaymentServiceImpl implements PaymentService {
         dto.setUserId(p.getUserId());
         return dto;
     }
-
-
-
 }

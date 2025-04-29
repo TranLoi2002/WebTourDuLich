@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/admin/refunds")
+@RequestMapping("/payment/refunds")
 @RequiredArgsConstructor
 public class RefundController {
     private final RefundService refundService;

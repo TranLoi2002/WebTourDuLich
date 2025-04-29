@@ -17,7 +17,7 @@ function PaymentTable() {
 
   const fetchPayments = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/admin/payments', { params: filters });
+      const res = await axios.get('http://localhost:8080/payment/payments', { params: filters });
       setPayments(res.data.content || []);
     } catch (err) {
       console.error(err);

@@ -21,7 +21,9 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal amount;
+    private Long bookingid ;
+
+    private Double amount;
 
     private String status;
 
