@@ -3,6 +3,7 @@ package iuh.fit.booking_service.service.impl;
 
 import iuh.fit.booking_service.client.catalog.CatalogClient;
 //import iuh.fit.booking_service.client.payment.PaymentClient;
+import iuh.fit.booking_service.client.payment.PaymentClient;
 import iuh.fit.booking_service.client.user.UserClient;
 import iuh.fit.booking_service.dto.*;
 import iuh.fit.booking_service.entity.*;
@@ -40,6 +41,7 @@ public class BookingServiceImpl implements BookingService {
     private final EmailService emailService;
     private final CatalogClient catalogClient;
     private final UserClient userClient;
+    private final PaymentClient paymentClient;
 
 
 
@@ -61,7 +63,8 @@ public class BookingServiceImpl implements BookingService {
                 bookingRequest.getTourId(), bookingRequest.getUserId());
         if (existingBooking != null) {
             if (existingBooking.getBookingStatus() == BookingStatus.PENDING ||
-                    existingBooking.getBookingStatus() == BookingStatus.CONFIRMED) {
+                    existingBooking.getBookingStatus() == BookingStatus.CONFIRMED ||
+                    existingBooking.getBookingStatus() == BookingStatus.COMPLETED) {
                 throw new BookingException(
                         BookingErrorCode.DUPLICATE_BOOKING.getMessage(),
                         HttpStatus.CONFLICT,
@@ -69,19 +72,9 @@ public class BookingServiceImpl implements BookingService {
                 );
             }
         }
-//        PaymentMethodDTO paymentMethodDTO = paymentMethodClient.getPaymentMethodById(bookingRequest.getPaymentMethodId());
-//        PaymentDTO paymentDTO = new PaymentDTO();
-//        paymentDTO.setBookingId(bookingRequest.getId());
-//        paymentDTO.setAmount(bookingRequest.getTotalPrice());
-//        paymentDTO.setUserId(bookingRequest.getUserId());
-//        paymentDTO.setMethod(paymentMethodDTO);
-//        paymentClient.createPayment(paymentDTO);
+
         validateParticipants(bookingRequest.getParticipants());
         Booking newBooking = prepareBooking(bookingRequest, user, tour);
-
-        if (existingBooking != null && existingBooking.getBookingStatus() == BookingStatus.CANCELLED) {
-            newBooking.setBookingCode(existingBooking.getBookingCode());
-        }
 
         int totalParticipants = bookingRepository.countTotalParticipantsByTourId(bookingRequest.getTourId());
         int remaining = tour.getMaxParticipants() - totalParticipants;
@@ -120,12 +113,28 @@ public class BookingServiceImpl implements BookingService {
 
         BookingResponseDTO response = convertToResponseDTO(savedBooking, tour, user);
         broadcastBookingEvent(BOOKING_TOPIC, response, savedBooking.getBookingCode());
+
+        PaymentMethodDTO paymentMethodDTO = paymentClient.getPaymentMethodsById(savedBooking.getPaymentMethodId());
+        if (paymentMethodDTO == null) {
+            throw new BookingException(
+                    "ID phương thức thanh toán không hợp lệ",
+                    HttpStatus.BAD_REQUEST,
+                    "BOOKING_PAYMENT_METHOD_INVALID"
+            );
+        }
+        PaymentDTO paymentDTO = new PaymentDTO();
+        paymentDTO.setBookingId(savedBooking.getId());
+        paymentDTO.setAmount(savedBooking.getTotalPrice());
+        paymentDTO.setUserId(savedBooking.getUserId());
+        paymentDTO.setMethodId(savedBooking.getPaymentMethodId());
+        paymentDTO.setStatus("PENDING");
+        paymentClient.createPayment(paymentDTO);
+
         sendBookingConfirmationAsync(savedBooking, user, tour);
 
         logger.info("Booking created successfully with code: {}", savedBooking.getBookingCode());
         return response;
     }
-
     @Override
     @Transactional(readOnly = true)
     public Booking getBooking(Long id) {
@@ -242,11 +251,14 @@ public class BookingServiceImpl implements BookingService {
         int newParticipants = calculateNewParticipantCount(tour, participantsToRemove);
         updateBookingForCancellation(booking, reason, canceledBy, tour);
 
+        handlePaymentCancellation(booking, reason);
+
         Booking cancelledBooking;
         try {
             cancelledBooking = bookingRepository.save(booking);
+            logger.info("Successfully cancelled booking with code: {}", cancelledBooking.getBookingCode());
         } catch (Exception e) {
-            logger.error("Failed to cancel booking: {}", e.getMessage(), e);
+            logger.error("Failed to save cancelled booking: {}", e.getMessage(), e);
             throw new BookingException(
                     "Failed to cancel booking due to database error",
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -256,6 +268,7 @@ public class BookingServiceImpl implements BookingService {
 
         try {
             updateTourParticipants(tour, newParticipants, false);
+            logger.info("Updated tour participants for tour ID: {} after cancellation.", tour.getTourId());
         } catch (Exception e) {
             logger.error("Failed to update tour participants after cancellation: {}", e.getMessage(), e);
             throw new BookingException(
@@ -269,7 +282,51 @@ public class BookingServiceImpl implements BookingService {
         broadcastBookingEvent(UPDATE_TOPIC, response, cancelledBooking.getBookingCode());
         return response;
     }
+    private void handlePaymentCancellation(Booking booking, CancelReason reason) {
+        PaymentDTO payment = fetchPaymentForBooking(booking.getId());
 
+        try {
+            if (booking.getBookingStatus() == BookingStatus.PENDING) {
+                logger.info("Booking {} is PENDING. Updating payment {} to CANCELLED.", booking.getBookingCode(), payment.getId());
+                paymentClient.cancelPayment(payment.getId());
+            } else if (booking.getBookingStatus() == BookingStatus.CONFIRMED) {
+                logger.info("Booking {} is CONFIRMED. Updating payment {} to REFUND and creating a refund.", booking.getBookingCode(), payment.getId());
+                paymentClient.refundPayment(payment.getId());
+                createRefundForPayment(payment, reason);
+            } else {
+                logger.warn("Booking {} has unexpected status: {}. No payment action taken.", booking.getBookingCode(), booking.getBookingStatus());
+            }
+        } catch (Exception e) {
+            logger.error("Failed to handle payment cancellation for booking {}: {}", booking.getBookingCode(), e.getMessage(), e);
+            throw new BookingException(
+                    "Failed to update payment status during cancellation",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    BookingErrorCode.INTERNAL_ERROR.getCode()
+            );
+        }
+    }
+    private PaymentDTO fetchPaymentForBooking(Long bookingId) {
+        PaymentDTO payment = paymentClient.getPaymentByBookingId(bookingId);
+        if (payment == null) {
+            logger.error("No payment found for booking ID: {}", bookingId);
+            throw new BookingException(
+                    "Payment not found for booking ID: " + bookingId,
+                    HttpStatus.NOT_FOUND,
+                    BookingErrorCode.NOT_FOUND.getCode()
+            );
+        }
+        return payment;
+    }
+
+    private void createRefundForPayment(PaymentDTO payment, CancelReason reason) {
+        RefundDTO refund = new RefundDTO();
+        refund.setReason(reason != null ? reason.name() : "UNKNOWN");
+        refund.setStatus("PENDING");
+        refund.setPaymentId(payment.getId());
+        refund.setCreatedAt(LocalDateTime.now());
+        paymentClient.createRefundPayment(refund);
+        logger.info("Created refund for payment ID: {} with reason: {}", payment.getId(), refund.getReason());
+    }
     @Override
     @Transactional
     public BookingResponseDTO userCancelBooking(Long id, CancelReason reason, Long userId) {

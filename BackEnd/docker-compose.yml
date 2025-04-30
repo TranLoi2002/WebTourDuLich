@@ -87,6 +87,21 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - app-network
+  payment-service:
+    build:
+      context: ./payment_service
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/payment_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
 
 
 # Định nghĩa network để các container giao tiếp với nhau

@@ -58,12 +58,12 @@ spring:
             - Path=/api/user/**,/api/role/**,/api/auth/**
           filters:
             - StripPrefix=1
-#        - id: payment-service
-#          uri: lb://PAYMENT-SERVICE
-#          predicates:
-#            - Path=/api/payment/**
-#          filters:
-#            - StripPrefix=1
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payment/**
+          filters:
+            - StripPrefix=1
     loadbalancer:
       health-check:
         interval: 5s
