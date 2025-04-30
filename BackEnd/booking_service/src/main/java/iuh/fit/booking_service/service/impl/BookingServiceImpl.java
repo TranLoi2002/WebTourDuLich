@@ -56,7 +56,21 @@ public class BookingServiceImpl implements BookingService {
 
         validateBookingRequest(bookingRequest);
         LightTourDTO tour = fetchTour(bookingRequest.getTourId());
+        if (tour.getTourId() == null) {
+            throw new BookingException(
+                    BookingErrorCode.TOUR_NOT_FOUND.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.TOUR_NOT_FOUND.getCode()
+            );
+        }
         UserDTO user = fetchUser(bookingRequest.getUserId());
+        if (user.getId() == null) {
+            throw new BookingException(
+                    BookingErrorCode.USER_NOT_FOUND.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.USER_NOT_FOUND.getCode()
+            );
+        }
         validateTour(tour);
 
         Booking existingBooking = bookingRepository.findBookingByTourIdAndUserId(
@@ -249,10 +263,19 @@ public class BookingServiceImpl implements BookingService {
         int participantsToRemove = booking.getParticipants().size();
 
         int newParticipants = calculateNewParticipantCount(tour, participantsToRemove);
+
+
+
+        PaymentDTO payment = paymentClient.getPaymentByBookingId(booking.getId());
+        if (booking.getBookingStatus() == BookingStatus.CONFIRMED) {
+            logger.info("Booking {} is CONFIRMED. Updating payment {} to REFUND and creating a refund.", booking.getBookingCode(), payment.getId());
+            paymentClient.refundPayment(payment.getId());
+            createRefundForPayment(payment, reason);
+        }
+        else{
+            paymentClient.cancelPayment(payment.getId());
+        }
         updateBookingForCancellation(booking, reason, canceledBy, tour);
-
-        handlePaymentCancellation(booking, reason);
-
         Booking cancelledBooking;
         try {
             cancelledBooking = bookingRepository.save(booking);
@@ -281,41 +304,6 @@ public class BookingServiceImpl implements BookingService {
         BookingResponseDTO response = convertToResponseDTO(cancelledBooking, tour, user);
         broadcastBookingEvent(UPDATE_TOPIC, response, cancelledBooking.getBookingCode());
         return response;
-    }
-    private void handlePaymentCancellation(Booking booking, CancelReason reason) {
-        PaymentDTO payment = fetchPaymentForBooking(booking.getId());
-
-        try {
-            if (booking.getBookingStatus() == BookingStatus.PENDING) {
-                logger.info("Booking {} is PENDING. Updating payment {} to CANCELLED.", booking.getBookingCode(), payment.getId());
-                paymentClient.cancelPayment(payment.getId());
-            } else if (booking.getBookingStatus() == BookingStatus.CONFIRMED) {
-                logger.info("Booking {} is CONFIRMED. Updating payment {} to REFUND and creating a refund.", booking.getBookingCode(), payment.getId());
-                paymentClient.refundPayment(payment.getId());
-                createRefundForPayment(payment, reason);
-            } else {
-                logger.warn("Booking {} has unexpected status: {}. No payment action taken.", booking.getBookingCode(), booking.getBookingStatus());
-            }
-        } catch (Exception e) {
-            logger.error("Failed to handle payment cancellation for booking {}: {}", booking.getBookingCode(), e.getMessage(), e);
-            throw new BookingException(
-                    "Failed to update payment status during cancellation",
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    BookingErrorCode.INTERNAL_ERROR.getCode()
-            );
-        }
-    }
-    private PaymentDTO fetchPaymentForBooking(Long bookingId) {
-        PaymentDTO payment = paymentClient.getPaymentByBookingId(bookingId);
-        if (payment == null) {
-            logger.error("No payment found for booking ID: {}", bookingId);
-            throw new BookingException(
-                    "Payment not found for booking ID: " + bookingId,
-                    HttpStatus.NOT_FOUND,
-                    BookingErrorCode.NOT_FOUND.getCode()
-            );
-        }
-        return payment;
     }
 
     private void createRefundForPayment(PaymentDTO payment, CancelReason reason) {
