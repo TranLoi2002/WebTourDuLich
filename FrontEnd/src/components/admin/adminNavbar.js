@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { verifyUser, logout } from '../../api/auth.api';
-import SettingModal from './settingModal';
+import SettingModal from './SettingModal';
 
 const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

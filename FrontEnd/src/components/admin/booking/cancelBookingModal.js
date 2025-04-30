@@ -1,5 +1,5 @@
 import React from 'react';
-import { CANCEL_REASONS } from './constants';
+import { CANCEL_REASONS } from './Constants';
 
 const CancelBookingModal = ({
   isOpen,

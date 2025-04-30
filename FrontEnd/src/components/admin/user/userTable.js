@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllUsers, updateUser } from '../../../api/user.api';
-import UserFilters from './userFilters';
-import UserList from './userList';
-import UserDetailsModal from './userDetailsModal';
+import UserFilters from './UserFilters';
+import UserList from './UserList';
+import UserDetailsModal from './UserDetailsModal';
 
 const PAGE_SIZE = 5;
 

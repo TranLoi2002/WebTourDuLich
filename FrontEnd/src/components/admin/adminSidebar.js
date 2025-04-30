@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BookOpenIcon,
   MapIcon,
@@ -6,9 +6,12 @@ import {
   Cog6ToothIcon,
   ChartBarIcon,
   CurrencyDollarIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
 function AdminSidebar({ activeTab, setActiveTab, openSetting, isSidebarOpen, setIsSidebarOpen }) {
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false); // Trạng thái dropdown Catalog
+
   const handleOverlayClick = () => {
     if (isSidebarOpen) {
       setIsSidebarOpen(false);
@@ -41,29 +44,79 @@ function AdminSidebar({ activeTab, setActiveTab, openSetting, isSidebarOpen, set
                 }`}
                 onClick={() => {
                   setActiveTab('booking');
-                  if (window.innerWidth < 640) setIsSidebarOpen(false); // Close on mobile
+                  if (window.innerWidth < 640) setIsSidebarOpen(false);
                 }}
               >
                 <BookOpenIcon className="w-5 h-5" />
                 <span className="flex-1 ml-3 whitespace-nowrap text-left">Booking</span>
               </button>
             </li>
+            {/* Catalog Dropdown */}
             <li>
               <button
                 type="button"
-                className={`flex items-center w-full p-2 rounded-lg transition-colors ${
-                  activeTab === 'tour'
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                }`}
-                onClick={() => {
-                  setActiveTab('tour');
-                  if (window.innerWidth < 640) setIsSidebarOpen(false);
-                }}
+                className="flex items-center w-full p-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                onClick={() => setIsCatalogOpen(!isCatalogOpen)}
               >
                 <MapIcon className="w-5 h-5" />
-                <span className="flex-1 ml-3 whitespace-nowrap text-left">Tour</span>
+                <span className="flex-1 ml-3 whitespace-nowrap text-left">Catalog</span>
+                <ChevronDownIcon
+                  className={`w-5 h-5 transform transition-transform ${isCatalogOpen ? 'rotate-180' : ''}`}
+                />
               </button>
+              {/* Dropdown Items */}
+              {isCatalogOpen && (
+                <ul className="pl-6 space-y-2 mt-2">
+                  <li>
+                    <button
+                      type="button"
+                      className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                        activeTab === 'tour'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      }`}
+                      onClick={() => {
+                        setActiveTab('tour');
+                        if (window.innerWidth < 640) setIsSidebarOpen(false);
+                      }}
+                    >
+                      <span className="flex-1 whitespace-nowrap text-left">Tour</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                        activeTab === 'location'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      }`}
+                      onClick={() => {
+                        setActiveTab('location');
+                        if (window.innerWidth < 640) setIsSidebarOpen(false);
+                      }}
+                    >
+                      <span className="flex-1 whitespace-nowrap text-left">Location</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                        activeTab === 'type'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      }`}
+                      onClick={() => {
+                        setActiveTab('type');
+                        if (window.innerWidth < 640) setIsSidebarOpen(false);
+                      }}
+                    >
+                      <span className="flex-1 whitespace-nowrap text-left">Type</span>
+                    </button>
+                  </li>
+                </ul>
+              )}
             </li>
             <li>
               <button

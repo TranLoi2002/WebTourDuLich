@@ -1,6 +1,6 @@
 import React from 'react';
-import StatusBadge from './statusBadge';
-import PaymentStatus from './paymentStatus';
+import StatusBadge from './StatusBadge';
+import PaymentStatus from './PaymentStatus';
 import { formatPrice } from './utils';
 
 const BookingDetailsModal = ({ isOpen, onClose, selectedBooking }) => {
@@ -96,13 +96,13 @@ const BookingDetailsModal = ({ isOpen, onClose, selectedBooking }) => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Full Name
                       </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Age Type
                       </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Gender
                       </th>
                     </tr>

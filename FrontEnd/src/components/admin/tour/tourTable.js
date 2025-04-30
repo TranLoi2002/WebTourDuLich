@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TourFilters from './tourFilters';
-import TourList from './tourList';
-import TourDetailsModal from './tourDetailsModal';
-import AddTourModal from './addTourModal';
+import TourFilters from './TourFilters';
+import TourList from './TourList';
+import TourDetailsModal from './TourDetailsModal';
+import AddTourModal from './AddTourModal';
 import { getAllTour, getDetailTour, createTour, updateTour, updateTourStatuses } from '../../../api/tour.api';
 import { getAllTourType } from '../../../api/tourtype.api';
 import { getAllLocation } from '../../../api/location.api';

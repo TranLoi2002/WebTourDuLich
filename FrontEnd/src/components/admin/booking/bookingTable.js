@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllBookings, updateBookingStatus, cancelBooking } from '../../../api/booking.api';
-import BookingFilters from './bookingFilters';
-import BookingList from './bookingList';
-import BookingDetailsModal from './bookingDetailsModal';
-import CancelBookingModal from './cancelBookingModal';
+import BookingFilters from './BookingFilters';
+import BookingList from './BookingList';
+import BookingDetailsModal from './BookingDetailsModal';
+import CancelBookingModal from './CancelBookingModal';
 import { useWebSocket } from './useWebSocket';
-import { PAGE_SIZE, CANCEL_REASONS } from './constants';
+import { PAGE_SIZE, CANCEL_REASONS } from './Constants';
 
 const BookingTable = () => {
   const [bookings, setBookings] = useState([]);

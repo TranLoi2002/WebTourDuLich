@@ -1,6 +1,6 @@
 import React from 'react';
-import StatusBadge from './statusBadge';
-import PaymentStatus from './paymentStatus';
+import StatusBadge from './StatusBadge';
+import PaymentStatus from './PaymentStatus';
 import { formatPrice } from './utils';
 
 const BookingList = ({ bookings, isLoading, handleBookingClick, setSelectedBooking, setIsCancelModalOpen, setNewStatus, setCancelReason, CANCEL_REASONS }) => {
