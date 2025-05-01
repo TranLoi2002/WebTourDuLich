@@ -1,9 +1,9 @@
-package iuh.fit.se.blogservice.dto;
+package iuh.fit.user_service.dto;
 
 import lombok.Data;
 
 @Data
-public class UserResponse {
+public class UserDTO {
     private Long id;
     private String username;
     private String email;

@@ -1,4 +1,4 @@
-package iuh.fit.se.reviewservice.config;
+package iuh.fit.se.blogservice.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -10,8 +10,10 @@ import org.springframework.context.annotation.Configuration;
 public class CloudinaryConfig {
     @Value("${cloudinary.cloud_name}")
     private String cloudName;
+
     @Value("${cloudinary.api_key}")
     private String apiKey;
+
     @Value("${cloudinary.api_secret}")
     private String apiSecret;
 

@@ -76,7 +76,7 @@ public class Tour extends BaseEntity {
 
     @NotNull(message = "Current participants is required")
     @Min(value = 0, message = "Current participants must be at least 0")
-    @Positive(message = "Current participants must be positive number")
+//    @Positive(message = "Current participants must be positive number")
     private Integer currentParticipants;
 
     @NotNull(message = "Rating is required")

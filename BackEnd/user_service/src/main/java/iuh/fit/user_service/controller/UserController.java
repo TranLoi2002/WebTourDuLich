@@ -1,6 +1,7 @@
 package iuh.fit.user_service.controller;
 
 import iuh.fit.user_service.dto.TourDTO;
+import iuh.fit.user_service.dto.UserDTO;
 import iuh.fit.user_service.feign.CatalogFeignClient;
 import iuh.fit.user_service.model.User;
 import iuh.fit.user_service.repository.UserRepository;
@@ -31,10 +32,24 @@ public class UserController {
 //        User user = userService.findByUsername(username);
 //        return ResponseEntity.ok(user);
 //    }
+
+    // get user & admin by id
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<UserDTO> getUserByIdAdmin(@PathVariable Long id) {
+        UserDTO user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/role/{id}")
+    public ResponseEntity<String> getUserRoleById(@PathVariable Long id) {
+        String role = userService.getUserRoleById(id);
+        return ResponseEntity.ok(role);
     }
 
     @GetMapping("/{userId}/favourites")

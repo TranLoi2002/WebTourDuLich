@@ -1,5 +1,7 @@
 package iuh.fit.se.blogservice.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -19,6 +21,7 @@ public class Like extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "blog_id", nullable = false)
+    @JsonIgnore
     private Blog blog;
 
 

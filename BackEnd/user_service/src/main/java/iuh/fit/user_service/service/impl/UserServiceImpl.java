@@ -1,5 +1,6 @@
 package iuh.fit.user_service.service.impl;
 
+import iuh.fit.user_service.dto.UserDTO;
 import iuh.fit.user_service.exception.UserNotFoundException;
 import iuh.fit.user_service.feign.CatalogFeignClient;
 import iuh.fit.user_service.model.Gender;
@@ -67,5 +68,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeFavouriteTour(Long userId, Long tourId) {
         catalogFeignClient.removeFavouriteTour(userId, tourId);
+    }
+
+    @Override
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        return mapToDTO(user);
+    }
+
+    private UserDTO mapToDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setUsername(user.getUserName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setFullName(user.getFullName());
+        userDTO.setPhone(user.getPhoneNumber());
+        userDTO.setAddress(user.getAddress());
+        userDTO.setAvatar(user.getAvatar());
+        userDTO.setRole(user.getRole().getRoleName());
+
+        return userDTO;
+    }
+
+    @Override
+    public String getUserRoleById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        return user.getRole().getRoleName();
     }
 }

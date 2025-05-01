@@ -1,4 +1,4 @@
-package iuh.fit.se.reviewservice.config;
+package iuh.fit.se.catalogservice.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
