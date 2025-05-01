@@ -20,7 +20,7 @@ public interface BookingService {
     BookingResponseDTO cancelBooking(Long id, CancelReason reason, CanceledBy canceledBy); // Thay đổi từ String sang CancelReason
     BookingResponseDTO userCancelBooking(Long id, CancelReason reason, Long userId); //
     boolean canUserBookTour(Long tourId, Long userId);
-    List<Booking> getAllBookingByUser(Long userId);
+    List<BookingResponseDTO> getAllBookingByUser(Long userId);
     List<Booking> getBookingsByStatus(BookingStatus status);
 
 }

@@ -65,6 +65,7 @@ public class PaymentControler {
     }
 
 
+    // mới thêm
     @PutMapping("/update-cancel-status/{id}")
     public ResponseEntity<Void> updatePaymentToCancel(@PathVariable Long id) {
         Payment p = paymentRepository.findById(id).orElseThrow(()

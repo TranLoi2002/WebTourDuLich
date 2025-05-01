@@ -21,7 +21,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long bookingId ;
+    private Long bookingId ; // sửa lại i Hoa
 
     private Double amount;
 

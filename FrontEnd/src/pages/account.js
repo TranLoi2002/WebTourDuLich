@@ -5,6 +5,7 @@ import { getUserById, verifyUser } from '../api/auth.api';
 import { getFavouriteTourByUserId, removeFavouriteTourByUserId, updateUserProfile } from '../api/user.api';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import MyTour from '../components/MyTour';
 
 
 const formatDateToYMD = (isoDate) => {
@@ -140,11 +141,11 @@ const Account = () => {
     }
 
     return (
-        <div className='flex flex-col'>
-            <div className='flex mt-[100px] pt-[50px] pr-[200px] pb-[100px] pl-[200px] flex-col'>
-                <div className='flex mt-[20px] gap-[40px]'>
+        <div className='flex flex-col items-center justify-center py-44'>
+            <div className='flex flex-col'>
+                <div className='flex gap-[40px]'>
                     {/* Sidebar */}
-                    <div className='relative'>
+                    <div className='relative ' >
                         <div className='flex flex-col gap-[10px] rounded-lg py-[40px] px-[24px] text-xl shadow-2xl w-[300px]'>
                             {[
                                 { id: 'account', icon: 'user', label: 'Account Setting' },
@@ -168,7 +169,7 @@ const Account = () => {
                     </div>
 
                     {/* Main Content */}
-                    <div className='relative'>
+                    <div className='relative' style={{width:1100}}>
                         {activeSection === 'account' && (
                             <div className='flex flex-col gap-[30px]'>
                                 <h2 className='text-2xl text-center font-bold'>Account Setting</h2>
@@ -373,23 +374,7 @@ const Account = () => {
                         )}
 
                         {activeSection === 'mytour' && (
-                            <div id='tbl'>
-                                <h2 className='text-2xl text-center font-bold mb-[30px]'>My tour</h2>
-                                <table className='bg-[#fafafa] border-collapse border-spacing-0 rounded-lg text-center shadow-xl mt-[2rem] w-full'>
-                                    <thead>
-                                    <tr>
-                                        <th>Name tour</th>
-                                        <th>Tour Code</th>
-                                        <th>Departure</th>
-                                        <th>Duration</th>
-                                        <th>Place of departure</th>
-                                    </tr>
-                                    </thead>
-                                </table>
-                                <button className='mt-[15px] border-none rounded-lg py-[10px] px-[20px] shadow-xl block text-sm bg-red-600 text-white'>
-                                    Delete All
-                                </button>
-                            </div>
+                            <MyTour/>
                         )}
 
                         {activeSection === 'favourites' && (

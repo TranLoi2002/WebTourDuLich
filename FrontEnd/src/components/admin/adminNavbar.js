@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { verifyUser, logout } from '../../api/auth.api';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logo from '../../assets/images/logo.png';
 import SettingModal from './SettingModal';
 
 const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -75,9 +77,10 @@ const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 />
               </svg>
             </button>
-            <span className="text-xl font-semibold text-white sm:text-2xl whitespace-nowrap">
-              Booking.com
-            </span>
+            <Link to="/" className="nav_logo flex items-center cursor-pointer no-underline">
+                    <img src={logo} alt="Airtrav logo" />
+                    <span className="font-extrabold text-[20px] leading-[25px] ml-2 text-primary">Airtrav</span>
+                </Link>
           </div>
           <div className="relative">
             <button

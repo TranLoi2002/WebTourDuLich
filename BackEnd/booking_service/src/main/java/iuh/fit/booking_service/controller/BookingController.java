@@ -40,6 +40,12 @@ public class BookingController {
     public ResponseEntity<Booking> getBooking(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getBooking(id));
     }
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(@RequestParam Long userId) {
+        logger.info("Fetching bookings for user: {}", userId);
+        return ResponseEntity.ok(bookingService.getAllBookingByUser(userId));
+    }
+
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<BookingResponseDTO> updateBookingStatus(
@@ -60,6 +66,8 @@ public class BookingController {
             @PathVariable Long id,
             @RequestBody CancelRequest request,
             @RequestParam Long userId) {
+        logger.info("Received request to cancel booking ID: {} by user ID: {} with reason: {}",
+                id, userId, request.getReason());
         return ResponseEntity.ok(bookingService.userCancelBooking(id, request.getReason(), userId));
     }
 

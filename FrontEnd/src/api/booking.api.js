@@ -47,6 +47,20 @@ export const getBooking = async (id) => {
 };
 
 /**
+ * Fetch bookings for a user by userId
+ * @param {number} userId - User ID
+ * @returns {Promise} Promise containing list of bookings or handled error
+ */
+export const getMyBookings = async (userId) => {
+  try {
+    const response = await axios.get(`${apiUrl}/booking/my-bookings?userId=${userId}`);
+    return formatSuccessResponse(response);
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+/**
  * Cập nhật trạng thái của một booking
  * @param {number} id - ID của booking
  * @param {string} status - Trạng thái mới (PENDING, CONFIRMED, CANCELLED, COMPLETED)
@@ -62,14 +76,46 @@ export const updateBookingStatus = async (id, status) => {
 };
 
 /**
- * Hủy một booking
+ * Hủy một booking (Admin)
  * @param {number} id - ID của booking
- * @param {string} [reason] - Lý do hủy (tùy chọn)
+ * @param {Object} reason - Lý do hủy
  * @returns {Promise} Promise chứa dữ liệu phản hồi hoặc lỗi được xử lý
  */
 export const cancelBooking = async (id, reason) => {
   try {
-    const response = await axios.post(`${apiUrl}/booking/${id}/cancel`,reason)
+    const response = await axios.post(`${apiUrl}/booking/${id}/cancel`, reason);
+    return formatSuccessResponse(response);
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+/**
+ * Hủy một booking (User)
+ * @param {number} id - ID của booking
+ * @param {Object} reason - Lý do hủy
+ * @param {number} userId - ID của user
+ * @returns {Promise} Promise chứa dữ liệu phản hồi hoặc lỗi được xử lý
+ */
+export const userCancelBooking = async (id, reason, userId) => {
+  try {
+    const response = await axios.post(
+      `${apiUrl}/booking/${id}/user-cancel?userId=${userId}`,
+      reason
+    );
+    return formatSuccessResponse(response);
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+/**
+ * Lấy danh sách lý do hủy từ API
+ * @returns {Promise} Promise chứa danh sách lý do hoặc lỗi được xử lý
+ */
+export const getCancelReasons = async () => {
+  try {
+    const response = await axios.get(`${apiUrl}/booking/cancel-reasons`);
     return formatSuccessResponse(response);
   } catch (error) {
     return handleApiError(error);

@@ -319,6 +319,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDTO userCancelBooking(Long id, CancelReason reason, Long userId) {
         logger.info("User {} cancelling booking with id: {}, reason: {}", userId, id, reason);
+
         if (id == null || userId == null) {
             throw new BookingException(
                     "Booking ID and user ID are required",
@@ -326,6 +327,15 @@ public class BookingServiceImpl implements BookingService {
                     "BOOKING_018"
             );
         }
+        if (reason == null) {
+            throw new BookingException(
+                    BookingErrorCode.MISSING_CANCEL_REASON.getMessage(),
+                    HttpStatus.BAD_REQUEST,
+                    BookingErrorCode.MISSING_CANCEL_REASON.getCode()
+            );
+        }
+
+        // Fetch and validate booking
         Booking booking = getBooking(id);
         if (!booking.getUserId().equals(userId)) {
             throw new BookingException(
@@ -334,9 +344,65 @@ public class BookingServiceImpl implements BookingService {
                     BookingErrorCode.UNAUTHORIZED_CANCEL.getCode()
             );
         }
-        return cancelBooking(id, reason, CanceledBy.USER);
-    }
 
+        // Validate cancellation request
+        validateCancelRequest(booking, reason);
+
+        // Fetch tour and user details
+        LightTourDTO tour = fetchTour(booking.getTourId());
+        UserDTO user = fetchUser(booking.getUserId());
+        int participantsToRemove = booking.getParticipants().size();
+
+        // Calculate new participant count for the tour
+        int newParticipants = calculateNewParticipantCount(tour, participantsToRemove);
+
+        // Handle payment (same logic as cancelBooking)
+        PaymentDTO payment = paymentClient.getPaymentByBookingId(booking.getId());
+        if (booking.getBookingStatus() == BookingStatus.CONFIRMED) {
+            logger.info("Booking {} is CONFIRMED. Updating payment {} to REFUND and creating a refund.",
+                    booking.getBookingCode(), payment.getId());
+            paymentClient.refundPayment(payment.getId());
+            createRefundForPayment(payment, reason);
+        } else {
+            paymentClient.cancelPayment(payment.getId());
+        }
+
+        // Update booking for cancellation
+        updateBookingForCancellation(booking, reason, CanceledBy.USER, tour);
+
+        // Save the updated booking
+        Booking cancelledBooking;
+        try {
+            cancelledBooking = bookingRepository.save(booking);
+            logger.info("Successfully cancelled booking with code: {}", cancelledBooking.getBookingCode());
+        } catch (Exception e) {
+            logger.error("Failed to save cancelled booking: {}", e.getMessage(), e);
+            throw new BookingException(
+                    "Failed to cancel booking due to database error",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    BookingErrorCode.INTERNAL_ERROR.getCode()
+            );
+        }
+
+        // Update tour participants
+        try {
+            updateTourParticipants(tour, newParticipants, false);
+            logger.info("Updated tour participants for tour ID: {} after cancellation.", tour.getTourId());
+        } catch (Exception e) {
+            logger.error("Failed to update tour participants after cancellation: {}", e.getMessage(), e);
+            throw new BookingException(
+                    BookingErrorCode.UPDATE_PARTICIPANTS_FAILED.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    BookingErrorCode.UPDATE_PARTICIPANTS_FAILED.getCode()
+            );
+        }
+
+        // Convert to response DTO and broadcast event
+        BookingResponseDTO response = convertToResponseDTO(cancelledBooking, tour, user);
+        broadcastBookingEvent(UPDATE_TOPIC, response, cancelledBooking.getBookingCode());
+
+        return response;
+    }
     @Override
     @Transactional(readOnly = true)
     public boolean canUserBookTour(Long tourId, Long userId) {
@@ -354,7 +420,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Booking> getAllBookingByUser(Long userId) {
+    public List<BookingResponseDTO> getAllBookingByUser(Long userId) {
         logger.info("Fetching bookings for user: {}", userId);
         if (userId == null) {
             throw new BookingException(
@@ -363,9 +429,25 @@ public class BookingServiceImpl implements BookingService {
                     "BOOKING_020"
             );
         }
-        return bookingRepository.findBookingByUserId(userId);
+        List<Booking> bookings = bookingRepository.findBookingByUserId(userId);
+        return bookings.stream()
+                .map(booking -> {
+                    try {
+                        LightTourDTO tour = fetchTour(booking.getTourId());
+                        UserDTO user = fetchUser(booking.getUserId());
+                        return convertToResponseDTO(booking, tour, user);
+                    } catch (Exception e) {
+                        logger.error("Failed to convert booking {} for user {}: {}",
+                                booking.getId(), userId, e.getMessage(), e);
+                        throw new BookingException(
+                                "Failed to fetch booking details",
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                BookingErrorCode.INTERNAL_ERROR.getCode()
+                        );
+                    }
+                })
+                .toList();
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<Booking> getBookingsByStatus(BookingStatus status) {
