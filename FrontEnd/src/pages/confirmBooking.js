@@ -15,23 +15,24 @@ import {
     CircularProgress,
 } from "@mui/material";
 import { format } from "date-fns";
-import { CreditCard, PayPal, LocalAtm, Close as CloseIcon } from "@mui/icons-material";
+import { CreditCard, LocalAtm, Close as CloseIcon } from "@mui/icons-material";
 import { createBooking } from "../api/booking.api";
+import { getAllPaymentMethod } from "../api/payment.api";
 
 const ConfirmBooking = () => {
     const { state } = useLocation();
     const navigate = useNavigate();
     const [selectBtnPayment, setSelectBtnPayment] = useState(null);
+    const [paymentMethods, setPaymentMethods] = useState([]);
     const [participants, setParticipants] = useState([]);
     const [notification, setNotification] = useState({
         open: false,
         message: "",
-        severity: "success", // Can be "success" or "error"
+        severity: "success",
     });
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false); // Add loading state
+    const [loading, setLoading] = useState(false);
 
-    // Fetch user info from localStorage on component mount
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (storedUser) {
@@ -39,7 +40,6 @@ const ConfirmBooking = () => {
         }
     }, []);
 
-    // Initialize participants list based on the number of adults, children, and babies
     useEffect(() => {
         const initialParticipants = [
             ...Array(state?.adults || 0)
@@ -67,23 +67,46 @@ const ConfirmBooking = () => {
         setParticipants(initialParticipants);
     }, [state]);
 
-    const handleSelectedPayment = (btn) => {
-        setSelectBtnPayment(btn);
+    useEffect(() => {
+        const fetchPaymentMethods = async () => {
+            try {
+                setLoading(true);
+                const response = await getAllPaymentMethod();
+                console.log(response.data);
+                setPaymentMethods(response.data);
+                setNotification({
+                    open: true,
+                    message: "Payment methods loaded successfully!",
+                    severity: "success",
+                });
+            } catch (error) {
+                console.error("Error fetching payment methods:", error);
+                setNotification({
+                    open: true,
+                    message: "Failed to load payment methods",
+                    severity: "error",
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPaymentMethods();
+    }, []);
+
+    const handleSelectedPayment = (methodId) => {
+        setSelectBtnPayment(methodId);
     };
 
-    // Update participant information
     const handleParticipantChange = (index, field, value) => {
         setParticipants((prev) =>
             prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
         );
     };
 
-    // Handle notification close
     const handleCloseNotification = () => {
         setNotification({ ...notification, open: false });
     };
 
-    // Handle booking submission
     const handleConfirmBooking = async () => {
         if (!selectBtnPayment) {
             setNotification({
@@ -108,9 +131,13 @@ const ConfirmBooking = () => {
         setLoading(true);
         try {
             const user = JSON.parse(localStorage.getItem("user"));
+            const selectedPaymentMethod = paymentMethods.find(
+                (method) => method.id === selectBtnPayment
+            );
             const bookingData = {
                 userId: user.id,
                 tourId: state.tour.id,
+                paymentMethodId: selectedPaymentMethod?.id || null,
                 participants,
                 totalPrice: state.totalPrice,
                 notes: state.discountCode ? `Discount: ${state.discountCode}` : "",
@@ -150,7 +177,6 @@ const ConfirmBooking = () => {
 
     return (
         <>
-            {/* Notification Snackbar */}
             <Snackbar
                 open={notification.open}
                 autoHideDuration={9000}
@@ -168,7 +194,7 @@ const ConfirmBooking = () => {
                     onClose={handleCloseNotification}
                     severity={notification.severity}
                     sx={{
-                        top:"100px",
+                        top: "100px",
                         width: "100%",
                         bgcolor:
                             notification.severity === "success" ? "#e0f7fa" : "#ffebee",
@@ -192,7 +218,6 @@ const ConfirmBooking = () => {
                 </Alert>
             </Snackbar>
 
-            {/* Main Content */}
             <Box
                 sx={{
                     display: "flex",
@@ -204,7 +229,6 @@ const ConfirmBooking = () => {
                     background: "linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%)",
                 }}
             >
-                {/* Tour Information (Left Box) */}
                 <Box
                     sx={{
                         width: "35%",
@@ -223,12 +247,11 @@ const ConfirmBooking = () => {
                         Tour Information
                     </Typography>
                     <Typography sx={{ mb: 1, color: "#555" }}>
-                        <img src={state.tour.images[0]} alt={state.tour.title}/>
+                        <img src={state.tour.images[0]} alt={state.tour.title} />
                     </Typography>
                     <Typography sx={{ mb: 1, color: "#555" }}>
                         <strong>Name:</strong> {state.tour.title}
                     </Typography>
-
                     <Typography sx={{ mb: 1, color: "#555" }}>
                         <strong>Start Date:</strong>{" "}
                         {state.tour.startDate
@@ -258,10 +281,8 @@ const ConfirmBooking = () => {
                             <strong>Discount Code:</strong> {state.discountCode}
                         </Typography>
                     )}
-
                 </Box>
 
-                {/* User, Payment, and Confirm (Right Box) */}
                 <Box
                     sx={{
                         width: "65%",
@@ -280,7 +301,6 @@ const ConfirmBooking = () => {
                         },
                     }}
                 >
-                    {/* User Information in Inputs */}
                     <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#1a3c34" }}>
                         User Information
                     </Typography>
@@ -291,7 +311,6 @@ const ConfirmBooking = () => {
                                 label="Name"
                                 variant="outlined"
                                 value={user.fullName || "N/A"}
-                                // disabled
                                 sx={{ mb: 2, bgcolor: "#fff" }}
                             />
                             <TextField
@@ -299,7 +318,6 @@ const ConfirmBooking = () => {
                                 label="Email"
                                 variant="outlined"
                                 value={user.email || "N/A"}
-                                // disabled
                                 sx={{ mb: 2, bgcolor: "#fff" }}
                             />
                             <TextField
@@ -307,7 +325,6 @@ const ConfirmBooking = () => {
                                 label="Phone"
                                 variant="outlined"
                                 value={user.phoneNumber || "N/A"}
-                                // disabled
                                 sx={{ mb: 2, bgcolor: "#fff" }}
                             />
                         </Box>
@@ -319,7 +336,7 @@ const ConfirmBooking = () => {
                     <Typography
                         variant="h5"
                         sx={{ mb: 2, mt: 3, fontWeight: "bold", color: "#1a3c34" }}
-                    >
+ HP                   >
                         Participant Information
                     </Typography>
                     {participants.map((participant, index) => (
@@ -345,7 +362,7 @@ const ConfirmBooking = () => {
                                     handleParticipantChange(index, "fullName", e.target.value)
                                 }
                                 sx={{ mb: 2, bgcolor: "white" }}
-                                disabled={loading} // Disable input during loading
+                                disabled={loading}
                             />
                             <FormControl fullWidth sx={{ mb: 2 }}>
                                 <InputLabel>Gender</InputLabel>
@@ -360,12 +377,10 @@ const ConfirmBooking = () => {
                                 >
                                     <MenuItem value="MALE">Male</MenuItem>
                                     <MenuItem value="FEMALE">Female</MenuItem>
-                                    <MenuItem value="OTHER">Other</MenuItem>
                                 </Select>
                             </FormControl>
                         </Box>
                     ))}
-                    {/* Payment Method */}
                     <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#1a3c34" }}>
                         Payment Method
                     </Typography>
@@ -377,82 +392,51 @@ const ConfirmBooking = () => {
                             marginBottom: "2rem",
                         }}
                     >
-                        <Button
-                            variant="outlined"
-                            startIcon={<CreditCard />}
-                            sx={{
-                                justifyContent: "flex-start",
-                                borderColor: selectBtnPayment === "credit" ? "#1a73e8" : "#e0e0e0",
-                                backgroundColor: selectBtnPayment === "credit" ? "#e3f2fd" : "white",
-                                color: selectBtnPayment === "credit" ? "#1a73e8" : "#555",
-                                textTransform: "none",
-                                fontWeight: "medium",
-                                padding: "10px 16px",
-                                borderRadius: "8px",
-                                "&:hover": {
-                                    borderColor: "#1a73e8",
-                                    backgroundColor: "#e3f2fd",
-                                },
-                            }}
-                            fullWidth
-                            onClick={() => handleSelectedPayment("credit")}
-                            disabled={loading} // Disable button during loading
-                        >
-                            Credit Card
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            // startIcon={<PayPal />}
-                            sx={{
-                                justifyContent: "flex-start",
-                                borderColor: selectBtnPayment === "paypal" ? "#1a73e8" : "#e0e0e0",
-                                backgroundColor: selectBtnPayment === "paypal" ? "#e3f2fd" : "white",
-                                color: selectBtnPayment === "paypal" ? "#1a73e8" : "#555",
-                                textTransform: "none",
-                                fontWeight: "medium",
-                                padding: "10px 16px",
-                                borderRadius: "8px",
-                                "&:hover": {
-                                    borderColor: "#1a73e8",
-                                    backgroundColor: "#e3f2fd",
-                                },
-                            }}
-                            fullWidth
-                            onClick={() => handleSelectedPayment("paypal")}
-                            disabled={loading} // Disable button during loading
-                        >
-                            Paypal
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            startIcon={<LocalAtm />}
-                            sx={{
-                                justifyContent: "flex-start",
-                                borderColor: selectBtnPayment === "checkin" ? "#1a73e8" : "#e0e0e0",
-                                backgroundColor: selectBtnPayment === "checkin" ? "#e3f2fd" : "white",
-                                color: selectBtnPayment === "checkin" ? "#1a73e8" : "#555",
-                                textTransform: "none",
-                                fontWeight: "medium",
-                                padding: "10px 16px",
-                                borderRadius: "8px",
-                                "&:hover": {
-                                    borderColor: "#1a73e8",
-                                    backgroundColor: "#e3f2fd",
-                                },
-                            }}
-                            fullWidth
-                            onClick={() => handleSelectedPayment("checkin")}
-                            disabled={loading} // Disable button during loading
-                        >
-                            Pay Check In
-                        </Button>
+                        {paymentMethods.length > 0 ? (
+                            paymentMethods.map((method) => (
+                                <Button
+                                    key={method.id}
+                                    variant="outlined"
+                                    startIcon={
+                                        method.name.toLowerCase().includes("cash") ? (
+                                            <LocalAtm />
+                                        ) : (
+                                            <CreditCard />
+                                        )
+                                    }
+                                    sx={{
+                                        justifyContent: "flex-start",
+                                        borderColor: selectBtnPayment === method.id ? "#1a73e8" : "#e0e0e0",
+                                        backgroundColor: selectBtnPayment === method.id ? "#e3f2fd" : "white",
+                                        color: selectBtnPayment === method.id ? "#1a73e8" : "#555",
+                                        textTransform: "none",
+                                        fontWeight: "medium",
+                                        padding: "10px 16px",
+                                        borderRadius: "8px",
+                                        "&:hover": {
+                                            borderColor: "#1a73e8",
+                                            backgroundColor: "#e3f2fd",
+                                        },
+                                    }}
+                                    fullWidth
+                                    onClick={() => handleSelectedPayment(method.id)}
+                                    disabled={loading}
+                                >
+                                    {method.name.trim()}
+                                </Button>
+                            ))
+                        ) : (
+                            <Typography sx={{ color: "#555" }}>
+                                No payment methods available
+                            </Typography>
+                        )}
                     </Box>
 
                     <Button
                         variant="contained"
                         fullWidth
                         onClick={handleConfirmBooking}
-                        disabled={loading} // Disable the button during loading
+                        disabled={loading}
                         sx={{
                             background: "linear-gradient(90deg, #1a73e8 0%, #4285f4 100%)",
                             color: "white",
