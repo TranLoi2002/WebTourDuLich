@@ -1,5 +1,7 @@
 package iuh.fit.se.catalogservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import iuh.fit.se.catalogservice.dto.TourDTO;
 import iuh.fit.se.catalogservice.model.Location;
 import iuh.fit.se.catalogservice.model.Tour;
@@ -8,6 +10,7 @@ import iuh.fit.se.catalogservice.repository.LocationRepository;
 import iuh.fit.se.catalogservice.repository.TourRepository;
 import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourService;
+import iuh.fit.se.catalogservice.service.impl.CloudinaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,13 +35,9 @@ public class TourController {
     private TourService tourService;
 
     @Autowired
-    private TourRepository tourRepository;
+    private CloudinaryService cloudinaryService;
 
-    @Autowired
-    private LocationRepository locationRepository;
-
-    @Autowired
-    private TourTypeRepository tourTypeRepository;
+    private final ObjectMapper objectMapper;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllTours(@RequestParam Map<String, String> params) {
@@ -51,13 +52,95 @@ public class TourController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTour(@Valid @RequestBody TourDTO tourDTO) {
+    public ResponseEntity<?> createTour(
+            @RequestParam("thumbnail") MultipartFile thumbnail,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @RequestParam("tour") String tourJson) {
+
+        // Validate the thumbnail file
+        if (thumbnail == null || thumbnail.isEmpty()) {
+            throw new IllegalArgumentException("Thumbnail file is required");
+        }
+        if (!Arrays.asList("image/jpeg", "image/png").contains(thumbnail.getContentType())) {
+            throw new IllegalArgumentException("Thumbnail must be JPEG or PNG");
+        }
+        if (thumbnail.getSize() > 5 * 1024 * 1024) {
+            throw new IllegalArgumentException("Thumbnail file size must not exceed 5MB");
+        }
+
+        // Parse JSON into TourDTO
+        TourDTO tourDTO;
+        try {
+            tourDTO = objectMapper.readValue(tourJson, TourDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid tour JSON format", e);
+        }
+
+        // Upload thumbnail to Cloudinary
+        String thumbnailUrl = cloudinaryService.uploadFile(thumbnail);
+        tourDTO.setThumbnail(thumbnailUrl);
+
+        // Upload images to Cloudinary (if provided)
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = images.stream().map(image -> {
+                if (!Arrays.asList("image/jpeg", "image/png").contains(image.getContentType())) {
+                    throw new IllegalArgumentException("Each image must be JPEG or PNG");
+                }
+                if (image.getSize() > 5 * 1024 * 1024) {
+                    throw new IllegalArgumentException("Each image file size must not exceed 5MB");
+                }
+                return cloudinaryService.uploadFile(image);
+            }).toList();
+            tourDTO.setImages(imageUrls);
+        }
+
+        // Save the tour
         Tour createdTour = tourService.saveTour(tourDTO);
         return new ResponseEntity<>(createdTour, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateTour(@PathVariable Long id, @Valid @RequestBody TourDTO tourDTO) {
+    public ResponseEntity<?> updateTour(
+            @PathVariable Long id,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @RequestParam("tour") String tourJson) {
+
+        // Parse JSON into TourDTO
+        TourDTO tourDTO;
+        try {
+            tourDTO = objectMapper.readValue(tourJson, TourDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid tour JSON format", e);
+        }
+
+        // Handle thumbnail upload if provided
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            if (!Arrays.asList("image/jpeg", "image/png").contains(thumbnail.getContentType())) {
+                throw new IllegalArgumentException("Thumbnail must be JPEG or PNG");
+            }
+            if (thumbnail.getSize() > 5 * 1024 * 1024) {
+                throw new IllegalArgumentException("Thumbnail file size must not exceed 5MB");
+            }
+            String thumbnailUrl = cloudinaryService.uploadFile(thumbnail);
+            tourDTO.setThumbnail(thumbnailUrl);
+        }
+
+        // Handle images upload if provided
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = images.stream().map(image -> {
+                if (!Arrays.asList("image/jpeg", "image/png").contains(image.getContentType())) {
+                    throw new IllegalArgumentException("Each image must be JPEG or PNG");
+                }
+                if (image.getSize() > 5 * 1024 * 1024) {
+                    throw new IllegalArgumentException("Each image file size must not exceed 5MB");
+                }
+                return cloudinaryService.uploadFile(image);
+            }).toList();
+            tourDTO.setImages(imageUrls);
+        }
+
+        // Update the tour
         Tour updatedTour = tourService.updateTour(id, tourDTO);
         return ResponseEntity.ok(updatedTour);
     }

@@ -74,24 +74,35 @@ export const getRelatedTourByLocationId = async (locationId, excludeTourId, limi
 // create new tour
 export const createTour = async (tourData) => {
     try {
-        const response = await axios.post(`${apiURL}`, tourData);
+        if (!(tourData instanceof FormData)) {
+            throw new Error("tourData must be a FormData object");
+        }
+        const response = await axios.post(`${apiURL}`, tourData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
         return response.data;
     } catch (error) {
         console.error("Error creating tour:", error);
-        throw error;
+        throw new Error(error.response?.data?.message || "Failed to create tour");
     }
-}
+};
 
 // update tour
 export const updateTour = async (id, tourData) => {
     try {
-        const response = await axios.put(`${apiURL}/update/${id}`, tourData);
+       
+        if (!(tourData instanceof FormData)) {
+            throw new Error("tourData must be a FormData object");
+        }
+        const response = await axios.put(`${apiURL}/update/${id}`, tourData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
         return response.data;
     } catch (error) {
         console.error("Error updating tour:", error);
-        throw error;
+        throw new Error(error.response?.data?.message || "Failed to update tour");
     }
-}
+};
 
 // update tour status
 export const updateTourStatuses = async () => {

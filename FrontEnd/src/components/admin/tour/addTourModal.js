@@ -6,9 +6,11 @@ const AddTourModal = ({
   tourForm,
   handleFormChange,
   handleImagesChange,
+  handleRemoveImage,
   handleAddTour,
   tourTypes,
   locations,
+  isAdding,
 }) => {
   if (!isOpen) return null;
 
@@ -199,7 +201,7 @@ const AddTourModal = ({
                   <div className="mt-1 flex items-center">
                     <input
                       type="checkbox"
-                      name="isActive"
+                      name="active"
                       checked={tourForm.active}
                       onChange={handleFormChange}
                       className="sr-only"
@@ -228,26 +230,54 @@ const AddTourModal = ({
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Media</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Thumbnail URL*</label>
+                  <label className="block text-sm font-medium text-gray-700">Thumbnail*</label>
                   <input
-                    type="url"
+                    type="file"
                     name="thumbnail"
-                    value={tourForm.thumbnail}
+                    accept="image/jpeg,image/png"
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                     required
                   />
+                  {tourForm.thumbnail && (
+                    <div className="mt-2">
+                      <img
+                        src={typeof tourForm.thumbnail === 'string' ? tourForm.thumbnail : URL.createObjectURL(tourForm.thumbnail)}
+                        alt="Thumbnail Preview"
+                        className="w-32 h-32 object-cover rounded-md shadow-sm"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Images (comma-separated URLs)</label>
+                  <label className="block text-sm font-medium text-gray-700">Images</label>
                   <input
-                    type="text"
+                    type="file"
                     name="images"
-                    value={tourForm.images.join(',')}
+                    accept="image/jpeg,image/png"
+                    multiple
                     onChange={handleImagesChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="https://example.com/image1.jpg,https://example.com/image2.jpg"
+                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                   />
+                  {tourForm.images?.length > 0 && (
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {tourForm.images.map((img, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={typeof img === 'string' ? img : URL.createObjectURL(img)}
+                            alt={`Image ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-md shadow-sm"
+                          />
+                          <button
+                            onClick={() => handleRemoveImage(idx)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs"
+                          >
+                            X
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -288,18 +318,7 @@ const AddTourModal = ({
             <button
               onClick={handleAddTour}
               disabled={
-                !tourForm.title ||
-                !tourForm.placeOfDeparture ||
-                !tourForm.duration ||
-                !tourForm.price ||
-                !tourForm.maxParticipants ||
-                !tourForm.startDate ||
-                !tourForm.endDate ||
-                !tourForm.thumbnail ||
-                !tourForm.locationId ||
-                !tourForm.tourTypeId
-              }
-              className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+                isAdding ||
                 !tourForm.title ||
                 !tourForm.placeOfDeparture ||
                 !tourForm.duration ||
@@ -310,15 +329,26 @@ const AddTourModal = ({
                 !tourForm.thumbnail ||
                 !tourForm.locationId ||
                 !tourForm.tourTypeId ||
-                !tourForm.description ||
-                !tourForm.highlights ||
-                !tourForm.images 
-
+                !tourForm.description
+              }
+              className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+                isAdding ||
+                !tourForm.title ||
+                !tourForm.placeOfDeparture ||
+                !tourForm.duration ||
+                !tourForm.price ||
+                !tourForm.maxParticipants ||
+                !tourForm.startDate ||
+                !tourForm.endDate ||
+                !tourForm.thumbnail ||
+                !tourForm.locationId ||
+                !tourForm.tourTypeId ||
+                !tourForm.description
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-indigo-600 hover:bg-indigo-700'
               }`}
             >
-              Add Tour
+              {isAdding ? 'Adding...' : 'Add Tour'}
             </button>
           </div>
         </div>

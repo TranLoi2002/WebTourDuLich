@@ -9,6 +9,7 @@ const TourDetailsModal = ({
   tourForm,
   handleFormChange,
   handleImagesChange,
+  handleRemoveImage,
   handleSaveChanges,
   tourTypes,
   locations,
@@ -19,7 +20,6 @@ const TourDetailsModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div className="relative bg-white rounded-xl shadow-2xl max-w-[90vw] w-full max-h-[90vh] overflow-y-auto">
-        {/* Nút đóng cố định */}
         <button
           onClick={onClose}
           className="fixed top-4 right-4 z-50 text-gray-500 hover:text-gray-700 transition-colors bg-white rounded-full p-2 shadow-md"
@@ -30,18 +30,15 @@ const TourDetailsModal = ({
         </button>
 
         <div className="p-8">
-          {/* Header */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
               {editMode ? 'Edit Tour' : 'Tour Details'} - {selectedTour.title}
             </h2>
           </div>
 
-          {/* Content */}
           <div className="space-y-6">
             {editMode ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
                 <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
                   <div className="space-y-4">
@@ -125,7 +122,6 @@ const TourDetailsModal = ({
                   </div>
                 </div>
 
-                {/* Pricing & Availability */}
                 <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Pricing & Availability</h3>
                   <div className="space-y-4">
@@ -244,36 +240,61 @@ const TourDetailsModal = ({
                   </div>
                 </div>
 
-                {/* Media */}
                 <div className="md:col-span-2 bg-gray-50 p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Media</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-600">Thumbnail URL*</label>
+                      <label className="block text-sm font-medium text-gray-600">Thumbnail*</label>
                       <input
-                        type="url"
+                        type="file"
                         name="thumbnail"
-                        value={tourForm.thumbnail}
+                        accept="image/jpeg,image/png"
                         onChange={handleFormChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 p-2 border text-gray-700 focus:ring-indigo-500 focus:border-indigo-500"
-                        required
+                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                       />
+                      {tourForm.thumbnail && (
+                        <div className="mt-2">
+                          <img
+                            src={typeof tourForm.thumbnail === 'string' ? tourForm.thumbnail : URL.createObjectURL(tourForm.thumbnail)}
+                            alt="Thumbnail Preview"
+                            className="w-32 h-32 object-cover rounded-md shadow-sm"
+                          />
+                        </div>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-600">Images (comma-separated URLs)</label>
+                      <label className="block text-sm font-medium text-gray-600">Images</label>
                       <input
-                        type="text"
+                        type="file"
                         name="images"
-                        value={tourForm.images.join(',')}
+                        accept="image/jpeg,image/png"
+                        multiple
                         onChange={handleImagesChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 p-2 border text-gray-700 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="https://example.com/image1.jpg,https://example.com/image2.jpg"
+                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                       />
+                      {tourForm.images?.length > 0 && (
+                        <div className="mt-2 grid grid-cols-3 gap-2">
+                          {tourForm.images.map((img, idx) => (
+                            <div key={idx} className="relative">
+                              <img
+                                src={typeof img === 'string' ? img : URL.createObjectURL(img)}
+                                alt={`Image ${idx + 1}`}
+                                className="w-full h-24 object-cover rounded-md shadow-sm"
+                              />
+                              <button
+                                onClick={() => handleRemoveImage(idx)}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs"
+                              >
+                                X
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Description & Highlights */}
                 <div className="md:col-span-2 bg-gray-50 p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Description & Highlights</h3>
                   <div className="space-y-4">
@@ -303,7 +324,6 @@ const TourDetailsModal = ({
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Thumbnail */}
                 <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Tour Image</h3>
                   <div className="flex justify-center">
@@ -315,7 +335,6 @@ const TourDetailsModal = ({
                   </div>
                 </div>
 
-                {/* Basic Information & Pricing */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
@@ -408,7 +427,6 @@ const TourDetailsModal = ({
                   </div>
                 </div>
 
-                {/* Additional Images */}
                 {selectedTour.images?.length > 0 && (
                   <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Additional Images</h3>
@@ -425,7 +443,6 @@ const TourDetailsModal = ({
                   </div>
                 )}
 
-                {/* Description */}
                 {selectedTour.description && (
                   <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Description</h3>
@@ -433,7 +450,6 @@ const TourDetailsModal = ({
                   </div>
                 )}
 
-                {/* Highlights */}
                 {selectedTour.highlights && (
                   <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Highlights</h3>
@@ -444,7 +460,6 @@ const TourDetailsModal = ({
             )}
           </div>
 
-          {/* Controls */}
           <div className="mt-8 flex justify-between items-center">
             {!editMode ? (
               <div className="flex justify-end space-x-3 w-full">
@@ -480,7 +495,6 @@ const TourDetailsModal = ({
                     !tourForm.maxParticipants ||
                     !tourForm.startDate ||
                     !tourForm.endDate ||
-                    !tourForm.thumbnail ||
                     !tourForm.locationId ||
                     !tourForm.tourTypeId
                   }
@@ -493,7 +507,6 @@ const TourDetailsModal = ({
                     !tourForm.maxParticipants ||
                     !tourForm.startDate ||
                     !tourForm.endDate ||
-                    !tourForm.thumbnail ||
                     !tourForm.locationId ||
                     !tourForm.tourTypeId
                       ? 'bg-gray-400 cursor-not-allowed'

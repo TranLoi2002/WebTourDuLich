@@ -11,6 +11,7 @@ import { getAllLocation } from '../../../api/location.api';
 import { getActivityType } from '../../../api/activitytour.api';
 
 const PAGE_SIZE = 5;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 function TourTable() {
   const [tours, setTours] = useState([]);
@@ -45,11 +46,10 @@ function TourTable() {
     endDate: '',
     maxParticipants: '',
     currentParticipants: 0,
-    thumbnail: '',
+    thumbnail: null,
     images: [],
     locationId: null,
     tourTypeId: null,
-    activityType: null,
   });
 
   // Fetch dữ liệu ban đầu
@@ -73,12 +73,11 @@ function TourTable() {
         setFilteredTours(toursContent || []);
         setTotalPages(totalPages || 1);
         setTotalElements(totalItems || 0);
-        console.log(toursResponse)
         setTourTypes(tourTypesContent || []);
         setLocations(locationsContent || []);
         setActivityTypes(activityTypesContent || []);
       } catch (error) {
-        toast.error('Failed to load data. Please try again.');
+        toast.error('Failed to load data: ' + (error.message || 'Unknown error'));
         console.error(error);
       } finally {
         setIsLoading(false);
@@ -126,18 +125,18 @@ function TourTable() {
         ...detailedTour,
         locationId: detailedTour.location?.id || null,
         tourTypeId: detailedTour.tourType?.id || null,
-        activityType: detailedTour.activityType || null,
         startDate: detailedTour.startDate ? new Date(detailedTour.startDate).toISOString().split('T')[0] : '',
         endDate: detailedTour.endDate ? new Date(detailedTour.endDate).toISOString().split('T')[0] : '',
         active: detailedTour.active ?? true,
         description: detailedTour.description || '',
         highlights: detailedTour.highlights || '',
+        thumbnail: detailedTour.thumbnail || null,
         images: detailedTour.images || [],
       });
       setIsModalOpen(true);
       setEditMode(false);
     } catch (error) {
-      toast.error('Failed to load tour details.');
+      toast.error('Failed to load tour details: ' + (error.message || 'Unknown error'));
       console.error(error);
     }
   }, []);
@@ -155,7 +154,7 @@ function TourTable() {
       setTotalElements(totalElements || 0);
       toast.success('Tour statuses updated successfully.');
     } catch (error) {
-      toast.error('Failed to update tour statuses.');
+      toast.error('Failed to update tour statuses: ' + (error.message || 'Unknown error'));
       console.error(error);
     } finally {
       setIsUpdating(false);
@@ -164,20 +163,51 @@ function TourTable() {
 
   // Xử lý thay đổi form
   const handleFormChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target;
-    setTourForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    const { name, value, type, checked, files } = e.target;
+    if (type === 'file') {
+      const file = files[0];
+      if (file) {
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+          toast.error('Only JPEG or PNG images are allowed for thumbnail.');
+          return;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error('Thumbnail file size must not exceed 5MB.');
+          return;
+        }
+      }
+      setTourForm((prev) => ({ ...prev, [name]: file }));
+    } else {
+      setTourForm((prev) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      }));
+    }
   }, []);
 
   // Xử lý thay đổi images
   const handleImagesChange = useCallback((e) => {
-    const images = e.target.value
-      .split(',')
-      .map((url) => url.trim())
-      .filter((url) => url);
-    setTourForm((prev) => ({ ...prev, images }));
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter((file) => {
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        toast.error(`File ${file.name} is not a JPEG or PNG image.`);
+        return false;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`File ${file.name} exceeds 5MB limit.`);
+        return false;
+      }
+      return true;
+    });
+    setTourForm((prev) => ({ ...prev, images: validFiles }));
+  }, []);
+
+  // Xử lý xóa một hình ảnh
+  const handleRemoveImage = useCallback((index) => {
+    setTourForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   }, []);
 
   // Lưu thay đổi
@@ -185,11 +215,10 @@ function TourTable() {
     if (!selectedTour) return;
     setIsUpdating(true);
     try {
-      const updatedTour = {
-        tourCode: tourForm.tourCode,
+      const tourData = {
         title: tourForm.title,
-        description: tourForm.description || null,
-        highlights: tourForm.highlights || null,
+        description: tourForm.description || '',
+        highlights: tourForm.highlights || '',
         activityTour: tourForm.activityTour,
         active: tourForm.active,
         price: Number(tourForm.price),
@@ -200,14 +229,23 @@ function TourTable() {
         endDate: new Date(tourForm.endDate).toISOString(),
         maxParticipants: Number(tourForm.maxParticipants),
         currentParticipants: Number(tourForm.currentParticipants),
-        thumbnail: tourForm.thumbnail,
-        images: tourForm.images,
         locationId: Number(tourForm.locationId),
         tourTypeId: Number(tourForm.tourTypeId),
-        activityType: tourForm.activityType,
+        tourCode: tourForm.tourCode,
       };
-      console.log(updatedTour.isActive);
-      const response = await updateTour(selectedTour.id, updatedTour);
+
+      const formData = new FormData();
+      formData.append('tour', JSON.stringify(tourData));
+      if (tourForm.thumbnail instanceof File) {
+        formData.append('thumbnail', tourForm.thumbnail);
+      }
+      tourForm.images.forEach((img) => {
+        if (img instanceof File) {
+          formData.append('images', img);
+        }
+      });
+
+      const response = await updateTour(selectedTour.id, formData);
       setTours((prev) =>
         prev.map((tour) => (tour.id === selectedTour.id ? response : tour))
       );
@@ -217,9 +255,9 @@ function TourTable() {
       setSelectedTour(response);
       setEditMode(false);
       setIsModalOpen(false);
-      toast.success(`Tour ${updatedTour.tourCode} updated successfully.`);
+      toast.success(`Tour ${tourForm.tourCode} updated successfully.`);
     } catch (error) {
-      toast.error('Failed to save changes.');
+      toast.error('Failed to save changes: ' + (error.message || 'Unknown error'));
       console.error(error);
     } finally {
       setIsUpdating(false);
@@ -230,10 +268,10 @@ function TourTable() {
   const handleAddTour = useCallback(async () => {
     setIsUpdating(true);
     try {
-      const newTour = {
+      const tourData = {
         title: tourForm.title,
-        description: tourForm.description || null,
-        highlights: tourForm.highlights || null,
+        description: tourForm.description || '',
+        highlights: tourForm.highlights || '',
         activityTour: tourForm.activityTour,
         active: tourForm.active,
         price: Number(tourForm.price),
@@ -244,13 +282,22 @@ function TourTable() {
         endDate: new Date(tourForm.endDate).toISOString(),
         maxParticipants: Number(tourForm.maxParticipants),
         currentParticipants: Number(tourForm.currentParticipants) || 0,
-        thumbnail: tourForm.thumbnail,
-        images: tourForm.images,
         locationId: Number(tourForm.locationId),
         tourTypeId: Number(tourForm.tourTypeId),
-        activityType: tourForm.activityType,
       };
-      const response = await createTour(newTour);
+
+      const formData = new FormData();
+      formData.append('tour', JSON.stringify(tourData));
+      if (tourForm.thumbnail instanceof File) {
+        formData.append('thumbnail', tourForm.thumbnail);
+      }
+      tourForm.images.forEach((img) => {
+        if (img instanceof File) {
+          formData.append('images', img);
+        }
+      });
+
+      const response = await createTour(formData);
       setTours((prev) => [...prev, response]);
       setFilteredTours((prev) => [...prev, response]);
       setIsAddModalOpen(false);
@@ -269,15 +316,14 @@ function TourTable() {
         endDate: '',
         maxParticipants: '',
         currentParticipants: 0,
-        thumbnail: '',
+        thumbnail: null,
         images: [],
         locationId: null,
         tourTypeId: null,
-        activityType: null,
       });
       toast.success(`Tour ${response.tourCode} added successfully.`);
     } catch (error) {
-      toast.error('Failed to add new tour.');
+      toast.error('Failed to add new tour: ' + (error.message || 'Unknown error'));
       console.error(error);
     } finally {
       setIsUpdating(false);
@@ -301,11 +347,10 @@ function TourTable() {
       endDate: '',
       maxParticipants: '',
       currentParticipants: 0,
-      thumbnail: '',
+      thumbnail: null,
       images: [],
       locationId: null,
       tourTypeId: null,
-      activityType: null,
     });
     setIsAddModalOpen(true);
   }, []);
@@ -339,7 +384,7 @@ function TourTable() {
         <div>
           <p className="text-sm text-gray-700">
             Showing <span className="font-medium">{currentPage * PAGE_SIZE + 1}</span> to{' '}
-            <span className="font-medium">{Math.min((currentPage + 1) * PAGE_SIZE,totalElements)}</span> of{' '}
+            <span className="font-medium">{Math.min((currentPage + 1) * PAGE_SIZE, totalElements)}</span> of{' '}
             <span className="font-medium">{totalElements}</span> tours
           </p>
         </div>
@@ -372,6 +417,7 @@ function TourTable() {
         tourForm={tourForm}
         handleFormChange={handleFormChange}
         handleImagesChange={handleImagesChange}
+        handleRemoveImage={handleRemoveImage}
         handleSaveChanges={handleSaveChanges}
         tourTypes={tourTypes}
         locations={locations}
@@ -384,6 +430,7 @@ function TourTable() {
         tourForm={tourForm}
         handleFormChange={handleFormChange}
         handleImagesChange={handleImagesChange}
+        handleRemoveImage={handleRemoveImage}
         handleAddTour={handleAddTour}
         tourTypes={tourTypes}
         locations={locations}
