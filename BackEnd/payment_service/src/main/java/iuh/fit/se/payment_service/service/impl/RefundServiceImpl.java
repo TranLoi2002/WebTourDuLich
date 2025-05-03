@@ -9,11 +9,15 @@ import iuh.fit.se.payment_service.service.RefundService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +26,26 @@ public class RefundServiceImpl implements RefundService {
     private final PaymentRepository paymentRepository;
 
     @Override
-    public Page<RefundResponseDTO> getRefundsByDateRange(Optional<LocalDate> from, Optional<LocalDate> to, Pageable pageable) {
-        LocalDateTime fromDate = from.orElse(LocalDate.of(2000, 1, 1)).atStartOfDay();
-        LocalDateTime toDate = to.orElse(LocalDate.now()).atTime(23, 59, 59);
-        return refundRepository.findByCreatedAtBetween(fromDate, toDate, pageable).map(this::toDTO);
+    public Page<RefundResponseDTO> getRefundsByDateRange(
+            Optional<Long> paymentId, Optional<String> status, Optional<LocalDate> from, Optional<LocalDate> to, Pageable pageable) {
+
+        Specification<Refund> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+
+            // Lọc theo paymentId
+            paymentId.ifPresent(id -> predicates.add(cb.equal(root.get("payment").get("id"), id)));
+
+            // Lọc theo status
+            status.ifPresent(st -> predicates.add(cb.equal(root.get("status"), st)));
+
+            // Lọc theo khoảng thời gian createdAt
+            from.ifPresent(f -> predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), f.atStartOfDay())));
+            to.ifPresent(t -> predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), t.atTime(23, 59, 59))));
+
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        return refundRepository.findAll(spec, pageable).map(this::toDTO);
     }
 
     @Override

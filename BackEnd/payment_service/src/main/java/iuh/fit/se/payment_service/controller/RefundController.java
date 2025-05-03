@@ -22,10 +22,12 @@ public class RefundController {
     private final RefundService refundService;
 
     @GetMapping
-    public Page<RefundResponseDTO> getRefunds(@RequestParam Optional<LocalDate> from,
+    public Page<RefundResponseDTO> getRefunds(@RequestParam Optional<Long> paymentId,
+                                              @RequestParam Optional<String> status,
+                                              @RequestParam Optional<LocalDate> from,
                                               @RequestParam Optional<LocalDate> to,
                                               Pageable pageable) {
-        return refundService.getRefundsByDateRange(from, to, pageable);
+        return refundService.getRefundsByDateRange(paymentId,status,from, to, pageable);
     }
 
     @PostMapping("/{id}/approve")

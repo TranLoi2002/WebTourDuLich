@@ -70,12 +70,17 @@ public class PaymentServiceImpl implements PaymentService {
     public void create(PaymentResponseDTO dto) {
         Payment payment = new Payment();
         payment.setAmount(dto.getAmount());
-        payment.setStatus("PENDING");  // Mặc định trạng thái là PENDING
-        payment.setPaymentMethod(dto.getMethodName());  // Đặt PaymentMethod cho thanh toán
-        payment.setUserId(dto.getUserId());  // Đặt userId cho thanh toán
-        payment.setCreatedAt(LocalDateTime.now());  // Đặt thời gian tạo thanh toán là thời gian hiện tại
+        payment.setStatus(dto.getStatus() != null ? dto.getStatus() : "PENDING");
+        payment.setCreatedAt(LocalDateTime.now());
+        payment.setUserId(dto.getUserId());
+        payment.setBookingId(dto.getBookingId());
+        // Lấy PaymentMethod bằng methodId
+        if (dto.getMethodId() != null) {
+            PaymentMethod paymentMethod = paymentMethodRepository.findById(dto.getMethodId())
+                    .orElseThrow(() -> new IllegalArgumentException("ID phương thức thanh toán không hợp lệ: " + dto.getMethodId()));
+            payment.setPaymentMethod(paymentMethod);
+        }
 
-        // Lưu Payment vào cơ sở dữ liệu
         paymentRepository.save(payment);
     }
 
@@ -88,7 +93,7 @@ public class PaymentServiceImpl implements PaymentService {
         // Cập nhật các thông tin thanh toán từ DTO
         payment.setAmount(dto.getAmount());
         payment.setStatus(dto.getStatus());  // Cập nhật trạng thái thanh toán
-        payment.setPaymentMethod(paymentMethodRepository.findById(dto.getMethodName().getId())
+        payment.setPaymentMethod(paymentMethodRepository.findById(dto.getMethodId())
                 .orElseThrow(() -> new RuntimeException("Payment method not found")));  // Cập nhật PaymentMethod
         payment.setUserId(dto.getUserId());  // Cập nhật userId
         payment.setCreatedAt(dto.getCreatedAt());  // Cập nhật thời gian tạo thanh toán (nếu cần)
@@ -102,7 +107,7 @@ public class PaymentServiceImpl implements PaymentService {
         dto.setId(p.getId());
         dto.setAmount(p.getAmount());
         dto.setStatus(p.getStatus());
-        dto.setMethodName(p.getPaymentMethod());
+        dto.setMethodId(p.getPaymentMethod().getId());
         dto.setCreatedAt(p.getCreatedAt());
         dto.setUserId(p.getUserId());
         return dto;

@@ -15,7 +15,8 @@ public class PaymentResponseDTO {
     private Long id;
     private Double amount;
     private String status;
-    private PaymentMethod methodName;
+    private Long methodId;
     private LocalDateTime createdAt;
     private Long userId;
+    private Long bookingId;
 }
