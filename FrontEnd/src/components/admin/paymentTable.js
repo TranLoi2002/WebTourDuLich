@@ -187,9 +187,9 @@ const PaymentTable = () => {
         </select>
         <div className="relative flex-1 min-w-[150px]">
           <input
-            name="paymentMethodId"
+            name="methodId"
             placeholder="Method ID"
-            value={filters.paymentMethodId}
+            value={filters.methodId}
             onChange={handleFilterChange}
             className="w-full border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-150"
           />
