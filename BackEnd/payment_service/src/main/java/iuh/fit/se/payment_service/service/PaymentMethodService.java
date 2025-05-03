@@ -15,4 +15,6 @@ public interface PaymentMethodService {
     void update(Long id, PaymentMethodDTO dto);
     void delete(Long id);
     List<PaymentMethodResponseDTO> getAllFiltered(String name, Boolean active);
+
+    PaymentMethodResponseDTO getById(Long id);
 }

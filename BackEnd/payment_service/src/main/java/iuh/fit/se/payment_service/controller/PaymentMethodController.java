@@ -36,4 +36,9 @@ public class PaymentMethodController {
     ) {
         return paymentMethodService.getAllFiltered(name, active);
     }
+
+    @GetMapping("/{id}")
+    public PaymentMethodResponseDTO getById(@PathVariable Long id) {
+        return paymentMethodService.getById(id);
+    }
 }

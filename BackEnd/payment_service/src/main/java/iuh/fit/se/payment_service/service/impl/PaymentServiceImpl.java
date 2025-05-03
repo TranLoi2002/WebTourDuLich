@@ -97,7 +97,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new RuntimeException("Payment method not found")));  // Cập nhật PaymentMethod
         payment.setUserId(dto.getUserId());  // Cập nhật userId
         payment.setCreatedAt(dto.getCreatedAt());  // Cập nhật thời gian tạo thanh toán (nếu cần)
-
+        payment.setBookingId(dto.getBookingId());
         // Lưu Payment đã cập nhật vào cơ sở dữ liệu
         paymentRepository.save(payment);
     }
@@ -110,6 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
         dto.setMethodId(p.getPaymentMethod().getId());
         dto.setCreatedAt(p.getCreatedAt());
         dto.setUserId(p.getUserId());
+        dto.setBookingId(p.getBookingId());
         return dto;
     }
 }

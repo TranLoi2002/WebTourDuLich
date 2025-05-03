@@ -54,4 +54,10 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         dto.setActive(m.isActive());
         return dto;
     }
+    @Override
+    public PaymentMethodResponseDTO getById(Long id) {
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment method not found with id: " + id));
+        return toDTO(paymentMethod);
+    }
 }

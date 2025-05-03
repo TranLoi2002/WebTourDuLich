@@ -72,7 +72,7 @@ public class RefundServiceImpl implements RefundService {
         // Tạo Refund mới
         Refund refund = new Refund();
         refund.setPayment(payment);  // Liên kết với Payment
-        refund.setStatus("PENDING");  // Mặc định trạng thái là PENDING
+        refund.setStatus("INITIATED");  // Mặc định trạng thái là PENDING
         refund.setReason(dto.getReason());  // Đặt lý do từ DTO
         refund.setCreatedAt(LocalDateTime.now());  // Đặt thời gian tạo Refund
 
