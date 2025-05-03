@@ -50,6 +50,7 @@ import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
 import Dashboard from "./pages/admin/DashBoard"
 import PrivateRoute from "./routes/PrivateRoute";
+import Payment from "./pages/Payment";
 
 
 function App() {
@@ -138,6 +139,9 @@ function App() {
                     <Route path="/help" element={<Help/>}/>
                     {/*404*/}
                     <Route path="*" element={<NotFound/>}/>
+
+
+                    <Route path="/payment/:id" element={<Payment/>}/>
 
                     {/*Admin*/}
                     {/*<Route path="/admin" element={<Dashboard />} />*/}

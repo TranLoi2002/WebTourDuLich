@@ -150,9 +150,9 @@ const ConfirmBooking = () => {
                     message: response.message || "Booking created successfully!",
                     severity: "success",
                 });
-                setTimeout(() => {
-                    navigate(`/`);
-                }, 3000);
+                navigate(`/payment/${response.data.id}`, {
+                    state: { isAuthorized: true,totalPrice: state.totalPrice },
+                });
             } else {
                 setNotification({
                     open: true,
@@ -336,7 +336,7 @@ const ConfirmBooking = () => {
                     <Typography
                         variant="h5"
                         sx={{ mb: 2, mt: 3, fontWeight: "bold", color: "#1a3c34" }}
- HP                   >
+                        HP                   >
                         Participant Information
                     </Typography>
                     {participants.map((participant, index) => (
