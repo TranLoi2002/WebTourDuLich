@@ -72,7 +72,6 @@ const ConfirmBooking = () => {
             try {
                 setLoading(true);
                 const response = await getAllPaymentMethod();
-                console.log(response.data);
                 setPaymentMethods(response.data);
                 setNotification({
                     open: true,
@@ -140,10 +139,11 @@ const ConfirmBooking = () => {
                 paymentMethodId: selectedPaymentMethod?.id || null,
                 participants,
                 totalPrice: state.totalPrice,
-                notes: state.discountCode ? `Discount: ${state.discountCode}` : "",
+                notes: state.notes,
             };
+          
             const response = await createBooking(bookingData);
-
+            console.log(response);
             if (response.success) {
                 setNotification({
                     open: true,

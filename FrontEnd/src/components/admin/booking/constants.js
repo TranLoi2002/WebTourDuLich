@@ -8,4 +8,4 @@ export const CANCEL_REASONS = [
   { value: 'OTHER', label: 'Lý do khác' },
 ];
 export const WEBSOCKET_URL = 'http://localhost:8082/ws';
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 5;

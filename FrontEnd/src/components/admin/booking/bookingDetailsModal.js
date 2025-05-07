@@ -5,7 +5,7 @@ import { formatPrice } from './utils';
 
 const BookingDetailsModal = ({ isOpen, onClose, selectedBooking }) => {
   if (!isOpen || !selectedBooking) return null;
-
+  console.log(selectedBooking)
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -76,11 +76,11 @@ const BookingDetailsModal = ({ isOpen, onClose, selectedBooking }) => {
                 <>
                   <p className="mt-1 text-sm text-gray-500">
                     <span className="font-medium">Canceled By:</span>{' '}
-                    {selectedBooking.canceledBy || 'N/A'}
+                    {selectedBooking.canceledBy || 'System'}
                   </p>
                   <p className="text-sm text-gray-500">
                     <span className="font-medium">Reason:</span>{' '}
-                    {selectedBooking.refundReason || 'Not paid on time'}
+                    {selectedBooking.reason || 'Not paid on time'}
                   </p>
                 </>
               ) : (
