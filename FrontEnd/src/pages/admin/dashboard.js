@@ -6,6 +6,7 @@ import UserTable from '../../components/admin/userTable';
 import SettingModal from '../../components/admin/settingModal';
 import AdminSidebar from '../../components/admin/adminSidebar';
 import PaymentsPage from '../../components/admin/payments';
+import Reports from '../../components/admin/reports';
 
 
 function Dashboard() {
@@ -20,7 +21,7 @@ function Dashboard() {
       case 'user':
         return <UserTable />;
       case 'reports':
-        return <div className="p-4">Reports Content (Placeholder)</div>;
+        return <Reports />;
       case 'payments':
         return <PaymentsPage/>;
         return <BookingTable />;
