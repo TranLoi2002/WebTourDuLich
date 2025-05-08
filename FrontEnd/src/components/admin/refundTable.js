@@ -52,6 +52,14 @@ const RefundTable = () => {
       return;
     }
     try {
+      const refund = refunds.find((r) => r.id === id);
+      if (action ==='approve' ){
+        await axios.put(`http://localhost:8080/payment/payments/update-approve-status/${refund.paymentId}`);
+      }
+      if (action ==='reject' ){
+        await axios.put(`http://localhost:8080/payment/payments/update-reject-status/${refund.paymentId}`);
+      }
+
       const url = `http://localhost:8080/payment/refunds/${id}/${action}`;
       await axios.post(url, action === 'reject' ? { reason: 'Không hợp lệ' } : {});
       setRefunds((prev) => prev.filter((r) => r.id !== id));

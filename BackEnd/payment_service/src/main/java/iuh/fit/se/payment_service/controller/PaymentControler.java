@@ -88,6 +88,22 @@ public class PaymentControler {
         paymentRepository.save(p);
         return ResponseEntity.ok().build();
     }
+    @PutMapping("/update-approve-status/{id}")
+    public ResponseEntity<Void> updatePaymentToApprove(@PathVariable Long id) {
+        Payment p = paymentRepository.findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Payment not found"));
+        p.setStatus("APPROVED");
+        paymentRepository.save(p);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/update-reject-status/{id}")
+    public ResponseEntity<Void> updatePaymentToReject(@PathVariable Long id) {
+        Payment p = paymentRepository.findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Payment not found"));
+        p.setStatus("REJECTED");
+        paymentRepository.save(p);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/get-payment-by-bookingId")
     public ResponseEntity<Payment> getByBookingId(@RequestParam Long bookingId) {
