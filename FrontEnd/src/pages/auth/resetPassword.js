@@ -1,44 +1,72 @@
-import React, { useState } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { resetPassword } from "../../api/auth.api";
+import { Box, TextField, Button, Alert, Typography } from "@mui/material";
 
 const ResetPassword = () => {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const email = location.state?.email || "";
 
-    const handleSubmit = (e) => {
+    const [otp, setOtp] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (password === confirmPassword) {
-            // Simulate password reset
-            alert('Password has been reset successfully');
-        } else {
-            alert('Passwords do not match');
+        setError("");
+        setSuccess("");
+
+        if (newPassword !== confirmPassword) {
+            setError("Mật khẩu xác nhận không khớp");
+            return;
+        }
+
+        try {
+            await resetPassword({ email, otp, newPassword });
+            setSuccess("Đặt lại mật khẩu thành công");
+            setTimeout(() => navigate("/auth/sign_in"), 1500);
+        } catch (err) {
+            setError(err.error || "Đặt lại mật khẩu thất bại");
         }
     };
 
     return (
-        <Box sx={{ maxWidth: 400, mx: 'auto', mt: 20 }}>
-            <Typography variant="h5" sx={{ mb: 3 }}>Reset Password</Typography>
+        <Box maxWidth={400} mx="auto" mt={5}>
+            <Typography variant="h5" gutterBottom>Đặt lại mật khẩu</Typography>
             <form onSubmit={handleSubmit}>
                 <TextField
-                    label="New Password"
-                    type="password"
+                    label="OTP"
+                    variant="outlined"
                     fullWidth
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    sx={{ mb: 3 }}
+                    margin="normal"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
                 />
                 <TextField
-                    label="Confirm New Password"
+                    label="Mật khẩu mới"
                     type="password"
+                    variant="outlined"
                     fullWidth
-                    required
+                    margin="normal"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <TextField
+                    label="Xác nhận mật khẩu"
+                    type="password"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    sx={{ mb: 3 }}
                 />
-                <Button type="submit" variant="contained" color="primary" fullWidth>
-                    Reset Password
+                {error && <Alert severity="error">{error}</Alert>}
+                {success && <Alert severity="success">{success}</Alert>}
+                <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+                    Xác nhận
                 </Button>
             </form>
         </Box>

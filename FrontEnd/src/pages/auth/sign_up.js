@@ -2,16 +2,17 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
-import { signup } from '../../api/auth.api';
+import { requestOTP } from '../../api/auth.api';
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
         userName: "",
         email: "",
+        fullName: "",
         phoneNumber: "",
         passWord: "",
         confirmPassword: "",
-        role: "USER",
+        roleName: "USER",
     });
 
     const [error, setError] = useState("");
@@ -34,15 +35,15 @@ const Sign_Up = () => {
         const user = {
             userName: formData.userName,
             email: formData.email,
+            fullName: formData.fullName,
             phoneNumber: formData.phoneNumber,
             passWord: formData.passWord,
-            roleName: formData.role // ✅ Chỗ này phải là roleName
+            roleName: formData.roleName // ✅ Chỗ này phải là roleName
         };
 
         try {
-            const res = await signup(user); // Call the signup API
-            console.log("Signup success:", res);
-            navigate("/auth/sign_in"); // Redirect to the login page
+            const res = await requestOTP(user); // Call the signup API
+            navigate("/auth/verifyOTP", { state: { email: formData.email } });
         } catch (err) {
             setError(err.response?.data?.error || "Signup failed");
         }
@@ -72,6 +73,15 @@ const Sign_Up = () => {
                             fullWidth
                             margin="dense"
                             value={formData.userName}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            label="Full Name"
+                            name="fullName"
+                            variant="outlined"
+                            fullWidth
+                            margin="dense"
+                            value={formData.fullName}
                             onChange={handleChange}
                         />
                         <TextField
@@ -112,9 +122,7 @@ const Sign_Up = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                         />
-
                         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-
                         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
                             Sign Up
                         </Button>

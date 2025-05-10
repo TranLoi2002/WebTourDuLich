@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +35,7 @@ public class User {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private Gender gender;
+    private LocalDate dateOfBirth;
     @Column(nullable = false)
     private Boolean isVerified = false;
 

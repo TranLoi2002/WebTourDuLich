@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { TextField, Button, Box, Typography, Alert } from '@mui/material';
+import { forgotPassword } from '../../api/auth.api';
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Simulate sending reset link
-        alert(`Reset link sent to ${email}`);
+        setError("");
+        setSuccess("");
+
+        try {
+            await forgotPassword(email);
+            setSuccess("OTP đã được gửi đến email");
+            setTimeout(() => {
+                navigate("/auth/resetPassword", { state: { email } });
+            }, 1000);
+        } catch (err) {
+            setError(err.error || "Gửi OTP thất bại");
+        }
     };
 
     return (
@@ -16,15 +31,16 @@ const ForgotPassword = () => {
             <form onSubmit={handleSubmit}>
                 <TextField
                     label="Email"
-                    type="email"
+                    variant="outlined"
                     fullWidth
-                    required
+                    margin="normal"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    sx={{ mb: 3 }}
                 />
-                <Button type="submit" variant="contained" color="primary" fullWidth>
-                    Send Reset Link
+                {error && <Alert severity="error">{error}</Alert>}
+                {success && <Alert severity="success">{success}</Alert>}
+                <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+                    Gửi mã OTP
                 </Button>
             </form>
         </Box>

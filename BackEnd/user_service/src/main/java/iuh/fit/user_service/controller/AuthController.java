@@ -69,11 +69,6 @@ public class AuthController {
         return ResponseEntity.ok(authResponse);
     }
 
-//    @PostMapping("/register")
-//    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
-//        authService.register(registerRequest); // Chỉ tạo user và gửi OTP, chưa tạo token
-//        return ResponseEntity.ok("Đăng ký thành công! Vui lòng kiểm tra email để xác thực OTP.");
-//    }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {

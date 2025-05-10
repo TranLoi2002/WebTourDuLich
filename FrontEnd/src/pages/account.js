@@ -1,7 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal'
 import {TextField, MenuItem} from "@mui/material";
-import {getUserById, verifyUser} from "../api/auth.api";
+import {getUserById, verifyUser, changePassword } from "../api/auth.api";
+import ChangePasswordModal from "../pages/auth/ChangePasswordModal";
+
+
 
 const Account = () => {
     const [activeSection, setActiveSection] = useState('account');
@@ -68,6 +71,48 @@ const Account = () => {
     const handleRemoveFile = () => {
         setImage(null);
         setError("");
+    };
+
+
+    // const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [oldPass, setOldPass] = useState("");
+    const [newPass, setNewPass] = useState("");
+    const [confirmPass, setConfirmPass] = useState("");
+    const [message, setMessage] = useState("");
+    // const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    // đổi mật khẩu  
+    const handleChangePassword = async () => {
+        setLoading(true);
+        setMessage("");
+        setError("");
+    
+        if (newPass !== confirmPass) {
+            setError("Mật khẩu xác nhận không khớp");
+            return;
+        }
+    
+        try {
+            const token = localStorage.getItem("accessToken"); // Token đã lưu khi login
+            await changePassword(
+                {
+                    oldPassword: oldPass,
+                    newPassword: newPass
+                },
+                token
+            );
+            setMessage("Đổi mật khẩu thành công");
+            setOldPass("");
+            setNewPass("");
+            setConfirmPass("");
+            setTimeout(() => setModalIsOpen(false), 1000);
+        } catch (err) {
+            console.error("Lỗi đổi mật khẩu:", err); // Log rõ ràng
+            setError(err.message || err.error || "Đổi mật khẩu thất bại");
+        }
+        finally {
+            setLoading(false);
+         }
     };
 
     return (
@@ -294,42 +339,14 @@ const Account = () => {
                                                         </div>
                                                     </div>
                                                 </details>
-
-                                                <Modal
+                                                
+                                                {/* Modal tách riêng */}
+                                                <ChangePasswordModal
                                                     isOpen={modalIsOpen}
-                                                    onRequestClose={() => setModalIsOpen(false)}
-                                                    style={{
-                                                        overlay: {backgroundColor: "rgba(0, 0, 0, 0.5)"},
-                                                        content: {
-                                                            width: "30%",
-                                                            margin: "100px auto",
-                                                            padding: "20px",
-                                                            borderRadius: "10px"
-                                                        },
-                                                    }}
-                                                >
-                                                    <div className="modal-content">
-                                                        <div className="flex items-center justify-between">
-                                                            <h3>Update Password</h3>
-                                                            <button onClick={() => setModalIsOpen(false)}
-                                                                    className="bg-primary border-none py-[5px] px-[10px] outline-none text-white rounded-lg">&times;</button>
-                                                        </div>
+                                                    onClose={() => setModalIsOpen(false)}
+                                                />
 
-                                                        <div className="flex flex-col gap-[30px] mt-[20px]">
-
-                                                            <TextField className="w-[80%]" id="oldpass"
-                                                                       label="Current password" type="password"/>
-                                                            <TextField className="w-[80%]" id="newpass"
-                                                                       label="New password" type="password"/>
-                                                            <TextField className="w-[80%]" id="renewpass"
-                                                                       label="Confirm password" type="password"/>
-
-                                                            <button className="outline-none p-4 rounded-lg border-none bg-primary mt-[20px] text-white" type="submit">Save Change</button>
-
-                                                        </div>
-                                                    </div>
-
-                                                </Modal>
+                                                
                                             </div>
                                             <div className="">
                                                 <details>

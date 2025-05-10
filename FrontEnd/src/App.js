@@ -46,7 +46,8 @@ import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
 import Dashboard from "./pages/admin/dashboard"
 import PrivateRoute from "./routes/PrivateRoute";
-
+import VerifyOTP from "./pages/auth/verifyOTP";
+import ChangePasswordModal from "./pages/auth/ChangePasswordModal";
 
 function App() {
     useEffect(() => {
@@ -83,6 +84,8 @@ function App() {
                     <Route path="/auth/sign_up" element={<SignUp/>}/>
                     <Route path="/auth/forgotpassword" element={<ForgotPassword/>}/>
                     <Route path="/auth/resetpassword" element={<ResetPassword/>}/>
+                    <Route path="/auth/verifyOTP" element={<VerifyOTP/>}/>
+                    <Route path="/auth/ChangePasswordModal" element={<ChangePasswordModal/>}/>
                     {/*option*/}
                     <Route path="/thingstodo" element={<ThingsToDo/>}/>
                     <Route path="/resulttour" element={<ResultTour/>}/>

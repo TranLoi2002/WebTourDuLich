@@ -14,6 +14,7 @@ import iuh.fit.user_service.service.AuthService;
 import iuh.fit.user_service.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -88,35 +90,6 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(accessToken, refreshToken, user);
     }
 
-//    @Override
-//    public void register(RegisterRequest registerRequest) {
-//        if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
-//            throw new IllegalArgumentException("Username đã tồn tại");
-//        }
-//
-//        // Tìm role (để sau xác thực dùng)
-//        Role role = roleRepository.findByRoleName(registerRequest.getRoleName())
-//                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại"));
-//
-//        // Tạo OTP
-//        String otp = String.format("%06d", new Random().nextInt(999999));
-//
-//        // Lưu dữ liệu tạm vào VerificationToken
-//        VerificationToken token = new VerificationToken();
-//        token.setTempUserName(registerRequest.getUserName());
-//        token.setTempPassword(passwordEncoder.encode(registerRequest.getPassWord()));
-//        token.setFullName(registerRequest.getFullName());
-//        token.setEmail(registerRequest.getEmail());
-//        token.setPhoneNumber(registerRequest.getPhoneNumber());
-//        token.setRoleName(role.getRoleName());
-//        token.setOtp(otp);
-//        token.setExpiryDate(LocalDateTime.now().plusMinutes(10));
-//        verificationTokenRepository.save(token);
-//
-//        // Gửi mail
-//        String emailContent = "<p>Mã xác thực của bạn là: <strong>" + otp + "</strong></p>";
-//        emailService.sendEmail(registerRequest.getEmail(), "Mã xác thực OTP", emailContent);
-//    }
 
     @Override
     public void requestOtp(RegisterRequest request) {
@@ -176,11 +149,6 @@ public class AuthServiceImpl implements AuthService {
         VerificationToken token = verificationTokenRepository.findByEmailAndOtp(email, otp)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mã OTP"));
 
-//        // Kiểm tra hết hạn
-//        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-//            verificationTokenRepository.delete(token);
-//            throw new RuntimeException("Mã OTP đã hết hạn");
-//        }
 
         // Tạo user từ thông tin tạm
         User user = new User();
@@ -282,11 +250,11 @@ public class AuthServiceImpl implements AuthService {
         // Tìm user theo username/email
         User user = userRepository.findByUserName(usernameOrEmail)
                 .or(() -> userRepository.findByEmail(usernameOrEmail))
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 
         // So sánh mật khẩu cũ
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassWord())) {
-            throw new RuntimeException("Mật khẩu cũ không đúng");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mật khẩu cũ không đúng");
         }
 
         // Gán mật khẩu mới đã mã hoá
