@@ -35,6 +35,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+
     public void addFavouriteTour(Long userId, Long tourId) {
         catalogFeignClient.addFavouriteTour(userId, tourId);
     }

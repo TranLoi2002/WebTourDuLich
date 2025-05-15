@@ -22,12 +22,9 @@ public class UserController {
     private final CloudinaryService cloudinaryService;
     private final CatalogFeignClient catalogFeignClient;
 
-    @Autowired
-    public UserController(
-            UserService userService,
-            UserRepository userRepository,
-            CloudinaryService cloudinaryService,
-            CatalogFeignClient catalogFeignClient) {
+
+
+    public UserController(UserService userService, UserRepository userRepository, CloudinaryService cloudinaryService, CatalogFeignClient catalogFeignClient) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;

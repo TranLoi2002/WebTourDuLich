@@ -309,7 +309,7 @@ public class BookingServiceImpl implements BookingService {
     private void createRefundForPayment(PaymentDTO payment, CancelReason reason) {
         RefundDTO refund = new RefundDTO();
         refund.setReason(reason != null ? reason.name() : "UNKNOWN");
-        refund.setStatus("PENDING");
+        refund.setStatus("INITIATED");
         refund.setPaymentId(payment.getId());
         refund.setCreatedAt(LocalDateTime.now());
         paymentClient.createRefundPayment(refund);

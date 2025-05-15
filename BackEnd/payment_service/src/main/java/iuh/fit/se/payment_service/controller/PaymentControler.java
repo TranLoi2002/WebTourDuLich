@@ -78,7 +78,7 @@ public class PaymentControler {
     public ResponseEntity<Void> updatePaymentToRefund(@PathVariable Long id) {
         Payment p = paymentRepository.findById(id).orElseThrow(()
                 -> new IllegalArgumentException("Payment not found"));
-        p.setStatus("REFUND");
+        p.setStatus("INITIATED");
         paymentRepository.save(p);
         return ResponseEntity.ok().build();
     }

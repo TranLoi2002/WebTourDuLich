@@ -1,35 +1,42 @@
 package iuh.fit.user_service.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import iuh.fit.user_service.config.JwtUtil;
-import iuh.fit.user_service.dto.AuthResponse;
-import iuh.fit.user_service.dto.LoginRequest;
-import iuh.fit.user_service.dto.RegisterRequest;
+import iuh.fit.user_service.dto.*;
 import iuh.fit.user_service.model.Role;
 import iuh.fit.user_service.model.User;
+import iuh.fit.user_service.model.VerificationToken;
 import iuh.fit.user_service.repository.RoleRepository;
 import iuh.fit.user_service.repository.UserRepository;
+import iuh.fit.user_service.repository.VerificationTokenRepository;
 import iuh.fit.user_service.service.AuthService;
-import iuh.fit.user_service.service.UserService;
+import iuh.fit.user_service.service.EmailService;
+import iuh.fit.user_service.service.impl.CustomUserDetailsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private AuthService authService;
@@ -37,13 +44,18 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-//    @PostMapping("/login")
-//    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-//        String token = authService.login(loginRequest);
-//        addJwtCookie(response, token);
-//        return ResponseEntity.ok("Đăng nhập thành công");
-//    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         AuthResponse authResponse = authService.login(loginRequest);
@@ -52,13 +64,6 @@ public class AuthController {
         return ResponseEntity.ok(authResponse);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
-        AuthResponse authResponse = authService.register(registerRequest);
-        addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
-        addJwtCookie(response, authResponse.getRefreshToken(), "refreshToken");
-        return ResponseEntity.ok(authResponse);
-    }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
@@ -84,22 +89,29 @@ public class AuthController {
     public ResponseEntity<?> verifyUser(HttpServletRequest request) {
         String token = extractTokenFromCookies(request, "jwtToken");
         if (token != null) {
-            UserDetails userDetails = authService.verifyToken(token);
+            try {
+                UserDetails userDetails = authService.verifyToken(token);
+                String email = userDetails.getUsername(); // giả định là email
 
-            // Fetch additional user details from the database
-            User user = userRepository.findByUserName(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Return a custom response with user details
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("username", user.getUserName());
-            response.put("email", user.getEmail());
-            response.put("role", user.getRole().getRoleName());
-            return ResponseEntity.ok(response);
+                Map<String, Object> response = new HashMap<>();
+                response.put("id", user.getId());
+                response.put("username", user.getUserName());
+                response.put("fullName", user.getFullName());
+                response.put("email", user.getEmail());
+                response.put("role", user.getRole().getRoleName());
+
+                return ResponseEntity.ok(response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return ResponseEntity.status(500).body("Lỗi xảy ra: " + ex.getMessage());
+            }
         }
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc không tồn tại");
     }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
@@ -120,6 +132,40 @@ public class AuthController {
         }
         return ResponseEntity.status(401).body("Refresh Token không tồn tại");
     }
+
+    @PostMapping("/request-otp")
+    public ResponseEntity<String> requestOtp(@Valid @RequestBody RegisterRequest request) {
+        authService.requestOtp(request);
+        return ResponseEntity.ok("OTP đã được gửi đến email của bạn");
+    }
+
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<AuthResponse> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        AuthResponse response = authService.verifyOtp(email, otp);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("OTP đã được gửi về email của bạn");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody  ChangePasswordRequest request,
+                                                 Principal principal) {
+        authService.changePassword(principal.getName(), request);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
 
     private void addJwtCookie(HttpServletResponse response, String token, String cookieName) {
         Cookie jwtCookie = new Cookie(cookieName, token);
