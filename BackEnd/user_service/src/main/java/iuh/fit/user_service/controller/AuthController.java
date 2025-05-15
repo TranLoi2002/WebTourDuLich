@@ -12,30 +12,24 @@ import iuh.fit.user_service.repository.UserRepository;
 import iuh.fit.user_service.repository.VerificationTokenRepository;
 import iuh.fit.user_service.service.AuthService;
 import iuh.fit.user_service.service.EmailService;
-import iuh.fit.user_service.service.UserService;
 import iuh.fit.user_service.service.impl.CustomUserDetailsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -50,7 +44,6 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
-<<<<<<< HEAD
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
     @Autowired
@@ -62,15 +55,7 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-=======
 
-//    @PostMapping("/login")
-//    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-//        String token = authService.login(loginRequest);
-//        addJwtCookie(response, token);
-//        return ResponseEntity.ok("Đăng nhập thành công");
-//    }
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         AuthResponse authResponse = authService.login(loginRequest);
@@ -104,31 +89,29 @@ public class AuthController {
     public ResponseEntity<?> verifyUser(HttpServletRequest request) {
         String token = extractTokenFromCookies(request, "jwtToken");
         if (token != null) {
-            UserDetails userDetails = authService.verifyToken(token);
+            try {
+                UserDetails userDetails = authService.verifyToken(token);
+                String email = userDetails.getUsername(); // giả định là email
 
-            // Fetch additional user details from the database
-<<<<<<< HEAD
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Email not found"));
-=======
-            User user = userRepository.findByUserName(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Return a custom response with user details
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("username", user.getUserName());
-<<<<<<< HEAD
-            response.put("fullName", user.getFullName());
-=======
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
-            response.put("email", user.getEmail());
-            response.put("role", user.getRole().getRoleName());
-            return ResponseEntity.ok(response);
+                Map<String, Object> response = new HashMap<>();
+                response.put("id", user.getId());
+                response.put("username", user.getUserName());
+                response.put("fullName", user.getFullName());
+                response.put("email", user.getEmail());
+                response.put("role", user.getRole().getRoleName());
+
+                return ResponseEntity.ok(response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return ResponseEntity.status(500).body("Lỗi xảy ra: " + ex.getMessage());
+            }
         }
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc không tồn tại");
     }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {

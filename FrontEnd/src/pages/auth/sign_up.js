@@ -2,12 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
-<<<<<<< HEAD
 import { requestOTP } from '../../api/auth.api';
-=======
-import { signup } from '../../api/auth.api';
 import {toast} from "react-toastify";
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
@@ -36,21 +32,7 @@ const Sign_Up = () => {
             toast.info("Please fill in all fields");
             return;
         }
-
-<<<<<<< HEAD
-        const user = {
-            userName: formData.userName,
-            email: formData.email,
-            fullName: formData.fullName,
-            phoneNumber: formData.phoneNumber,
-            passWord: formData.passWord,
-            roleName: formData.roleName // ✅ Chỗ này phải là roleName
-        };
-
-        try {
-            const res = await requestOTP(user); // Call the signup API
-            navigate("/auth/verifyOTP", { state: { email: formData.email } });
-=======
+    
         // Validate email format
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(formData.email)) {
@@ -83,15 +65,13 @@ const Sign_Up = () => {
             email: formData.email,
             phoneNumber: formData.phoneNumber,
             passWord: formData.passWord,
-            roleName: formData.role
+            roleName: formData.roleName
         };
 
         try {
-            const res = await signup(user); // Call the signup API
+            const res = await requestOTP(user); // Call the signup API
             toast.info("Register account success. Let's complete your sign in !!");
-            // console.log("Signup success:", res);
-            navigate("/auth/sign_in"); // Redirect to the login page
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+            navigate("/auth/verifyOTP", { state: { email: formData.email } });
         } catch (err) {
             toast.error("Register account failed. Please try again !!");
         }
@@ -122,7 +102,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.userName}
                             onChange={handleChange}
-<<<<<<< HEAD
                         />
                         <TextField
                             label="Full Name"
@@ -132,8 +111,7 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.fullName}
                             onChange={handleChange}
-=======
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+
                         />
                         <TextField
                             label="Email"

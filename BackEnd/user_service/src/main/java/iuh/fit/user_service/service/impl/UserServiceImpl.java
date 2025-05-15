@@ -35,12 +35,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-<<<<<<< HEAD
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
-=======
+
     public void addFavouriteTour(Long userId, Long tourId) {
         catalogFeignClient.addFavouriteTour(userId, tourId);
     }
@@ -89,5 +88,4 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(existingUser);
     }
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 }

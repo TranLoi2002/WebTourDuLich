@@ -1,21 +1,13 @@
-<<<<<<< HEAD
-import React, {useState, useEffect} from 'react';
-import Modal from 'react-modal'
-import {TextField, MenuItem} from "@mui/material";
-import {getUserById, verifyUser, changePassword } from "../api/auth.api";
-import ChangePasswordModal from "../pages/auth/ChangePasswordModal";
 
-
-=======
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { TextField, MenuItem } from '@mui/material';
-import { getUserById, verifyUser } from '../api/auth.api';
+import { getUserById, verifyUser, changePassword } from '../api/auth.api';
 import { getFavouriteTourByUserId, removeFavouriteTourByUserId, updateUserProfile } from '../api/user.api';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import MyTour from '../components/MyTour';
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+import ChangePasswordModal from "../pages/auth/ChangePasswordModal";
 
 
 const formatDateToYMD = (isoDate) => {
@@ -24,52 +16,9 @@ const formatDateToYMD = (isoDate) => {
 };
 const Account = () => {
     const [activeSection, setActiveSection] = useState('account');
-<<<<<<< HEAD
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
-    const [gender, setGender] = useState('');
-
-    const [user, setUser] = useState(null);
-    const [errorUser, setErrorUser] = useState("");
-
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            try {
-                const verifiedUser = await verifyUser();
-                if (verifiedUser?.id) {
-                    const userDetails = await getUserById(verifiedUser.id);
-                    setUser(userDetails);
-                    console.log("User details:", userDetails);
-
-                    console.log("user ", user)
-                } else {
-                    setErrorUser("User not found in cookie");
-                }
-            } catch (error) {
-                setErrorUser(error?.message || "Failed to fetch user details");
-            }
-        };
-
-        fetchUserDetails();
-    }, []); // chỉ chạy 1 lần khi component mount
-
-
-    const changeSectionSecurity = () => {
-        setActiveSection('security');
-    }
-    const changeSectionFavouritesTour = () => {
-        setActiveSection('favourites')
-    }
-
-    const changeSectionMyTour = () => {
-        setActiveSection('mytour');
-    }
-
-=======
     const [user, setUser] = useState(null);
     const [errorUser, setErrorUser] = useState('');
     const [favouritesTour, setFavouritesTour] = useState([]);
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [image, setImage] = useState(null);
     const [error, setError] = useState('');
@@ -144,50 +93,6 @@ const Account = () => {
         setError('');
     };
 
-<<<<<<< HEAD
-
-    // const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [oldPass, setOldPass] = useState("");
-    const [newPass, setNewPass] = useState("");
-    const [confirmPass, setConfirmPass] = useState("");
-    const [message, setMessage] = useState("");
-    // const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-    // đổi mật khẩu  
-    const handleChangePassword = async () => {
-        setLoading(true);
-        setMessage("");
-        setError("");
-    
-        if (newPass !== confirmPass) {
-            setError("Mật khẩu xác nhận không khớp");
-            return;
-        }
-    
-        try {
-            const token = localStorage.getItem("accessToken"); // Token đã lưu khi login
-            await changePassword(
-                {
-                    oldPassword: oldPass,
-                    newPassword: newPass
-                },
-                token
-            );
-            setMessage("Đổi mật khẩu thành công");
-            setOldPass("");
-            setNewPass("");
-            setConfirmPass("");
-            setTimeout(() => setModalIsOpen(false), 1000);
-        } catch (err) {
-            console.error("Lỗi đổi mật khẩu:", err); // Log rõ ràng
-            setError(err.message || err.error || "Đổi mật khẩu thất bại");
-        }
-        finally {
-            setLoading(false);
-         }
-    };
-
-=======
     // Handle save changes
     const handleSaveChanges = async () => {
         if (!user) return;
@@ -237,7 +142,6 @@ const Account = () => {
         return <div className='text-center mt-20'>Loading...</div>;
     }
 
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
     return (
         <div className='flex flex-col items-center justify-center py-44'>
             <div className='flex flex-col'>
@@ -306,55 +210,6 @@ const Account = () => {
                                             </h4>
                                         </div>
                                     </div>
-<<<<<<< HEAD
-                                    <div className="relative">
-                                        <form action="" method="post">
-                                            <div className="flex items-center gap-[2rem] w-full my-5">
-                                                <TextField className="w-full" id="txtfname" label="Full Name"
-                                                           variant="outlined"/>
-
-                                            </div>
-
-                                            <div className="flex items-center gap-[2rem] w-full my-5">
-                                                <TextField className="w-1/2" id="txtlocation" label="Location"
-                                                           variant="outlined"/>
-                                                <TextField
-                                                    className="w-1/2"
-                                                    id="date"
-                                                    label="Date of Birth"
-                                                    type="date"
-                                                    value={selectedDate}
-                                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <div className="flex items-center gap-[2rem] w-full my-5">
-                                                <TextField className="w-1/2" id="txtemail" label="Email"
-                                                           variant="outlined"
-                                                           value={user?.email || ''}
-                                                />
-                                                <TextField
-                                                    className="w-1/2"
-                                                    id="gender"
-                                                    select
-                                                    label="Gender"
-                                                    value={gender}
-                                                    onChange={(e) => setGender(e.target.value)}
-                                                >
-                                                    <MenuItem value="male">Male</MenuItem>
-                                                    <MenuItem value="female">Female</MenuItem>
-                                                    <MenuItem value="other">Other</MenuItem>
-                                                </TextField>
-                                            </div>
-
-                                            <input type="button" value="Save Change"
-                                                   className="bg-primary outline-none border-none text-white rounded-lg py-[12px] px-[27px] mt-[20px]"/>
-                                        </form>
-                                    </div>
-=======
                                     <form>
                                         <div className='flex items-center gap-[2rem] w-full my-5'>
                                             <TextField
@@ -406,7 +261,6 @@ const Account = () => {
                                             Save Change
                                         </button>
                                     </form>
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
                                 </div>
                                 {/* Social Networks Section */}
                                 <div className='flex flex-col gap-[10px] shadow-xl rounded-lg py-[30px] px-[40px]'>
@@ -442,13 +296,11 @@ const Account = () => {
 
                         {activeSection === 'security' && (
                             <div className='relative'>
-                                <h2 className='text-2xl text-center font-bold mb-[30px]'>Security</h2>
-                                <div className='flex flex-col gap-[1rem]'>
-                                    <details>
-                                        <summary>Login</summary>
-                                        <div className='flex items-center justify-between my-[10px]'>
+                                <div className="mb-[30px]">
+                                    <h2 className="text-2xl text-center font-bold">Security</h2>
+                                </div>
+                                    <div className='flex flex-col gap-[1rem]'>
                                             <div>
-<<<<<<< HEAD
                                                 <details>
                                                     <summary> Login</summary>
                                                     <div className="flex items-center justify-between my-[10px]">
@@ -469,50 +321,9 @@ const Account = () => {
                                                 <ChangePasswordModal
                                                     isOpen={modalIsOpen}
                                                     onClose={() => setModalIsOpen(false)}
-                                                />
-
-                                                
-=======
-                                                <h3>Password</h3>
-                                                <span className='text-[0.8em] text-gray-400 leading-3'>Last updated 1 month ago</span>
+                                                /> 
                                             </div>
-                                            <button
-                                                className='border-2 rounded-lg py-[8px] px-[10px] text-[#777E90]'
-                                                onClick={() => setModalIsOpen(true)}
-                                            >
-                                                Update password
-                                            </button>
-                                        </div>
-                                    </details>
-                                    <Modal
-                                        isOpen={modalIsOpen}
-                                        onRequestClose={() => setModalIsOpen(false)}
-                                        style={{
-                                            overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-                                            content: { width: '30%', margin: '100px auto', padding: '20px', borderRadius: '10px' },
-                                        }}
-                                    >
-                                        <div className='modal-content'>
-                                            <div className='flex items-center justify-between'>
-                                                <h3>Update Password</h3>
-                                                <button
-                                                    onClick={() => setModalIsOpen(false)}
-                                                    className='bg-primary border-none py-[5px] px-[10px] outline-none text-white rounded-lg'
-                                                >
-                                                    ×
-                                                </button>
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
-                                            </div>
-                                            <div className='flex flex-col gap-[30px] mt-[20px]'>
-                                                <TextField className='w-[80%]' label='Current password' type='password' />
-                                                <TextField className='w-[80%]' label='New password' type='password' />
-                                                <TextField className='w-[80%]' label='Confirm password' type='password' />
-                                                <button className='outline-none p-4 rounded-lg border-none bg-primary mt-[20px] text-white'>
-                                                    Save Change
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </Modal>
+                                    </div>
                                     <details>
                                         <summary>Device History</summary>
                                         <p className='mt-5'>Your access has not been processed yet!</p>
@@ -544,7 +355,6 @@ const Account = () => {
                                         </p>
                                     </details>
                                 </div>
-                            </div>
                         )}
 
                         {activeSection === 'mytour' && (

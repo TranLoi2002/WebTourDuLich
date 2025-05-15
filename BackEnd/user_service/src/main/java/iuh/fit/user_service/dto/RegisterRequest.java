@@ -23,13 +23,9 @@ public class RegisterRequest {
     )
     private String passWord;
 
-<<<<<<< HEAD
+
     @Size(max = 100, message = "Tên không được dài quá 100 ký tự")
     private String fullName;
-=======
-//    @Size(max = 100, message = "Tên không được dài quá 100 ký tự")
-//    private String fullName;
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
     @NotNull(message = "Email không được null")
     @NotBlank(message = "Email không được để trống")

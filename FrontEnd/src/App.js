@@ -48,17 +48,11 @@ import Account from "./pages/account";
 import FAQ from './pages/FAQ';
 import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
-<<<<<<< HEAD
 import Dashboard from "./pages/admin/dashboard"
 import PrivateRoute from "./routes/PrivateRoute";
 import VerifyOTP from "./pages/auth/verifyOTP";
 import ChangePasswordModal from "./pages/auth/ChangePasswordModal";
-=======
-import Dashboard from "./pages/admin/DashBoard"
-import PrivateRoute from "./routes/PrivateRoute";
-import Payment from "./pages/Payment";
 
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 function App() {
     useEffect(() => {
@@ -114,18 +108,14 @@ function App() {
             <main style={{flexGrow: 1, paddingBottom: '50px'}}>
                 <Routes>
                     <Route path="/" element={<Home/>}/>
-                    <Route
+                    {/* <Route
                         path="/admin"
                         element={
                             <PrivateRoute allowedRoles={["ADMIN"]}>
-<<<<<<< HEAD
                                 <Dashboard />
-=======
-                                <Dashboard/>
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
                             </PrivateRoute>
                         }
-                    />
+                    /> */}
 
                     {/*auth*/}
                     <Route path="/auth/sign_in" element={<SignIn/>}/>
@@ -137,10 +127,10 @@ function App() {
                     {/*option*/}
                     <Route path="/thingstodo" element={<ThingsToDo/>}/>
                     <Route path="/resulttour" element={<ResultTour/>}/>
-                    <Route path="/confirmbooking" element={<ConfirmBooking/>}/>
+                    {/* <Route path="/confirmbooking" element={<ConfirmBooking/>}/> */}
                     {/*option - tours*/}
                     <Route path="/tours" element={<ShowTours/>}/>
-                    <Route path="/tours/detailtour/:id" element={<DetailTour/>}/>
+                    {/* <Route path="/tours/detailtour/:id" element={<DetailTour/>}/> */}
                     <Route path="/tours/location-tours" element={<LocationTours/>}/>
                     {/*option - blog*/}
                     <Route path="/blogs" element={<ShowBlogs/>}/>
@@ -154,7 +144,7 @@ function App() {
                     <Route path="*" element={<NotFound/>}/>
 
 
-                    <Route path="/payment/:id" element={<Payment/>}/>
+                    {/* <Route path="/payment/:id" element={<Payment/>}/> */}
 
                     {/*Admin*/}
                     {/*<Route path="/admin" element={<Dashboard />} />*/}

@@ -3,15 +3,10 @@ import axios from "axios";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // SIGN UP
-<<<<<<< HEAD
 export const requestOTP = async (user) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/auth/request-otp`, user, {
-=======
-export const signup = async (user) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/auth/register`, user, {
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+
             withCredentials: true,
         });
         return response.data;
@@ -19,7 +14,7 @@ export const signup = async (user) => {
         throw error.response?.data || { error: "Something went wrong" };
     }
 };
-<<<<<<< HEAD
+
 // Xác thực OTP
 export const verifyOTP = async(email,otp)=>{
     try{
@@ -31,9 +26,7 @@ export const verifyOTP = async(email,otp)=>{
         throw error.message;
     }
 }
-=======
 
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 // LOGIN
 export const login = async (loginData) => {
     try {
@@ -81,7 +74,6 @@ export const getUserById = async (userId) => {
         throw error.response?.data || { error: "Something went wrong" };
     }
 };
-<<<<<<< HEAD
 
 // Gửi OTP quên mật khẩu
 export const forgotPassword = async (email) => {
@@ -118,5 +110,4 @@ export const changePassword = async (data) => {
         }
     );
 };
-=======
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+

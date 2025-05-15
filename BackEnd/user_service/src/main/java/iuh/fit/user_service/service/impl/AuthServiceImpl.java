@@ -152,19 +152,11 @@ public class AuthServiceImpl implements AuthService {
 
         // Tạo user từ thông tin tạm
         User user = new User();
-<<<<<<< HEAD
         user.setUserName(token.getTempUserName());
         user.setPassWord(token.getTempPassword());
         user.setFullName(token.getFullName());
         user.setEmail(token.getEmail());
         user.setPhoneNumber(token.getPhoneNumber());
-=======
-        user.setUserName(registerRequest.getUserName());
-        user.setPassWord(passwordEncoder.encode(registerRequest.getPassWord()));
-//        user.setFullName(registerRequest.getFullName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPhoneNumber(registerRequest.getPhoneNumber());
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
         user.setIsActive(true);
         user.setCreateAt(LocalDateTime.now());
 
@@ -188,9 +180,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDetails verifyToken(String token) {
-        String username = jwtUtil.extractUsername(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if (username != null && jwtUtil.validateToken(token, userDetails)) {
+        String email = jwtUtil.extractUsername(token); // giả sử sub = email
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email); // dùng email để load
+        if (email != null && jwtUtil.validateToken(token, userDetails)) {
             return userDetails;
         }
         throw new RuntimeException("Token không hợp lệ");

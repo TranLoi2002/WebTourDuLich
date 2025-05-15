@@ -36,15 +36,13 @@ public class User {
     private LocalDateTime updateAt;
 
     private Gender gender;
-<<<<<<< HEAD
-    private LocalDate dateOfBirth;
+
+    private Date dateOfBirth;
     @Column(nullable = false)
     private Boolean isVerified = false;
-=======
     private String fullName;
     private String address;
     private String avatar;
-    private Date dateOfBirth;
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
+
 
 }

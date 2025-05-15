@@ -9,12 +9,8 @@ import {
     Alert,
 } from "@mui/material";
 import logo from "../../assets/images/logo.png";
-<<<<<<< HEAD
-import { login } from "../../api/auth.api"; // Đảm bảo API login được định nghĩa đúng
-=======
 import { login } from "../../api/auth.api";
 import {toast} from "react-toastify";
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 const Sign_In = () => {
     const [formData, setFormData] = useState({ email: "", passWord: "" });
@@ -34,7 +30,7 @@ const Sign_In = () => {
         setError("");
 
         // validate
-        if (!formData.userName || !formData.passWord) {
+        if (!formData.email || !formData.passWord) {
             toast.info("Please fill in all fields");
             setLoading(false);
             return;
@@ -42,25 +38,14 @@ const Sign_In = () => {
 
         try {
             const res = await login(formData); // Gọi API login
-<<<<<<< HEAD
-            console.log(res);
-=======
-            // console.log(res);
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
             localStorage.setItem("user", JSON.stringify(res.user)); // Lưu thông tin người dùng vào localStorage
 
             // Điều hướng dựa trên vai trò
             if (res.user?.role?.roleName === "ADMIN") {
-<<<<<<< HEAD
-                alert("DANG NHAP THANH CONG");
-                navigate("/admin");
-            } else {
-=======
                 toast.success("Login success with Admin.");
                 navigate("/admin");
             } else {
                 toast.success("Login successfully.");
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
                 navigate("/");
             }
         } catch (err) {

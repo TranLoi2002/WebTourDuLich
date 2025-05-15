@@ -22,19 +22,9 @@ public class UserController {
     private final CloudinaryService cloudinaryService;
     private final CatalogFeignClient catalogFeignClient;
 
-    @Autowired
-<<<<<<< HEAD
-    private UserService userService;
 
-    @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.findAll();
-=======
-    public UserController(
-            UserService userService,
-            UserRepository userRepository,
-            CloudinaryService cloudinaryService,
-            CatalogFeignClient catalogFeignClient) {
+
+    public UserController(UserService userService, UserRepository userRepository, CloudinaryService cloudinaryService, CatalogFeignClient catalogFeignClient) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
@@ -44,7 +34,6 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findAll();
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
         return ResponseEntity.ok(users);
     }
 
@@ -54,9 +43,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-<<<<<<< HEAD
-}
-=======
     @GetMapping("/{userId}/favourites")
     public ResponseEntity<List<TourDTO>> getUserFavouriteTours(@PathVariable Long userId) {
         List<TourDTO> favouriteTours = catalogFeignClient.getFavouriteToursByUserId(userId);
@@ -104,4 +90,3 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 }
->>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
