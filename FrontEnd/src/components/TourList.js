@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, TextField, Button, Card, CardContent, CardMedia } from "@mui/material";
 import { Star } from "@mui/icons-material";
+import ActivityTourCard from "./ActivityTourCard";
 
 const TourList = ({ tours, title, filtersEnabled = true }) => {
     const [filteredTours, setFilteredTours] = useState(tours);
@@ -54,44 +55,14 @@ const TourList = ({ tours, title, filtersEnabled = true }) => {
                 </Box>
             )}
             {/* Search Results */}
-            <Box sx={{ width: filtersEnabled ? "75%" : "100%", pl: filtersEnabled ? 4 : 0 }}>
+            <Box sx={{ width: filtersEnabled ? "75%" : "100%", pl: filtersEnabled ? 4 : 0 }} className="things_right">
                 <Typography variant="h6" sx={{ fontWeight: "bold", paddingBottom: "20px" }}>{title}</Typography>
                 {filteredTours.length > 0 ? (
                     filteredTours.map((tour) => (
-                        <Card
-                            key={tour.id || Math.random()}
-                            sx={{ display: "flex", marginBottom: "20px", height: "350px", borderRadius: "20px", overflow: "hidden" }}
-                        >
-                            <CardMedia
-                                component="img"
-                                height="100%"
-                                sx={{ width: "40%" }}
-                                image={tour.thumbnail || "https://via.placeholder.com/150"}
-                                alt={tour.title || "Tour Image"}
-                            />
-                            <CardContent sx={{ width: "60%", display: "flex", flexDirection: "column", gap: "20px" }}>
-                                <Typography variant="h5" component="div">
-                                    {tour.title || "Untitled Tour"}
-                                </Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                    <Star sx={{ color: "gold" }} />
-                                    <Typography variant="body2" color="text.secondary">
-                                        4.2 <span>(129 reviews)</span>
-                                    </Typography>
-                                </Box>
-                                <Typography variant="body2" color="text.secondary" fontSize="18px">
-                                    {tour.description || "No description available."}
-                                </Typography>
-                                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
-                                    <Button variant="contained" color="primary" className="add-to-trip" id="add-button">
-                                        Add
-                                    </Button>
-                                    <Typography variant="h6" color="text.primary">
-                                        Price ${tour.price || "N/A"}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
+                        <ActivityTourCard
+                            key={tour.id}
+                            tour={tour}
+                        />
                     ))
                 ) : (
                     <Typography>No tours found with your details.</Typography>

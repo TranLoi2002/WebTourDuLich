@@ -50,6 +50,7 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+<<<<<<< HEAD
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
     @Autowired
@@ -61,6 +62,15 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+=======
+
+//    @PostMapping("/login")
+//    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+//        String token = authService.login(loginRequest);
+//        addJwtCookie(response, token);
+//        return ResponseEntity.ok("Đăng nhập thành công");
+//    }
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         AuthResponse authResponse = authService.login(loginRequest);
@@ -72,9 +82,22 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
-        clearCookie(response, "jwtToken");
-        clearCookie(response, "refreshToken");
-        return ResponseEntity.ok("Đăng xuất thành công");
+        Cookie jwtCookie = new Cookie("jwtToken", null);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true); // Chỉ sử dụng nếu bạn dùng HTTPS
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(0); // Xóa cookie
+
+        Cookie refreshCookie = new Cookie("refreshToken", null);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+
+        response.addCookie(jwtCookie);
+        response.addCookie(refreshCookie);
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     @GetMapping("/verifyUser")
@@ -84,14 +107,22 @@ public class AuthController {
             UserDetails userDetails = authService.verifyToken(token);
 
             // Fetch additional user details from the database
+<<<<<<< HEAD
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("Email not found"));
+=======
+            User user = userRepository.findByUserName(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
             // Return a custom response with user details
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("username", user.getUserName());
+<<<<<<< HEAD
             response.put("fullName", user.getFullName());
+=======
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
             response.put("email", user.getEmail());
             response.put("role", user.getRole().getRoleName());
             return ResponseEntity.ok(response);
@@ -103,11 +134,20 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractTokenFromCookies(request, "refreshToken");
         if (refreshToken != null) {
-            AuthResponse authResponse = authService.refreshToken(refreshToken);
-            addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
-            return ResponseEntity.ok("Token đã được làm mới");
+            try {
+                AuthResponse authResponse = authService.refreshToken(refreshToken);
+                addJwtCookie(response, authResponse.getAccessToken(), "jwtToken");
+                addJwtCookie(response, authResponse.getRefreshToken(), "refreshToken"); // Optional: Update refresh token
+                Map<String, Object> responseBody = new HashMap<>();
+                responseBody.put("accessToken", authResponse.getAccessToken());
+                responseBody.put("refreshToken", authResponse.getRefreshToken());
+                responseBody.put("message", "Token đã được làm mới");
+                return ResponseEntity.ok(responseBody);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(401).body("Refresh Token không hợp lệ hoặc đã hết hạn");
+            }
         }
-        return ResponseEntity.status(401).body("Refresh Token không hợp lệ");
+        return ResponseEntity.status(401).body("Refresh Token không tồn tại");
     }
 
     @PostMapping("/request-otp")

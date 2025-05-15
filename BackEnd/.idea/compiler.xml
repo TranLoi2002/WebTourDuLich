@@ -16,10 +16,27 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
+<<<<<<< HEAD
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
         <module name="blog_service" />
         <module name="user_service" />
+=======
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="blog_service" />
+      </profile>
+      <profile name="Annotation profile for CatalogService" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="user_service" />
+        <module name="payment_service" />
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
         <module name="catalog_service" />
         <module name="review_service" />
       </profile>
@@ -32,6 +49,7 @@
       <module name="booking_service" options="-parameters" />
       <module name="catalog_service" options="-parameters" />
       <module name="discovery_service" options="-parameters" />
+      <module name="payment_service" options="-parameters" />
       <module name="review_service" options="-parameters" />
       <module name="user_service" options="-parameters" />
     </option>

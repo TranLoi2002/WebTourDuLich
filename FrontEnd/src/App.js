@@ -2,7 +2,10 @@ import {useEffect} from "react";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import {BrowserRouter as Router, Route, Routes, useLocation} from "react-router-dom";
-
+import {LoadingProvider, useLoading} from "./utils/LoadingContext";
+import LoadingOverlay from "./components/LoadingOverlay";
+import {ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Header from "./components/header";
 import Footer from "./components/footer";
@@ -25,6 +28,7 @@ import './assets/styles/card_detail_blog.css'
 import './assets/styles/account.css'
 import './assets/styles/FAQ.css'
 import './assets/styles/help.css'
+import './assets/styles/LoadingOverlay.css'
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -44,10 +48,17 @@ import Account from "./pages/account";
 import FAQ from './pages/FAQ';
 import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
+<<<<<<< HEAD
 import Dashboard from "./pages/admin/dashboard"
 import PrivateRoute from "./routes/PrivateRoute";
 import VerifyOTP from "./pages/auth/verifyOTP";
 import ChangePasswordModal from "./pages/auth/ChangePasswordModal";
+=======
+import Dashboard from "./pages/admin/DashBoard"
+import PrivateRoute from "./routes/PrivateRoute";
+import Payment from "./pages/Payment";
+
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 function App() {
     useEffect(() => {
@@ -55,6 +66,8 @@ function App() {
     }, []);
 
     const location = useLocation();
+    const {isLoading, setIsLoading} = useLoading();
+
     const hiddenFooterPaths = ['/auth/sign_in', '/auth/sign_up'];
     // Kiểm tra nếu đường dẫn hiện tại không nằm trong mảng hiddenFooterPaths
     const showFooter = !hiddenFooterPaths.includes(location.pathname);
@@ -64,8 +77,39 @@ function App() {
     const showHeader = !isAdminRoute;
     const showFooterOnAdmin = !isAdminRoute && showFooter;
 
+    useEffect(() => {
+        // Khi app vừa mount, hiển thị loading
+        setIsLoading(true);
+
+        const handleLoad = () => {
+            // Khi toàn bộ trang (bao gồm ảnh, css...) đã load
+            setIsLoading(false);
+        };
+
+        // Gắn sự kiện load của window
+        window.addEventListener("load", handleLoad);
+
+        // Cleanup
+        return () => window.removeEventListener("load", handleLoad);
+    }, [setIsLoading]);
+
     return (
         <div className="App">
+
+            <LoadingOverlay isLoading={isLoading}/>
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                containerStyle={{ top: "100px" }} // Cách top 100px
+            />
+
             {showHeader && <Header/>}
             <main style={{flexGrow: 1, paddingBottom: '50px'}}>
                 <Routes>
@@ -74,7 +118,11 @@ function App() {
                         path="/admin"
                         element={
                             <PrivateRoute allowedRoles={["ADMIN"]}>
+<<<<<<< HEAD
                                 <Dashboard />
+=======
+                                <Dashboard/>
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
                             </PrivateRoute>
                         }
                     />
@@ -105,20 +153,27 @@ function App() {
                     {/*404*/}
                     <Route path="*" element={<NotFound/>}/>
 
+
+                    <Route path="/payment/:id" element={<Payment/>}/>
+
                     {/*Admin*/}
                     {/*<Route path="/admin" element={<Dashboard />} />*/}
 
                 </Routes>
             </main>
             {showFooterOnAdmin && <Footer/>}
+
         </div>
     );
 }
 
 export default function AppWithRouter() {
     return (
-        <Router>
-            <App/>
-        </Router>
+        <LoadingProvider>
+            <Router>
+                <App/>
+            </Router>
+        </LoadingProvider>
+
     );
 }

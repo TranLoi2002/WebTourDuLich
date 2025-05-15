@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận thanh toán tour</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            font-family: 'Roboto', Arial, sans-serif;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e reda0e7ff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #28a745; /* Màu xanh lá cho xác nhận thành công */
+            color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content h2 {
+            color: #28a745;
+            font-size: 20px;
+            margin-top: 0;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .info-table th, .info-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        .info-table th {
+            background-color: #f8f9fa;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code img {
+            max-width: 200px;
+            height: auto;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #e0e7ff;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .content h2 {
+                font-size: 18px;
+            }
+            .content p, .info-table th, .info-table td {
+                font-size: 14px;
+            }
+            .qr-code img {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Xác nhận thanh toán tour</h1>
+    </div>
+    <div class="content">
+        <p>Kính gửi <strong th:text="${user.fullName}"></strong>,</p>
+        <p>Chúng tôi xin xác nhận rằng thanh toán cho booking của bạn với mã: <strong th:text="${booking.bookingCode}"></strong> đã được thực hiện thành công. Dưới đây là thông tin chi tiết:</p>
+
+        <h2>Thông tin thanh toán</h2>
+        <table class="info-table">
+            <tr>
+                <th>Mã booking</th>
+                <td th:text="${booking.bookingCode}"></td>
+            </tr>
+            <tr>
+                <th>Ngày thanh toán</th>
+                <td th:text="${bookingDate}"></td>
+            </tr>
+            <tr>
+                <th>Tổng giá</th>
+                <td th:text="${booking.totalPrice} + ' VNĐ'"></td>
+            </tr>
+        </table>
+
+        <h2>Mã QR xác nhận</h2>
+        <div class="qr-code">
+            <img th:src="'data:image/png;base64,' + ${qrCodeBase64}" alt="QR Code">
+        </div>
+    </div>
+    <div class="footer">
+        <p>Cảm ơn bạn đã chọn dịch vụ của chúng tôi! Nếu có thắc mắc, vui lòng liên hệ qua email <a href="mailto:nguyentruongan@tourbooking.com">nguyentruongan@tourbooking.com</a>.</p>
+    </div>
+</div>
+</body>
+</html>

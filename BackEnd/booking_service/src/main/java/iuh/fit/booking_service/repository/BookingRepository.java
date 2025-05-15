@@ -99,4 +99,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      * @return Danh sách Booking
      */
     List<Booking> findByBookingStatusAndPaymentDueTimeBefore(BookingStatus bookingStatus, LocalDateTime now);
+
+
+
 }

@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
+<<<<<<< HEAD
 import { requestOTP } from '../../api/auth.api';
+=======
+import { signup } from '../../api/auth.api';
+import {toast} from "react-toastify";
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
@@ -26,12 +31,13 @@ const Sign_Up = () => {
         e.preventDefault();
         setError("");
 
-        // Validate password and confirmPassword
-        if (formData.passWord !== formData.confirmPassword) {
-            setError("Passwords do not match");
+        // Validate form fields
+        if (!formData.userName || !formData.email || !formData.phoneNumber || !formData.passWord || !formData.confirmPassword) {
+            toast.info("Please fill in all fields");
             return;
         }
 
+<<<<<<< HEAD
         const user = {
             userName: formData.userName,
             email: formData.email,
@@ -44,8 +50,50 @@ const Sign_Up = () => {
         try {
             const res = await requestOTP(user); // Call the signup API
             navigate("/auth/verifyOTP", { state: { email: formData.email } });
+=======
+        // Validate email format
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(formData.email)) {
+            toast.info("Invalid email format");
+            return;
+        }
+
+        // Validate phone number format (example: 10 digits)
+        const phonePattern = /^\d{10}$/;
+        if (!phonePattern.test(formData.phoneNumber)) {
+            toast.info("Invalid phone number format");
+            return;
+        }
+
+        // Validate password length
+        if (formData.passWord.length < 6) {
+            toast.info("Password must be at least 6 characters long");
+            return;
+        }
+
+
+        // Validate password and confirmPassword
+        if (formData.passWord !== formData.confirmPassword) {
+            toast.info("Password and Confirm Password do not match");
+            return;
+        }
+
+        const user = {
+            userName: formData.userName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            passWord: formData.passWord,
+            roleName: formData.role
+        };
+
+        try {
+            const res = await signup(user); // Call the signup API
+            toast.info("Register account success. Let's complete your sign in !!");
+            // console.log("Signup success:", res);
+            navigate("/auth/sign_in"); // Redirect to the login page
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
         } catch (err) {
-            setError(err.response?.data?.error || "Signup failed");
+            toast.error("Register account failed. Please try again !!");
         }
     };
 
@@ -74,6 +122,7 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.userName}
                             onChange={handleChange}
+<<<<<<< HEAD
                         />
                         <TextField
                             label="Full Name"
@@ -83,6 +132,8 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.fullName}
                             onChange={handleChange}
+=======
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
                         />
                         <TextField
                             label="Email"

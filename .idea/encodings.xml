@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+<<<<<<< HEAD
     <file url="file://$PROJECT_DIR$/BackEnd/BlogService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/BackEnd/CatalogService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/BackEnd/DiscoveryService/src/main/java" charset="UTF-8" />
@@ -15,5 +16,27 @@
     <file url="file://$PROJECT_DIR$/BackEnd/review_service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/BackEnd/user_service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/BackEnd/user_service/src/main/resources" charset="UTF-8" />
+=======
+    <file url="file://$PROJECT_DIR$/Backend/BlogService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/CatalogService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/DiscoveryService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/ReviewService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/api-gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/api_gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/api_gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/blog_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/blog_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/booking_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/catalog_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/catalog_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/discovery_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/discovery_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/payment_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/review_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/review_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/user_service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Backend/user_service/src/main/resources" charset="UTF-8" />
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
   </component>
 </project>

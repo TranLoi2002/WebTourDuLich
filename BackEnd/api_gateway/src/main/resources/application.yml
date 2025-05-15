@@ -20,6 +20,10 @@ spring:
               - PUT
               - DELETE
               - OPTIONS
+<<<<<<< HEAD
+=======
+              - PATCH
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
             allowedHeaders: "*"
             allowCredentials: true
       discovery:
@@ -57,6 +61,12 @@ spring:
             - Path=/api/user/**,/api/role/**,/api/auth/**
           filters:
             - StripPrefix=1
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payment/**
+          filters:
+            - StripPrefix=1
     loadbalancer:
       health-check:
         interval: 5s
@@ -64,7 +74,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://discovery-service:8761/eureka
     register-with-eureka: true
     fetch-registry: true
   instance:

@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import {getActivityType} from '../api/activitytour.api';
-import {getAllTour, getTourByActivityType} from '../api/tour.api';
+import React, { useEffect, useState } from 'react';
+import { getActivityType } from '../api/activitytour.api';
+import { getAllTour, getTourByActivityType } from '../api/tour.api';
 import ActivityTourCard from '../components/ActivityTourCard';
+import { toast } from 'react-toastify';
 
 const Things_to_do = () => {
     const [activityTypes, setActivityTypes] = useState([]);
@@ -11,50 +12,79 @@ const Things_to_do = () => {
     const [filteredTours, setFilteredTours] = useState([]);
     const [allTours, setAllTours] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [toursPerPage] = useState(10);
 
-    // Fetch all tours with "activityTour": true
+    // Fetch all tours
     const fetchAllTours = async () => {
         setLoading(true);
         try {
-            const response = await getAllTour();
-            const activityTours = response.filter(tour => tour.activityTour === true);
-            setAllTours(activityTours);
-            setFilteredTours(activityTours);
+            let allData = [];
+            let page = 0;
+            let hasMorePages = true;
+
+            while (hasMorePages) {
+                const response = await getAllTour(page, toursPerPage, 'id', 'asc');
+                allData = [...allData, ...response.content.filter(tour => tour.activityTour === true && tour.active === true && tour.status === "UPCOMING")];
+                hasMorePages = page + 1 < response.totalPages;
+                page++;
+            }
+
+            setAllTours(allData);
+            setFilteredTours(allData.slice(0, toursPerPage));
         } catch (error) {
-            console.error('Error fetching all tours:', error);
+            console.error('Error fetching tours:', error);
+            toast.error('Failed to fetch tours');
         } finally {
             setLoading(false);
         }
     };
 
     // Fetch activity types
+    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'desc') => {
+        let allData = [];
+        let currentPage = 0;
+        let totalPages = 1;
+
+        while (currentPage < totalPages) {
+            const response = await fetchFunction(currentPage, size, sortBy, sortDir);
+            allData = [...allData, ...response.content];
+            currentPage = response.currentPage + 1;
+            totalPages = response.totalPages;
+        }
+
+        return allData;
+    };
+
     const fetchActivityTypes = async () => {
         try {
-            const data = await getActivityType();
-            setActivityTypes(data);
+            const allTours = await fetchAllPages(getActivityType);
+            const activeTours = allTours.filter(tour => tour.active === true);
+            setActivityTypes(activeTours);
         } catch (error) {
-            console.error('Error fetching activity types:', error);
+            console.error("Error fetching tours:", error);
         }
     };
 
-    // Filter tours based on selected filters
+
+    // Filter tours
     const filterTours = async () => {
         setLoading(true);
         try {
             let tours = [...allTours];
 
-            // Filter by activity type using API
+            // Filter by activity type
             if (selectedActivityTypes.length > 0) {
                 const response = await Promise.all(
                     selectedActivityTypes.map(type => getTourByActivityType(type))
                 );
-                tours = response.flat();
+                tours = response.flat().filter(tour => tour.activityTour === true);
             }
 
             // Filter by location
             if (searchLocation.trim()) {
                 tours = tours.filter(tour =>
-                    tour.location?.name?.toLowerCase().includes(searchLocation.toLowerCase())
+                    tour.location?.name?.toLowerCase().includes(searchLocation.toLowerCase()) || tour.title.toLowerCase().includes(searchLocation.toLowerCase())
                 );
             }
 
@@ -72,12 +102,29 @@ const Things_to_do = () => {
             }
 
             setFilteredTours(tours);
+            setCurrentPage(1);
         } catch (error) {
             console.error('Error filtering tours:', error);
+            toast.error('Failed to filter tours');
         } finally {
             setLoading(false);
         }
     };
+
+    // Calculate paginated tours
+    const getPaginatedTours = () => {
+        const startIndex = (currentPage - 1) * toursPerPage;
+        const endIndex = startIndex + toursPerPage;
+        return filteredTours.slice(startIndex, endIndex);
+    };
+
+    // Handle page change
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    // Calculate total pages
+    const totalPages = Math.ceil(filteredTours.length / toursPerPage);
 
     useEffect(() => {
         fetchAllTours();
@@ -86,17 +133,17 @@ const Things_to_do = () => {
 
     useEffect(() => {
         filterTours();
-    }, [selectedActivityTypes, selectedPriceRanges, searchLocation]);
+    }, [selectedActivityTypes, selectedPriceRanges, searchLocation, allTours]);
 
     const handleActivityChange = (e) => {
-        const {name, checked} = e.target;
+        const { name, checked } = e.target;
         setSelectedActivityTypes(prev =>
             checked ? [...prev, name] : prev.filter(type => type !== name)
         );
     };
 
     const handlePriceChange = (e) => {
-        const {value, checked} = e.target;
+        const { value, checked } = e.target;
         setSelectedPriceRanges(prev =>
             checked ? [...prev, value] : prev.filter(p => p !== value)
         );
@@ -125,6 +172,7 @@ const Things_to_do = () => {
                             activityTypes.map(activityType => (
                                 <label key={activityType.id} className="activity_type">
                                     <input
+                                        className="cursor-pointer mr-2 w-5 h-5 rounded-lg"
                                         type="checkbox"
                                         name={activityType.name}
                                         checked={selectedActivityTypes.includes(activityType.name)}
@@ -134,16 +182,14 @@ const Things_to_do = () => {
                                 </label>
                             ))
                         ) : (
-                            <div>
-                                <p className="text-red-500">no data</p>
-                            </div>
+                            <p className="text-red-500">No activity types available</p>
                         )}
-
 
                         <h3>Price</h3>
                         {['10-100', '100-500', '500+'].map(range => (
                             <label key={range}>
                                 <input
+                                    className="cursor-pointer mr-2 w-5 h-5 rounded-lg"
                                     type="checkbox"
                                     value={range}
                                     checked={selectedPriceRanges.includes(range)}
@@ -160,15 +206,37 @@ const Things_to_do = () => {
                 </div>
 
                 <div className="things_right w-[60%]" id="thing_right_items">
-                    {loading ? (
-                        <p>Loading tours...</p>
-                    ) : filteredTours.length > 0 ? (
-                        filteredTours.map(tour => (
-                            <ActivityTourCard key={tour.id} tour={tour}/>
-                        ))
-                    ) : (
-                        <p className="text-red-500">No data</p>
-                    )}
+                    <div className="flex flex-col gap-3 ">
+                        {loading ? (
+                            <p>Loading tours...</p>
+                        ) : getPaginatedTours().length > 0 ? (
+                            getPaginatedTours().map(tour => (
+                                <ActivityTourCard key={tour.id} tour={tour} />
+                            ))
+                        ) : (
+                            <p className="text-red-500">No tours found</p>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <i className="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <span>
+                            {currentPage} / {totalPages}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <i className="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

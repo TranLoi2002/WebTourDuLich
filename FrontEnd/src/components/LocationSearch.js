@@ -17,7 +17,9 @@ const LocationSearch = ({ onLocationSelect }) => {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${location}`
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                        location
+                    )}`
                 );
                 setSuggestions(response.data);
             } catch (error) {
@@ -37,12 +39,22 @@ const LocationSearch = ({ onLocationSelect }) => {
         <Autocomplete
             freeSolo
             options={suggestions}
-            getOptionLabel={(option) => option.display_name}
+            getOptionLabel={(option) =>
+                typeof option === "string" ? option : option.display_name
+            }
             onChange={(event, newValue) => {
-                if (newValue) {
+                if (typeof newValue === "string") {
+                    setLocation(newValue);
+                    onLocationSelect({ display_name: newValue });
+                } else if (newValue) {
                     setLocation(newValue.display_name);
                     onLocationSelect(newValue);
                 }
+            }}
+            inputValue={location}
+            onInputChange={(event, newInputValue) => {
+                setLocation(newInputValue);
+                onLocationSelect({ display_name: newInputValue });
             }}
             renderInput={(params) => (
                 <TextField
@@ -50,11 +62,6 @@ const LocationSearch = ({ onLocationSelect }) => {
                     fullWidth
                     label="Location"
                     variant="outlined"
-                    value={location}
-                    onChange={(e) => {
-                        setLocation(e.target.value);
-                        onLocationSelect({ display_name: e.target.value });
-                    }}
                     sx={{ mb: 2 }}
                     InputProps={{
                         ...params.InputProps,

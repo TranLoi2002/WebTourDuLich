@@ -139,9 +139,10 @@
 .things_right .card .card_select{
     display: flex;
     align-items: center;
-    margin-top: 70px;
-    justify-content: space-between;
+    margin-top: 15px;
+    /*justify-content: space-between;*/
     cursor: pointer;
+    justify-content: flex-end;
 }
 .add{
     outline: none;

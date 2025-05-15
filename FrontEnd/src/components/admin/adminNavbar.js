@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { verifyUser,logout } from '../../api/auth.api';
 import SettingModal from './settingModal';
+=======
+import { verifyUser, logout } from '../../api/auth.api';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logo from '../../assets/images/logo.png';
+import SettingModal from './SettingModal';
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [user, setUser] = useState(null);
 
+<<<<<<< HEAD
   // Lấy thông tin user từ localStorage hoặc API
+=======
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -31,6 +41,10 @@ const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   };
 
   const toggleSidebar = () => {
+<<<<<<< HEAD
+=======
+    console.log('Toggling sidebar, current state:', isSidebarOpen);
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
     setIsSidebarOpen(!isSidebarOpen);
   };
 
@@ -50,6 +64,7 @@ const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   };
 
   return (
+<<<<<<< HEAD
     <nav className="fixed top-0 z-50 w-full border-b bg-gray-800 border-gray-700">
       <div className="px-3 py-3 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
@@ -123,6 +138,81 @@ const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 </div>
               )}
             </div>
+=======
+    <nav className="fixed top-0 left-0 z-50 w-full bg-gray-800 border-b border-gray-700">
+      <div className="px-4 py-3 lg:px-6 lg:pl-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              type="button"
+              className="p-2 text-gray-300 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-colors"
+              onClick={toggleSidebar}
+              aria-label="Toggle sidebar"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d={isSidebarOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                />
+              </svg>
+            </button>
+            <Link to="/" className="nav_logo flex items-center cursor-pointer no-underline">
+                    <img src={logo} alt="Airtrav logo" />
+                    <span className="font-extrabold text-[20px] leading-[25px] ml-2 text-primary">Airtrav</span>
+                </Link>
+          </div>
+          <div className="relative">
+            <button
+              type="button"
+              className="flex items-center text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-600"
+              onClick={toggleDropdown}
+            >
+              <span className="sr-only">Open user menu</span>
+              <img
+                className="w-8 h-8 rounded-full"
+                src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                alt="user photo"
+              />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg divide-y divide-gray-100 dark:bg-gray-700 dark:divide-gray-600">
+                <div className="px-4 py-3">
+                  <p className="text-sm text-gray-900 dark:text-white">
+                    {user?.userName || 'Guest'}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300">
+                    {user?.email || 'example@gmail.com'}
+                  </p>
+                </div>
+                <ul className="py-1">
+                  <li>
+                    <button
+                      onClick={openSettingModal}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                    >
+                      Setting
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                    >
+                      Sign out
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
           </div>
         </div>
       </div>
@@ -130,5 +220,6 @@ const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     </nav>
   );
 };
+
 
 export default AdminNavbar;

@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "users")
@@ -19,7 +20,6 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
@@ -27,16 +27,24 @@ public class User {
     private String userName;
     @Column(nullable = false)
     private String passWord;
-    private String fullName;
+
     private String email;
     private String phoneNumber;
     @Column(nullable = false)
     private Boolean isActive = true;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+
     private Gender gender;
+<<<<<<< HEAD
     private LocalDate dateOfBirth;
     @Column(nullable = false)
     private Boolean isVerified = false;
+=======
+    private String fullName;
+    private String address;
+    private String avatar;
+    private Date dateOfBirth;
+>>>>>>> a8c3d888f5374a7e2756719e0a2707f417ac023f
 
 }

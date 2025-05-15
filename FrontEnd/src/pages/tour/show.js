@@ -7,11 +7,13 @@ import {getAllLocation} from "../../api/location.api";
 import {getAllTourType} from "../../api/tourtype.api";
 import {getTourByTourTypeId} from "../../api/tourtype.api";
 import SkeletonTourCard from "../../components/SkeletonTourCard";
+import {useLoading} from "../../utils/LoadingContext"
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 
 const Show = () => {
     // const [layout, setLayout] = useState('horizontal');
-    const [loading, setLoading] = useState(true);
+    const {isLoading, setIsLoading} = useLoading();
 
     const [tourSale, setTourSale] = useState([]);
     const [tourFav, setTourFav] = useState([]);
@@ -21,109 +23,146 @@ const Show = () => {
     const [selectedTourType, setSelectedTourType] = useState(null);
     const [tourByTourType, setTourByTourType] = useState([]);
 
+    // const [currentPage, setCurrentPage] = useState(1);
+    // const [totalPages, setTotalPages] = useState(0);
+
     // get tour have discount from tour.api.js
-    useEffect(() => {
-        const fetchSaleTours = async () => {
-            try {
-                const response = await getAllTour();
-                const filterTours = response.filter(tour => tour.discount > 10);
-                setTourSale(filterTours);
-            } catch (error) {
-                console.error("Error fetching tours:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
 
+    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'asc') => {
+        let allData = [];
+        let currentPage = 0;
+        let totalPages = 1;
+
+        while (currentPage < totalPages) {
+            const response = await fetchFunction(currentPage, size, sortBy, sortDir);
+            allData = [...allData, ...response.content];
+            currentPage = response.currentPage + 1;
+            totalPages = response.totalPages;
+        }
+
+        return allData;
+    };
+
+    const fetchSaleTours = async () => {
+        try {
+            setIsLoading(true);
+            const allTours = await fetchAllPages(getAllTour);
+            const filterTours = allTours.filter(tour => tour.discount > 10 && tour.active === true && tour.status === "UPCOMING");
+            setTourSale(filterTours);
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+        } finally {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 1000);
+        }
+    };
+
+    const fetchFavTours = async () => {
+        try {
+            setIsLoading(true);
+            const allTours = await fetchAllPages(getAllTour);
+            const filterTours = allTours.filter(tour => tour.currentParticipants > 0 && tour.active === true && tour.status === "UPCOMING");
+            setTourFav(filterTours);
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchTourTypes = async () => {
+        try {
+            setIsLoading(true);
+            const allTourTypes = await fetchAllPages(getAllTourType);
+            const activeTourTypes = allTourTypes.filter(tourType => tourType.active === true); // Filter active tour types
+            setTourTypes(activeTourTypes);
+            if (activeTourTypes.length > 0) {
+                setSelectedTourType(activeTourTypes[0].id); // Set the first active tour type as default
+            }
+        } catch (error) {
+            console.error("Error fetching tour types:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchLocations = async () => {
+        try {
+            setIsLoading(true);
+            const allLocations = await fetchAllPages(getAllLocation);
+            const activeLocations = allLocations.filter(location => location.active === true); // Filter active locations
+            setLocations(activeLocations);
+        } catch (error) {
+            console.error("Error fetching locations:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
         fetchSaleTours();
-    }, []);
-
-    useEffect(() => {
-        const fetchFavTours = async () => {
-            try {
-                const response = await getAllTour();
-                const filterTours = response.filter(tour => tour.currentParticipants > 0);
-                setTourFav(filterTours);
-            } catch (error) {
-                console.error("Error fetching tours:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchFavTours();
-    }, []);
-
-    // get location from location.api.js
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const response = await getAllLocation();
-                setLocations(response);
-            } catch (error) {
-                console.error("Error fetching locations:", error);
-            }
-        };
-
+        fetchTourTypes();
         fetchLocations();
     }, []);
 
-    // get tour type from tourtype.api.js
-    useEffect(() => {
-        const fetchTourTypes = async () => {
-            try {
-                const response = await getAllTourType();
-                setTourTypes(response);
-                if (response.length > 0) {
-                    setSelectedTourType(response[0].id); // Set the first tour type as default
-                }
-            } catch (error) {
-                console.error("Error fetching tour types:", error);
-            }
-        };
+    // get location from location.api.js
 
-        fetchTourTypes();
-    }, []);
 
     useEffect(() => {
         const fetchToursByTourType = async () => {
             if (selectedTourType) {
                 try {
+                    setIsLoading(true);
                     const response = await getTourByTourTypeId(selectedTourType);
                     setTourByTourType(response);
                 } catch (error) {
                     console.error("Error fetching tours by tour type:", error);
+                } finally {
+                    setIsLoading(false);
                 }
             }
         };
 
         fetchToursByTourType();
-    }, [selectedTourType]);
+    }, [selectedTourType, setIsLoading]);
 
     return (
         <div className="show_tour">
-            {loading ? (
-                <div className="skeleton-container">
-                    {Array.from({length: 5}).map((_, index) => (
-                        <SkeletonTourCard key={index}/>
-                    ))}
-                </div>
+            {isLoading ? (
+                <>
+                    <LoadingOverlay isLoading={true}/>
+                    <div className="skeleton-container">
+                        {Array.from({length: 5}).map((_, index) => (
+                            <SkeletonTourCard key={index}/>
+                        ))}
+                    </div>
+                </>
             ) : (
                 <>
-                    {tourSale.length > 0 ? (
-                        <HorizontalLayout tours={tourSale} title="Tour sale" isShowDescCard={true}/>
-                    ) : null}
+                    {tourSale.length > 0 && (
+                        <HorizontalLayout
+                            tours={tourSale}
+                            title="Tour sale"
+                            isShowDescCard={true}
+                        />
+                    )}
 
-                    {tourFav.length > 0 ? (
-                        <GridLayout tours={tourFav} itemsPerPage={6} title="Tour favourite" isShowDescCard={true}/>
-                    ) : null}
+                    {tourFav.length > 0 && (
+                        <GridLayout
+                            tours={tourFav}
+                            itemsPerPage={6}
+                            title="Tour favourite"
+                            isShowDescCard={true}
+                        />
+                    )}
 
-                    {locations.length > 0 ? (
+                    {locations.length > 0 && (
                         <MasonryLayout locations={locations} title={"Top destinations"}/>
-                    ) : null}
+                    )}
 
-
-                    {tourTypes.length > 0 ? (
+                    {tourTypes.length > 0 && (
                         <div>
                             <h2 className="text-2xl font-bold mt-8">Your plan by favourites ?</h2>
                             <div className="mt-6 flex flex-row gap-3">
@@ -137,15 +176,18 @@ const Show = () => {
                                     </div>
                                 ))}
                             </div>
-                            <div>
-                                <HorizontalLayout tours={tourByTourType} title="" isShowDescCard={false}/>
-                            </div>
+                            <HorizontalLayout
+                                tours={tourByTourType}
+                                title=""
+                                isShowDescCard={false}
+                            />
                         </div>
-                    ) : null}
+                    )}
                 </>
             )}
         </div>
     );
+
 }
 
 export default Show;

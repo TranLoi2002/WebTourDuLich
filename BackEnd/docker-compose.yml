@@ -1,0 +1,110 @@
+services:
+  # Eureka Server (Discovery Service)
+  discovery-service:
+    build:
+      context: ./discovery_service
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api_gateway  # Đổi từ api-gateway thành api_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-service
+    #      - mariadb
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  booking-service:
+    build:
+      context: ./booking_service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/booking_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
+
+  catalog-service:
+    build:
+      context: ./catalog_service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/catalog_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
+
+  review-service:
+    build:
+      context: ./review_service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/review_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/user_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
+  payment-service:
+    build:
+      context: ./payment_service
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/payment_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
+
+
+# Định nghĩa network để các container giao tiếp với nhau
+networks:
+  app-network:
+    driver: bridge

@@ -19,7 +19,6 @@ public class Review {
     private Long id;
     private Long tourId;
     private Long userId;
-
     private Integer rating;
     private String comment;
 
@@ -31,6 +30,6 @@ public class Review {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING)
-    private ReviewStatus status;
+//    @Enumerated(EnumType.STRING)
+//    private ReviewStatus status;
 }

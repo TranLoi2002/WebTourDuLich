@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +21,9 @@ public class BlogController {
     private BlogRepository blogRepository;
 
     @GetMapping
-    public ResponseEntity<List<Blog>> getAllBlogs() {
-        return ResponseEntity.ok(blogService.getAllBlogs());
+    public ResponseEntity<Map<String, Object>> getAllBlogs(@RequestParam Map<String, String> params) {
+        Map<String, Object> response = blogService.getAllBlogs(params);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
