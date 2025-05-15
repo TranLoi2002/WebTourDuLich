@@ -98,19 +98,12 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
     }
 };
 // Đổi mật khẩu
-export const changePassword = async (payload, token) => {
-    try {
-        const response = await axios.post(
-            `${API_BASE_URL}/change-password`,
-            payload,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { error: "Đổi mật khẩu thất bại" };
-    }
+export const changePassword = async (data) => {
+    return await axios.post(
+        `${API_BASE_URL}/auth/change-password`,
+        data,
+        {
+            withCredentials: true, // Bắt buộc để gửi cookie (jwtToken, refreshToken)
+        }
+    );
 };
