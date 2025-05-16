@@ -1,6 +1,6 @@
 spring:
   application:
-    name: catalog-service
+    name: BLOG-SERVICE
 
   datasource:
     url: jdbc:mariadb://localhost:3306/blog_db?createDatabaseIfNotExist=true
@@ -15,12 +15,12 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
 
 server:
-  port: 8085
+  port: 8087
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://discovery-service:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -30,3 +30,9 @@ logging:
   level:
     org.springframework: DEBUG
     org.hibernate: DEBUG
+
+
+cloudinary:
+  cloud_name: dzwjgfd7t
+  api_key: 526411628189671
+  api_secret: ZtrL-STYHdMSCxaASgrQ1RGrUUY

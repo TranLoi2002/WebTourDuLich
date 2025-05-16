@@ -1,5 +1,6 @@
 package iuh.fit.se.blogservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -21,5 +22,6 @@ public class Category extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "category" , cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private List<Blog> blogs;
 }

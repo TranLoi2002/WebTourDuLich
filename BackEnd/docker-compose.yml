@@ -102,6 +102,21 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     networks:
       - app-network
+  blog-service:
+    build:
+      context: ./blog_service
+      dockerfile: Dockerfile
+    ports:
+      - "8087:8087"
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/blog_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - app-network
 
 
 # Định nghĩa network để các container giao tiếp với nhau

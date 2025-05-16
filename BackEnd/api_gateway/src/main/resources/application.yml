@@ -64,6 +64,12 @@ spring:
             - Path=/api/payment/**
           filters:
             - StripPrefix=1
+        - id: blog-service
+          uri: lb://BLOG-SERVICE
+          predicates:
+            - Path=/api/blog/**
+          filters:
+            - StripPrefix=1
     loadbalancer:
       health-check:
         interval: 5s
