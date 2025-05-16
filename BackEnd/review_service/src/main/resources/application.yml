@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:mariadb://localhost:3306/review_db?createDatabaseIfNotExist=true
-    username: root
-    password: root
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
@@ -34,3 +34,7 @@ logging:
   level:
     org.springframework: DEBUG
     org.hibernate: DEBUG
+cloudinary:
+  cloud_name: ${CLOUD_NAME}
+  api_key: ${CLOUD_API_KEY}
+  api_secret: ${CLOUD_API_SECRET}

@@ -1,6 +1,5 @@
 package iuh.fit.se.catalogservice.controller;
 
-import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.catalogservice.dto.TourTypeDTO;
 import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.model.TourType;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

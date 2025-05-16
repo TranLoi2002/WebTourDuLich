@@ -1,8 +1,6 @@
 package iuh.fit.se.catalogservice.controller;
 
-import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.catalogservice.dto.TourDTO;
-import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.service.FavouriteTourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -3,8 +3,8 @@ spring:
     name: PAYMENT-SERVICE
   datasource:
     url: jdbc:mariadb://localhost:3306/payment_db?createDatabaseIfNotExist=true
-    username: root
-    password: root
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
     hikari:
       connection-timeout: 30000

@@ -2,9 +2,7 @@ package iuh.fit.se.catalogservice.service.impl;
 
 import iuh.fit.se.catalogservice.dto.LocationDTO;
 import iuh.fit.se.catalogservice.mapper.LocationMapper;
-import iuh.fit.se.catalogservice.mapper.TourMapper;
 import iuh.fit.se.catalogservice.model.Location;
-import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.LocationRepository;
 import iuh.fit.se.catalogservice.service.LocationService;
 import iuh.fit.se.catalogservice.util.PaginationUtil;

@@ -2,7 +2,6 @@ package iuh.fit.se.reviewservice.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.reviewservice.model.Review;
 import iuh.fit.se.reviewservice.repository.ReviewRepository;
 import iuh.fit.se.reviewservice.service.ReviewService;
@@ -14,9 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

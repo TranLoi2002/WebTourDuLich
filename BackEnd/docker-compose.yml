@@ -12,7 +12,7 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./api_gateway  # Đổi từ api-gateway thành api_gateway
+      context: ./api_gateway
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -20,7 +20,7 @@ services:
       - discovery-service
     #      - mariadb
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
     networks:
       - app-network
 
@@ -30,13 +30,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
+    env_file:
+      - .env
     depends_on:
       - discovery-service
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/booking_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
 
@@ -46,13 +48,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
+    env_file:
+      - .env
     depends_on:
       - discovery-service
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/catalog_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
 
@@ -62,13 +66,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
+    env_file:
+      - .env
     depends_on:
       - discovery-service
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/review_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
 
@@ -78,13 +84,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
+    env_file:
+      - .env
     depends_on:
       - discovery-service
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/user_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
   payment-service:
@@ -93,13 +101,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8086:8086"
+    env_file:
+      - .env
     depends_on:
       - discovery-service
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/payment_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
   blog-service:
@@ -108,13 +118,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8087:8087"
+    env_file:
+      - .env
     depends_on:
       - discovery-service
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/blog_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
 

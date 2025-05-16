@@ -1,6 +1,5 @@
 package iuh.fit.se.catalogservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;

@@ -1,6 +1,5 @@
 package iuh.fit.se.catalogservice.service.impl;
 
-import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.catalogservice.dto.TourDTO;
 import iuh.fit.se.catalogservice.feign.ReviewServiceFeignClient;
 import iuh.fit.se.catalogservice.mapper.TourMapper;
@@ -16,11 +15,9 @@ import iuh.fit.se.catalogservice.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

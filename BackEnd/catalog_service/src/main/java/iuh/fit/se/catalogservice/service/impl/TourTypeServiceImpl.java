@@ -1,11 +1,7 @@
 package iuh.fit.se.catalogservice.service.impl;
 
-import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.catalogservice.dto.TourTypeDTO;
-import iuh.fit.se.catalogservice.mapper.LocationMapper;
 import iuh.fit.se.catalogservice.mapper.TourTypeMapper;
-import iuh.fit.se.catalogservice.model.Location;
-import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.model.TourType;
 import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourTypeService;
