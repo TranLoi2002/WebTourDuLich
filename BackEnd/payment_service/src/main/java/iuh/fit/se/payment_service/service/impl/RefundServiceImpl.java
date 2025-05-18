@@ -102,6 +102,7 @@ public class RefundServiceImpl implements RefundService {
         dto.setStatus(r.getStatus());
         dto.setReason(r.getReason());
         dto.setCreatedAt(r.getCreatedAt());
+        dto.setBookingId(r.getPayment().getBookingId());
         return dto;
     }
 

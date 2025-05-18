@@ -80,7 +80,7 @@ const PaymentTable = () => {
     }
   };
 
-  const handleRefund = async (paymentId) => {
+  const handleRefund = async (paymentId,bookingId) => {
     if (window.confirm('Bạn có chắc chắn muốn hoàn tiền cho thanh toán này?')) {
       try {
         // Step 1: Update payment status to REFUNDED
@@ -91,6 +91,10 @@ const PaymentTable = () => {
           paymentId,
           reason:'Admin muốn hoàn trả',
         });
+      
+       await axios.patch(`http://localhost:8080/booking/${bookingId}/status`, null, {
+        params: { status: 'INITIATED' },
+       });
 
         alert('Đã tạo hoàn tiền thành công!');
         fetchPayments();
@@ -102,10 +106,13 @@ const PaymentTable = () => {
     }
   };
 
-  const handleCancel = async (paymentId) => {
+  const handleCancel = async (paymentId,bookingId) => {
     if (window.confirm('Bạn có chắc chắn muốn hủy thanh toán này?')) {
       try {
         await axios.put(`http://localhost:8080/payment/payments/update-cancel-status/${paymentId}`);
+        await axios.patch(`http://localhost:8080/booking/${bookingId}/status`, null, {
+          params: { status: 'CANCELLED' },
+         });
         alert('Hủy thanh toán thành công!');
         fetchPayments();
       } catch (err) {
@@ -115,10 +122,13 @@ const PaymentTable = () => {
     }
   };
 
-  const handleComplete = async (paymentId) => {
+  const handleComplete = async (paymentId,bookingId) => {
     if (window.confirm('Bạn có chắc chắn muốn hoàn tất thanh toán này?')) {
       try {
         await axios.put(`http://localhost:8080/payment/payments/update-completed-status/${paymentId}`);
+        await axios.patch(`http://localhost:8080/booking/${bookingId}/status`, null, {
+          params: { status: 'COMPLETED' },
+         });
         alert('Hoàn tất thanh toán thành công!');
         fetchPayments();
       } catch (err) {
@@ -233,7 +243,7 @@ const PaymentTable = () => {
           </button>
           {p.status === 'COMPLETED' && (
             <button
-              onClick={() => handleRefund(p.id)}
+              onClick={() => handleRefund(p.id,p.bookingId)}
               className="px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 text-xs font-medium shadow-sm"
             >
               Hoàn tiền
@@ -242,13 +252,13 @@ const PaymentTable = () => {
           {p.status === 'PENDING' && (
             <div className="flex flex-col gap-1.5">
               <button
-                onClick={() => handleComplete(p.id)}
+                onClick={() => handleComplete(p.id,p.bookingId)}
                 className="px-2 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-xs font-medium shadow-sm"
               >
                 Hoàn tất
               </button>
               <button
-                onClick={() => handleCancel(p.id)}
+                onClick={() => handleCancel(p.id,p.bookingId)}
                 className="px-2 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 text-xs font-medium shadow-sm"
               >
                 Hủy

@@ -55,9 +55,15 @@ const RefundTable = () => {
       const refund = refunds.find((r) => r.id === id);
       if (action ==='approve' ){
         await axios.put(`http://localhost:8080/payment/payments/update-approve-status/${refund.paymentId}`);
+        await axios.patch(`http://localhost:8080/booking/${refund.bookingId}/status`, null, {
+          params: { status: 'APPROVED' },
+         });
       }
       if (action ==='reject' ){
         await axios.put(`http://localhost:8080/payment/payments/update-reject-status/${refund.paymentId}`);
+        await axios.patch(`http://localhost:8080/booking/${refund.bookingId}/status`, null, {
+          params: { status: 'REJECTED' },
+         });
       }
 
       const url = `http://localhost:8080/payment/refunds/${id}/${action}`;
