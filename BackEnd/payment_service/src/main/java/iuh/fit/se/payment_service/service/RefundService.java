@@ -14,7 +14,12 @@ import java.util.Optional;
 
 @Service
 public interface RefundService {
-    Page<RefundResponseDTO> getRefundsByDateRange(Optional<LocalDate> from, Optional<LocalDate> to, Pageable pageable);
+    Page<RefundResponseDTO> getRefundsByDateRange(
+            Optional<Long> paymentId,
+            Optional<String> status,
+            Optional<LocalDate> from,
+            Optional<LocalDate> to,
+            Pageable pageable);
     void approveRefund(Long id);
     void rejectRefund(Long id, String reason);
     void create(RefundResponseDTO dto);
