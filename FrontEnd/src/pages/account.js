@@ -6,6 +6,7 @@ import { getFavouriteTourByUserId, removeFavouriteTourByUserId, updateUserProfil
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import MyTour from '../components/MyTour';
+import ChangePasswordModal from "../pages/auth/ChangePasswordModal";
 
 
 const formatDateToYMD = (isoDate) => {
@@ -296,49 +297,29 @@ const Account = () => {
                             <div className='relative'>
                                 <h2 className='text-2xl text-center font-bold mb-[30px]'>Security</h2>
                                 <div className='flex flex-col gap-[1rem]'>
-                                    <details>
-                                        <summary>Login</summary>
-                                        <div className='flex items-center justify-between my-[10px]'>
-                                            <div>
-                                                <h3>Password</h3>
-                                                <span className='text-[0.8em] text-gray-400 leading-3'>Last updated 1 month ago</span>
-                                            </div>
-                                            <button
-                                                className='border-2 rounded-lg py-[8px] px-[10px] text-[#777E90]'
-                                                onClick={() => setModalIsOpen(true)}
-                                            >
-                                                Update password
-                                            </button>
-                                        </div>
-                                    </details>
-                                    <Modal
-                                        isOpen={modalIsOpen}
-                                        onRequestClose={() => setModalIsOpen(false)}
-                                        style={{
-                                            overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-                                            content: { width: '30%', margin: '100px auto', padding: '20px', borderRadius: '10px' },
-                                        }}
-                                    >
-                                        <div className='modal-content'>
-                                            <div className='flex items-center justify-between'>
-                                                <h3>Update Password</h3>
+                                    <div>
+                                        <details>
+                                            <summary>Login</summary>
+                                            <div className='flex items-center justify-between my-[10px]'>
+                                                <div>
+                                                    <h3>Password</h3>
+                                                    <span className='text-[0.8em] text-gray-400 leading-3'>Last updated 1 month ago</span>
+                                                </div>
                                                 <button
-                                                    onClick={() => setModalIsOpen(false)}
-                                                    className='bg-primary border-none py-[5px] px-[10px] outline-none text-white rounded-lg'
+                                                    className='border-2 rounded-lg py-[8px] px-[10px] text-[#777E90]'
+                                                    onClick={() => setModalIsOpen(true)}
                                                 >
-                                                    ×
+                                                    Update password
                                                 </button>
                                             </div>
-                                            <div className='flex flex-col gap-[30px] mt-[20px]'>
-                                                <TextField className='w-[80%]' label='Current password' type='password' />
-                                                <TextField className='w-[80%]' label='New password' type='password' />
-                                                <TextField className='w-[80%]' label='Confirm password' type='password' />
-                                                <button className='outline-none p-4 rounded-lg border-none bg-primary mt-[20px] text-white'>
-                                                    Save Change
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </Modal>
+                                        </details>
+                                    
+                                        {/* Modal tách riêng */}
+                                        <ChangePasswordModal
+                                            isOpen={modalIsOpen}
+                                            onClose={() => setModalIsOpen(false)}
+                                        /> 
+                                    </div>
                                     <details>
                                         <summary>Device History</summary>
                                         <p className='mt-5'>Your access has not been processed yet!</p>

@@ -2,17 +2,18 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
-import { signup } from '../../api/auth.api';
+import { requestOTP } from '../../api/auth.api';
 import {toast} from "react-toastify";
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
         userName: "",
         email: "",
+        fullName: "",
         phoneNumber: "",
         passWord: "",
         confirmPassword: "",
-        role: "USER",
+        roleName: "USER",
     });
 
     const [error, setError] = useState("");
@@ -31,7 +32,7 @@ const Sign_Up = () => {
             toast.info("Please fill in all fields");
             return;
         }
-
+    
         // Validate email format
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(formData.email)) {
@@ -64,14 +65,13 @@ const Sign_Up = () => {
             email: formData.email,
             phoneNumber: formData.phoneNumber,
             passWord: formData.passWord,
-            roleName: formData.role
+            roleName: formData.roleName
         };
 
         try {
-            const res = await signup(user); // Call the signup API
+            const res = await requestOTP(user); // Call the signup API
             toast.info("Register account success. Let's complete your sign in !!");
-            // console.log("Signup success:", res);
-            navigate("/auth/sign_in"); // Redirect to the login page
+            navigate("/auth/verifyOTP", { state: { email: formData.email } });
         } catch (err) {
             toast.error("Register account failed. Please try again !!");
         }
@@ -102,6 +102,16 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.userName}
                             onChange={handleChange}
+                        />
+                        <TextField
+                            label="Full Name"
+                            name="fullName"
+                            variant="outlined"
+                            fullWidth
+                            margin="dense"
+                            value={formData.fullName}
+                            onChange={handleChange}
+
                         />
                         <TextField
                             label="Email"
@@ -141,9 +151,7 @@ const Sign_Up = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                         />
-
                         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-
                         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
                             Sign Up
                         </Button>
