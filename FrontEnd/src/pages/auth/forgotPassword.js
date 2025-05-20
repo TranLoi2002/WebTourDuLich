@@ -3,7 +3,6 @@ import { TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { forgotPassword } from '../../api/auth.api'; // Đảm bảo bạn đã import đúng
-import { toast } from "react-toastify";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");

@@ -195,13 +195,6 @@ const Account = () => {
                                                 >
                                                     Upload file
                                                 </label>
-                                                <button
-                                                    className='outline-none border-2 border-[#F65540] text-[#F65540] rounded-lg bg-white py-[5px] px-[30px]'
-                                                    type='button'
-                                                    onClick={handleRemoveFile}
-                                                >
-                                                    Remove
-                                                </button>
                                             </form>
                                             {error && <p className='text-red-500'>{error}</p>}
                                             <h4 className='font-normal text-[#b7b1b1] leading-5'>

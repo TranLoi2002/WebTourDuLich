@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Box, TextField, Button } from "@mui/material";
 import { toast } from "react-toastify";
 import { verifyOTP } from "../../api/auth.api";
-import { toast } from "react-toastify";
 
 const VerifyOTP = () => {
     const navigate = useNavigate();

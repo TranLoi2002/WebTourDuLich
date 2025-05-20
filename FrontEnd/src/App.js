@@ -48,7 +48,7 @@ import Account from "./pages/account";
 import FAQ from './pages/FAQ';
 import Help from './pages/help';
 import BlogDetail from "./pages/blog/detail";
-import Dashboard from "./pages/admin/DashBoard"
+import Dashboard from "./pages/admin/Dashboard";
 import PrivateRoute from "./routes/PrivateRoute";
 import Payment from "./pages/Payment";
 import VerifyOTP from "./pages/auth/verifyOTP";
