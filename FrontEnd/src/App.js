@@ -51,6 +51,8 @@ import BlogDetail from "./pages/blog/detail";
 import Dashboard from "./pages/admin/DashBoard"
 import PrivateRoute from "./routes/PrivateRoute";
 import Payment from "./pages/Payment";
+import VerifyOTP from "./pages/auth/verifyOTP";
+import ChangePasswordModal from "./pages/auth/ChangePasswordModal";
 
 
 function App() {
@@ -121,6 +123,8 @@ function App() {
                     <Route path="/auth/sign_up" element={<SignUp/>}/>
                     <Route path="/auth/forgotpassword" element={<ForgotPassword/>}/>
                     <Route path="/auth/resetpassword" element={<ResetPassword/>}/>
+                    <Route path="/auth/verifyOTP" element={<VerifyOTP/>}/>
+                    <Route path="/auth/ChangePasswordModal" element={<ChangePasswordModal/>}/>
                     {/*option*/}
                     <Route path="/thingstodo" element={<ThingsToDo/>}/>
                     <Route path="/resulttour" element={<ResultTour/>}/>

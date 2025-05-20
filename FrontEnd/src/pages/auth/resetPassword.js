@@ -1,44 +1,92 @@
-import React, { useState } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { resetPassword } from "../../api/auth.api";
+import { Box, TextField, Button, Typography } from "@mui/material";
+import { toast } from "react-toastify";
 
 const ResetPassword = () => {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const email = location.state?.email || "";
 
-    const handleSubmit = (e) => {
+    const [otp, setOtp] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (password === confirmPassword) {
-            // Simulate password reset
-            alert('Password has been reset successfully');
-        } else {
-            alert('Passwords do not match');
+
+        // Clear previous toast
+        toast.dismiss();
+
+        // Validate input
+        if (!otp || !newPassword || !confirmPassword) {
+            toast.info("Please fill in all fields");
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            toast.info("Password must be at least 6 characters long");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            toast.info("Password and confirmation do not match");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            await resetPassword({ email, otp, newPassword });
+            toast.success("Password has been reset successfully");
+            setTimeout(() => navigate("/auth/sign_in"), 1500);
+        } catch (err) {
+            toast.error(err?.error || "Failed to reset password. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Box sx={{ maxWidth: 400, mx: 'auto', mt: 20 }}>
-            <Typography variant="h5" sx={{ mb: 3 }}>Reset Password</Typography>
+        <Box maxWidth={400} mx="auto" mt={5}>
+            <Typography variant="h5" gutterBottom>Reset Password</Typography>
             <form onSubmit={handleSubmit}>
+                <TextField
+                    label="OTP"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                />
                 <TextField
                     label="New Password"
                     type="password"
+                    variant="outlined"
                     fullWidth
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    sx={{ mb: 3 }}
+                    margin="normal"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <TextField
                     label="Confirm New Password"
                     type="password"
+                    variant="outlined"
                     fullWidth
-                    required
+                    margin="normal"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    sx={{ mb: 3 }}
                 />
-                <Button type="submit" variant="contained" color="primary" fullWidth>
-                    Reset Password
+                <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    disabled={loading}
+                >
+                    {loading ? "Processing..." : "Confirm"}
                 </Button>
             </form>
         </Box>

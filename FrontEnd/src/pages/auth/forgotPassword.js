@@ -1,13 +1,43 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { forgotPassword } from '../../api/auth.api'; // Đảm bảo bạn đã import đúng
+import { toast } from "react-toastify";
 
 const ForgotPassword = () => {
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Simulate sending reset link
-        alert(`Reset link sent to ${email}`);
+        toast.dismiss();
+
+        if (!email) {
+            toast.info("Please enter your email");
+            return;
+        }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            toast.info("Invalid email format");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            await forgotPassword(email);
+            toast.success("OTP has been sent to your email");
+            setTimeout(() => {
+                navigate("/auth/resetPassword", { state: { email } });
+            }, 1000);
+        } catch (err) {
+            toast.error(err?.error || "Failed to send OTP");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -16,15 +46,20 @@ const ForgotPassword = () => {
             <form onSubmit={handleSubmit}>
                 <TextField
                     label="Email"
-                    type="email"
+                    variant="outlined"
                     fullWidth
-                    required
+                    margin="normal"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    sx={{ mb: 3 }}
                 />
-                <Button type="submit" variant="contained" color="primary" fullWidth>
-                    Send Reset Link
+                <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    disabled={loading}
+                >
+                    {loading ? "Sending..." : "Send OTP code"}
                 </Button>
             </form>
         </Box>
