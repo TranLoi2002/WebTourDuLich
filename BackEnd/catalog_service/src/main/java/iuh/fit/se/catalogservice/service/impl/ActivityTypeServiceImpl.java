@@ -1,8 +1,11 @@
 package iuh.fit.se.catalogservice.service.impl;
 
+import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.catalogservice.dto.ActivityTypeDTO;
 import iuh.fit.se.catalogservice.mapper.ActivityTypeMapper;
+import iuh.fit.se.catalogservice.mapper.LocationMapper;
 import iuh.fit.se.catalogservice.model.ActivityType;
+import iuh.fit.se.catalogservice.model.Location;
 import iuh.fit.se.catalogservice.repository.ActivityTypeRepository;
 import iuh.fit.se.catalogservice.service.ActivityTypeService;
 import iuh.fit.se.catalogservice.util.PaginationUtil;
@@ -59,7 +62,12 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
     public void deleteActivityType(Long id) {
         ActivityType activityType = getActivityTypeById(id);
         if (activityType != null) {
-            activityType.setActive(false);
+            // change active when
+            if(activityType.isActive()) {
+                activityType.setActive(false);
+            } else {
+                activityType.setActive(true);
+            }
             activityTypeRepository.save(activityType);
         }
     }

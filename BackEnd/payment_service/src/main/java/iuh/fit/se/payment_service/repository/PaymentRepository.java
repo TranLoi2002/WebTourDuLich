@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpecificationExecutor<Payment> {
-
     Payment findPaymentByBookingId(Long bookingId);
 }

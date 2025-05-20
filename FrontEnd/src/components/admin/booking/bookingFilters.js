@@ -1,5 +1,5 @@
 import React from 'react';
-import { BOOKING_STATUSES, PAYMENT_FILTERS } from './Constants';
+import { BOOKING_STATUSES, PAYMENT_FILTERS } from './constants';
 
 const BookingFilters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, paymentFilter, setPaymentFilter }) => {
   return (

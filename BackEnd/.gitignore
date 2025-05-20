@@ -15,3 +15,9 @@
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# remove push pycache folder
+rasa/venv
+rasa/rasa_env
+__pycache__/
+

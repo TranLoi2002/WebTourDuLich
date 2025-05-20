@@ -1,6 +1,7 @@
 package iuh.fit.se.catalogservice.service;
 
 import iuh.fit.se.catalogservice.dto.TourDTO;
+import iuh.fit.se.catalogservice.model.Tour;
 
 import java.util.List;
 

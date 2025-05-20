@@ -3,9 +3,10 @@ import axios from "axios";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // SIGN UP
-export const signup = async (user) => {
+export const requestOTP = async (user) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/auth/register`, user, {
+        const response = await axios.post(`${API_BASE_URL}/auth/request-otp`, user, {
+
             withCredentials: true,
         });
         return response.data;
@@ -13,6 +14,18 @@ export const signup = async (user) => {
         throw error.response?.data || { error: "Something went wrong" };
     }
 };
+
+// Xác thực OTP
+export const verifyOTP = async(email,otp)=>{
+    try{
+        const response = await axios.post(`${API_BASE_URL}/auth/verify-otp?email=${email}&otp=${otp}`, {
+            withCredentials: true,
+        });
+        console.log(response);
+    }catch(error){
+        throw error.message;
+    }
+}
 
 // LOGIN
 export const login = async (loginData) => {
@@ -30,13 +43,29 @@ export const login = async (loginData) => {
 export const logout = async () => {
     try {
         const response = await axios.post(`${API_BASE_URL}/auth/logout`, {}, {
-            withCredentials: true,
+            withCredentials: true, // gửi cookies như JWT hoặc session ID
         });
+
+        // Nếu logout thành công, xóa dữ liệu phía client
+        localStorage.removeItem('user'); // hoặc tên key mà bạn đang lưu user
         return response.data;
     } catch (error) {
+        // Nếu lỗi 403 (token không hợp lệ hoặc hết hạn) : XÓA THỦ CÔNG
+        if (error.response?.status === 403) {
+            // Xoá localStorage
+            localStorage.removeItem('user');
+
+            document.cookie = 'jwtToken=; Max-Age=0; path=/';
+            document.cookie = 'refreshToken=; Max-Age=0; path=/';
+
+            return { message: "Phiên đăng nhập đã hết hạn. Đã tự động đăng xuất." };
+        }
+
+        // Các lỗi khác
         throw error.response?.data || { error: "Something went wrong" };
     }
 };
+
 
 // VERIFY USER
 export const verifyUser = async () => {
@@ -61,3 +90,40 @@ export const getUserById = async (userId) => {
         throw error.response?.data || { error: "Something went wrong" };
     }
 };
+
+// Gửi OTP quên mật khẩu
+export const forgotPassword = async (email) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Không thể gửi OTP" };
+    }
+};
+
+// Đặt lại mật khẩu mới sau khi xác thực OTP
+export const resetPassword = async ({ email, otp, newPassword }) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+            email,
+            otp,
+            newPassword
+        }, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Đặt lại mật khẩu thất bại" };
+    }
+};
+// Đổi mật khẩu
+export const changePassword = async (data) => {
+    return await axios.post(
+        `${API_BASE_URL}/auth/change-password`,
+        data,
+        {
+            withCredentials: true, // Bắt buộc để gửi cookie (jwtToken, refreshToken)
+        }
+    );
+};
+

@@ -1,7 +1,11 @@
 package iuh.fit.se.catalogservice.service.impl;
 
+import com.netflix.discovery.converters.Auto;
 import iuh.fit.se.catalogservice.dto.TourTypeDTO;
+import iuh.fit.se.catalogservice.mapper.LocationMapper;
 import iuh.fit.se.catalogservice.mapper.TourTypeMapper;
+import iuh.fit.se.catalogservice.model.Location;
+import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.model.TourType;
 import iuh.fit.se.catalogservice.repository.TourTypeRepository;
 import iuh.fit.se.catalogservice.service.TourTypeService;
@@ -61,7 +65,11 @@ public class TourTypeServiceImpl implements TourTypeService {
     public void deleteTourType(Long id) {
         TourType tourType = getTourTypeById(id);
         if (tourType != null) {
-            tourType.setActive(false);
+            if(tourType.isActive()) {
+                tourType.setActive(false);
+            } else {
+                tourType.setActive(true);
+            }
             tourTypeRepository.save(tourType);
         }
     }

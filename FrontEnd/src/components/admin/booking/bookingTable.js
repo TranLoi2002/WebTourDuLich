@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllBookings, updateBookingStatus, cancelBooking } from '../../../api/booking.api';
-import BookingFilters from './BookingFilters';
-import BookingList from './BookingList';
-import BookingDetailsModal from './BookingDetailsModal';
-import CancelBookingModal from './CancelBookingModal';
+import BookingFilters from './bookingFilters';
+import BookingList from './bookingList';
+import BookingDetailsModal from './bookingDetailsModal';
+import CancelBookingModal from './cancelBookingModal';
 import { useWebSocket } from './useWebSocket';
-import { PAGE_SIZE, CANCEL_REASONS } from './Constants';
+import { PAGE_SIZE, CANCEL_REASONS } from './constants';
 
 const BookingTable = () => {
   const [bookings, setBookings] = useState([]);
@@ -39,7 +39,7 @@ const BookingTable = () => {
 
   const handleBookingUpdate = useCallback((updatedBooking) => {
     setBookings((prev) =>
-      prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
+        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
     );
   }, []);
 
@@ -71,11 +71,11 @@ const BookingTable = () => {
 
     if (searchTerm) {
       results = results.filter((booking) =>
-        [
-          booking.user?.fullName?.toLowerCase(),
-          booking.user?.email?.toLowerCase(),
-          booking.bookingCode?.toLowerCase(),
-        ].some((field) => field?.includes(searchTerm.toLowerCase()))
+          [
+            booking.user?.fullName?.toLowerCase(),
+            booking.user?.email?.toLowerCase(),
+            booking.bookingCode?.toLowerCase(),
+          ].some((field) => field?.includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -85,7 +85,7 @@ const BookingTable = () => {
 
     if (paymentFilter !== 'ALL') {
       results = results.filter((booking) =>
-        paymentFilter === 'PENDING' ? booking.paymentDueTimeRelevant : !booking.paymentDueTimeRelevant
+          paymentFilter === 'PENDING' ? booking.paymentDueTimeRelevant : !booking.paymentDueTimeRelevant
       );
     }
 
@@ -115,14 +115,14 @@ const BookingTable = () => {
       const response = await updateBookingStatus(selectedBooking.id, newStatus);
       const updatedBooking = response.data;
       setBookings((prev) =>
-        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
+          prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
       );
       setSelectedBooking(updatedBooking);
       setIsModalOpen(false);
       toast.success(`Booking ${updatedBooking.bookingCode} updated to ${newStatus}`);
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || 'Failed to update booking status. Please try again.';
+          error.response?.data?.message || 'Failed to update booking status. Please try again.';
       toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
@@ -136,13 +136,13 @@ const BookingTable = () => {
       const response = await cancelBooking(selectedBooking.id, { reason: cancelReason });
       const updatedBooking = response.data;
       setBookings((prev) =>
-        prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
+          prev.map((booking) => (booking.id === updatedBooking.id ? updatedBooking : booking))
       );
       setIsCancelModalOpen(false);
       toast.success(`Booking ${updatedBooking.bookingCode} canceled successfully.`);
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || 'Failed to cancel booking. Please try again.';
+          error.response?.data?.message || 'Failed to cancel booking. Please try again.';
       toast.error(errorMessage);
     } finally {
       setIsCanceling(false);
@@ -156,73 +156,78 @@ const BookingTable = () => {
   }, [totalPages]);
 
   return (
-    <div className="p-4">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-      <BookingFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        paymentFilter={paymentFilter}
-        setPaymentFilter={setPaymentFilter}
-      />
-      <BookingList
-        bookings={filteredBookings}
-        isLoading={isLoading}
-        handleBookingClick={handleBookingClick}
-        setSelectedBooking={setSelectedBooking}
-        setIsCancelModalOpen={setIsCancelModalOpen}
-        setNewStatus={setNewStatus}
-        setCancelReason={setCancelReason}
-        CANCEL_REASONS={CANCEL_REASONS}
-      />
-      <div className="mt-4 flex justify-between items-center">
-        <div>
-          <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{currentPage * PAGE_SIZE + 1}</span> to{' '}
-            <span className="font-medium">
+      <div className="p-4">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Booking Management</h1>
+          <p className="text-sm text-gray-600">Manage booking system</p>
+        </div>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+        <BookingFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            paymentFilter={paymentFilter}
+            setPaymentFilter={setPaymentFilter}
+        />
+        <BookingList
+            bookings={filteredBookings}
+            isLoading={isLoading}
+            handleBookingClick={handleBookingClick}
+            setSelectedBooking={setSelectedBooking}
+            setIsCancelModalOpen={setIsCancelModalOpen}
+            setNewStatus={setNewStatus}
+            setCancelReason={setCancelReason}
+            CANCEL_REASONS={CANCEL_REASONS}
+        />
+        <div className="mt-4 flex justify-between items-center">
+          <div>
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-medium">{currentPage * PAGE_SIZE + 1}</span> to{' '}
+              <span className="font-medium">
               {Math.min((currentPage + 1) * PAGE_SIZE, totalElements)}
             </span>{' '}
-            of <span className="font-medium">{totalElements}</span> bookings
-          </p>
+              of <span className="font-medium">{totalElements}</span> bookings
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 0}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages - 1}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 0}
-            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages - 1}
-            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        <BookingDetailsModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            selectedBooking={selectedBooking}
+            newStatus={newStatus}
+            setNewStatus={setNewStatus}
+            handleStatusUpdate={handleStatusUpdate}
+            isUpdating={isUpdating}
+            handleStatusChange={handleStatusChange}
+        />
+        <CancelBookingModal
+            isOpen={isCancelModalOpen}
+            onClose={() => setIsCancelModalOpen(false)}
+            selectedBooking={selectedBooking}
+            cancelReason={cancelReason}
+            setCancelReason={setCancelReason}
+            handleCancelBooking={handleCancelBooking}
+            isCanceling={isCanceling}
+        />
       </div>
-      <BookingDetailsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        selectedBooking={selectedBooking}
-        newStatus={newStatus}
-        setNewStatus={setNewStatus}
-        handleStatusUpdate={handleStatusUpdate}
-        isUpdating={isUpdating}
-        handleStatusChange={handleStatusChange}
-      />
-      <CancelBookingModal
-        isOpen={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)}
-        selectedBooking={selectedBooking}
-        cancelReason={cancelReason}
-        setCancelReason={setCancelReason}
-        handleCancelBooking={handleCancelBooking}
-        isCanceling={isCanceling}
-      />
-    </div>
   );
 };
 

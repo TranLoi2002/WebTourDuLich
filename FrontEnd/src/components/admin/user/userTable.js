@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllUsers, updateUser } from '../../../api/user.api';
-import UserFilters from './UserFilters';
-import UserList from './UserList';
-import UserDetailsModal from './UserDetailsModal';
+import UserFilters from './userFilters';
+import UserList from './userList';
+import UserDetailsModal from './userDetailsModal';
 
 const PAGE_SIZE = 5;
 
@@ -28,7 +28,8 @@ function UserTable() {
       setIsLoading(true);
       try {
         const usersData = await getAllUsers();
-        setAllUsers(usersData);
+
+        setAllUsers(usersData.data || []);
         setTotalPages(Math.ceil(usersData.length / PAGE_SIZE) || 1);
       } catch (err) {
         toast.error('Failed to load users. Please try again.');
@@ -77,7 +78,9 @@ function UserTable() {
     // Apply pagination
     const startIndex = currentPage * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
-    const usersForPage = filteredResults.slice(startIndex, endIndex);
+    const usersForPage = Array.isArray(filteredResults)
+        ? filteredResults.slice(startIndex, endIndex)
+        : [];
     setDisplayedUsers(usersForPage);
 
     // Update total pages based on filtered data

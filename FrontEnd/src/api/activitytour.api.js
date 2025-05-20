@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { handleApiError, formatSuccessResponse } from '../utils/apiErrorHandler';
 const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/catalog/activity-types`;
 
 
@@ -15,3 +15,27 @@ export const getActivityType = async (page, size, sortBy, sortDir) => {
         throw error;
     }
 }
+export const createActivityTypee = async (data) => {
+    try {
+        const response = await axios.post(`${apiUrl}`, data);
+        return formatSuccessResponse(response);
+    } catch (error) {
+        return handleApiError(error);
+    }
+};
+export const updateActivityType = async (id,newData) => {
+    try {
+        const response = await axios.put(`${apiUrl}/update/${id}`, newData);
+        return formatSuccessResponse(response);
+    } catch (error) {
+        return handleApiError(error);
+    }
+};
+export const toggleActivityType = async (id) => {
+    try {
+        const response = await axios.delete(`${apiUrl}/${id}`);
+        return formatSuccessResponse(response);
+    } catch (error) {
+        return handleApiError(error);
+    }
+};

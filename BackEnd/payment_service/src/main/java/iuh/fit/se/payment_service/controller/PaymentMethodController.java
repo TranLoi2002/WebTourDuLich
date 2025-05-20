@@ -2,8 +2,10 @@ package iuh.fit.se.payment_service.controller;
 
 import iuh.fit.se.payment_service.dto.PaymentMethodDTO;
 import iuh.fit.se.payment_service.dto.PaymentMethodResponseDTO;
+
 import iuh.fit.se.payment_service.entity.PaymentMethod;
 import iuh.fit.se.payment_service.repository.PaymentMethodRepository;
+
 import iuh.fit.se.payment_service.service.PaymentMethodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentMethodController {
     private final PaymentMethodService paymentMethodService;
+
     private final PaymentMethodRepository paymentMethodRepository;
 
     @PostMapping
@@ -39,8 +42,10 @@ public class PaymentMethodController {
     ) {
         return paymentMethodService.getAllFiltered(name, active);
     }
+
+
     @GetMapping("/{id}")
-    PaymentMethod getById(@PathVariable Long id) {
-        return paymentMethodRepository.findById(id).orElse(null);
+    public PaymentMethodResponseDTO getById(@PathVariable Long id) {
+        return paymentMethodService.getById(id);
     }
 }

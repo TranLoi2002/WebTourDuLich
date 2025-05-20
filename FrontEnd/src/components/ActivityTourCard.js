@@ -1,11 +1,13 @@
 import React, {useEffect} from 'react';
 import {useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {addFavouriteTourByUserId, getFavouriteTourByUserId, removeFavouriteTourByUserId} from "../api/user.api";
+import {getTourByLocationId} from "../api/tour.api";
 
 const ActivityTourCard = ({tour}) => {
 
+    const navigate = useNavigate();
     const [isLiked, setIsLiked] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -52,6 +54,15 @@ const ActivityTourCard = ({tour}) => {
         ? (tour.price * (1 - tour.discount / 100)).toFixed(2)
         : tour.price;
 
+    const handleLocationClick = async (locationId) => {
+        try {
+            const tours = await getTourByLocationId(locationId);
+            navigate('/tours/location-tours', { state: { tours } });
+        } catch (error) {
+            console.error("Error fetching tours for location:", error);
+        }
+    };
+
     return (
         <div className="card">
             <div className="image_adds w-[40%]">
@@ -71,7 +82,8 @@ const ActivityTourCard = ({tour}) => {
                     </button>
                 </div>
 
-                <div className="mb-3 flex gap-1 items-center">
+                <div className="mb-3 flex gap-1 items-center cursor-pointer"
+                     onClick={() => handleLocationClick(tour.location.id)}>
                     <i className="fa-solid fa-location-dot"></i>
                     <h4 className="text-gray-600">{tour.location.name}</h4>
                 </div>
@@ -91,7 +103,17 @@ const ActivityTourCard = ({tour}) => {
                     </span>
                 )}
 
-                <p className="leading-4 text-sm text-gray-500">{tour.description}</p>
+                <p
+                    className="leading-4 text-sm text-gray-500"
+                    data-swiper-parallax="-100"
+                    dangerouslySetInnerHTML={{
+                        __html: tour.description
+                            ? tour.description.length > 100
+                                ? `${tour.description.slice(0, 100)}...`
+                                : tour.description
+                            : "No description available!",
+                    }}
+                ></p>
                 <div className="read my-6">
                     <Link to={`/tours/detailtour/${tour.id}`}>Read more</Link>
                     <i className="fa-solid fa-angles-right"></i>

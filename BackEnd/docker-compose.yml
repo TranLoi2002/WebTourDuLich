@@ -129,6 +129,23 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
+  chatbot-service:
+    build:
+      context: ./ChatbotService
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    env_file:
+      - .env
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3306/chatbot_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    networks:
+      - app-network
 
 
 # Định nghĩa network để các container giao tiếp với nhau

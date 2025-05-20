@@ -1,44 +1,84 @@
-import React, { useState } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { resetPassword } from "../../api/auth.api";
+import { Box, TextField, Button, Alert, Typography } from "@mui/material";
+import {toast}  from "react-toastify";
+import {Navigate} from "react-router-dom";
 
 const ResetPassword = () => {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const email = location.state?.email || "";
 
-    const handleSubmit = (e) => {
+    const [otp, setOtp] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    // prevent access though login
+    if (!email) {
+        return <Navigate to="/auth/sign_in" replace />;
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (password === confirmPassword) {
-            // Simulate password reset
-            alert('Password has been reset successfully');
-        } else {
-            alert('Passwords do not match');
+        setError("");
+        setSuccess("");
+
+        if (newPassword !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+
+        if(otp.trim() === "" || newPassword.trim() === "" || confirmPassword.trim() === "") {
+            toast.error("Please fill in all fields");
+            return;
+        }
+
+        try {
+            await resetPassword({ email, otp, newPassword });
+            toast.success("Password reset successfully");
+            setTimeout(() => navigate("/auth/sign_in"), 1500);
+        } catch (err) {
+            toast.info("Reset password failed");
         }
     };
 
     return (
-        <Box sx={{ maxWidth: 400, mx: 'auto', mt: 20 }}>
-            <Typography variant="h5" sx={{ mb: 3 }}>Reset Password</Typography>
+        <Box maxWidth={400} mx="auto" mt={14}>
+            <Typography variant="h5" className="" gutterBottom>Reset Password</Typography>
             <form onSubmit={handleSubmit}>
+                <TextField
+                    label="OTP"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                />
                 <TextField
                     label="New Password"
                     type="password"
+                    variant="outlined"
                     fullWidth
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    sx={{ mb: 3 }}
+                    margin="normal"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <TextField
-                    label="Confirm New Password"
+                    label="Confirm Password"
                     type="password"
+                    variant="outlined"
                     fullWidth
-                    required
+                    margin="normal"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    sx={{ mb: 3 }}
                 />
-                <Button type="submit" variant="contained" color="primary" fullWidth>
-                    Reset Password
+                {error && <Alert severity="error">{error}</Alert>}
+                {success && <Alert severity="success">{success}</Alert>}
+                <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+                    Done
                 </Button>
             </form>
         </Box>

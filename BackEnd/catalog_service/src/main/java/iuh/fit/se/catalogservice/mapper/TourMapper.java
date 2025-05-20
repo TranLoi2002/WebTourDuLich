@@ -5,7 +5,10 @@ import iuh.fit.se.catalogservice.model.Location;
 import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.model.TourStatus;
 import iuh.fit.se.catalogservice.model.TourType;
+import iuh.fit.se.catalogservice.repository.TourRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TourMapper {

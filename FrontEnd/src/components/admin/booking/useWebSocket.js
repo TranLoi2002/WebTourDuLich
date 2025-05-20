@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { toast } from 'react-toastify';
-import { WEBSOCKET_URL } from './Constants';
+import { WEBSOCKET_URL } from './constants';
 
 export const useWebSocket = (onNewBooking, onBookingUpdate) => {
   const [client, setClient] = useState(null);

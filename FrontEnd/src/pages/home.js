@@ -2,29 +2,29 @@ import Advert from "../components/advert";
 import BookEasy from "../components/book_easy";
 import Discover from "../components/discover";
 import Services from "../components/services";
-import Gallery from "../components/gallery";
+import React, {useState} from "react";
+import Chatbot from "../components/Chatbot"
+
 const Home = () => {
-    // const images = [
-    //     {src: 'https://www.w3schools.com/w3images/mountains.jpg', alt: 'mountains', location: 'Mountains'},
-    //     {src: 'https://www.w3schools.com/w3images/forestbridge.jpg', alt: 'forest bridge', location: 'Forest Bridge'},
-    //     {src: 'https://www.w3schools.com/w3images/nature.jpg', alt: 'nature', location: 'Nature'},
-    //     {src: 'https://www.w3schools.com/w3images/mist.jpg', alt: 'mist', location: 'Mist'},
-    //     {src: 'https://www.w3schools.com/w3images/paris.jpg', alt: 'paris', location: 'Paris'},
-    //     {src: 'https://www.w3schools.com/w3images/newyork.jpg', alt: 'new york', location: 'New York'},
-    //     {src: 'https://www.w3schools.com/w3images/sanfran.jpg', alt: 'san francisco', location: 'San Francisco'},
-    //     {src: 'https://www.w3schools.com/w3images/pisa.jpg', alt: 'pisa', location: 'Pisa'},
-    //     {src: 'https://www.w3schools.com/w3images/paris.jpg', alt: 'paris', location: 'Paris'},
-    //     {src: 'https://www.w3schools.com/w3images/newyork.jpg', alt: 'new york', location: 'New York'},
-    //     {src: 'https://www.w3schools.com/w3images/sanfran.jpg', alt: 'san francisco', location: 'San Francisco'},
-    //     {src: 'https://www.w3schools.com/w3images/pisa.jpg', alt: 'pisa', location: 'Pisa'},
-    //     ];
+    const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+
     return (
         <>
+            <div className="relative">
+                <button
+                    onClick={() => setIsChatbotOpen((prev) => !prev)}
+                    className="fixed z-[99999] bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600"
+                >
+                    {isChatbotOpen ? <i className="fa-solid fa-xmark"></i> :
+                        <i className="fa-solid fa-robot"></i>
+                    }
+                </button>
+                {isChatbotOpen && <Chatbot/>}
+            </div>
             <Advert/>
             <BookEasy/>
             <Services/>
             <Discover/>
-            {/*<Gallery images={images} />*/}
         </>
     );
 }

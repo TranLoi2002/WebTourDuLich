@@ -1,13 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getDetailTour, getRelatedTourByLocationId } from "../../api/tour.api";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import React, {useState, useEffect, useCallback} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {getDetailTour, getRelatedTourByLocationId} from "../../api/tour.api";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Navigation, FreeMode, Thumbs} from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { format } from "date-fns";
-import { verifyUser } from "../../api/auth.api";
+import 'swiper/css/free-mode';
+import 'swiper/css/thumbs';
+
+import {format} from "date-fns";
+import {verifyUser} from "../../api/auth.api";
 import {
     createReview,
     getReviewOfTour,
@@ -16,8 +19,8 @@ import {
     uploadImages,
     getCountReplies
 } from "../../api/review.api";
-import { getUserById } from "../../api/user.api";
-import { toast } from "react-toastify";
+import {getUserById} from "../../api/user.api";
+import {toast} from "react-toastify";
 import HorizontalLayout from "../../components/horizontalLayout";
 import Modal from "react-modal";
 
@@ -25,108 +28,138 @@ import Modal from "react-modal";
 Modal.setAppElement("#root");
 
 // Sub-component for Tour Information (unchanged)
-const TourInfo = ({ tour, randomImage, showImages, setShowImages }) => (
-    <div className="trip_main">
-        <div className="trip_infor">
-            {tour && tour.tourType ? (
-                <>
-                    <span className="Tour">{tour.tourType.name}</span>
-                    <label>
-                        <i className="fa-solid fa-location-dot"></i>
-                        <span>{tour.location.name}</span>
-                    </label>
-                </>
-            ) : (
-                <p>No tour information available.</p>
-            )}
-        </div>
-        <div className="top">
-            <div className="image_main">
-                <img src={tour.thumbnail} alt="Main Tour" />
+const TourInfo = ({tour, randomImage, showImages, setShowImages}) => {
+    const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    return (
+        <div className="trip_main">
+            <div className="trip_infor">
+                {tour && tour.tourType ? (
+                    <>
+                        <span className="Tour">{tour.tourType.name}</span>
+                        <label>
+                            <i className="fa-solid fa-location-dot"></i>
+                            <span>{tour.location.name}</span>
+                        </label>
+                    </>
+                ) : (
+                    <p>No tour information available.</p>
+                )}
             </div>
-            <div className="image_second">
-                {tour.images.slice(0, 1).map((image, index) => (
-                    <img key={index} src={image} alt={`Tour Image ${index + 1}`} />
-                ))}
-                <div className="image_third w-full h-full overflow-hidden">
-                    <div className="absolute w-full h-full bg-gradient-to-b from-black to-transparent rounded-lg"></div>
-                    <img src={tour.images[1]} alt={`Tour Image 3`} />
-                    {tour.images.length > 1 && (
-                        <button className="more_images_button" onClick={() => setShowImages(true)}>
-                            +{tour.images.length - 2} more
+            <div className="top">
+                <div className="image_main">
+                    <img src={tour.thumbnail} alt="Main Tour"/>
+                </div>
+                <div className="image_second">
+                    {tour.images.slice(0, 1).map((image, index) => (
+                        <img key={index} src={image} alt={`Tour Image ${index + 1}`}/>
+                    ))}
+                    <div className="image_third w-full h-full overflow-hidden">
+                        <div
+                            className="absolute w-full h-full bg-gradient-to-b from-black to-transparent rounded-lg"></div>
+                        <img src={tour.images[1]} alt={`Tour Image 3`}/>
+                        {tour.images.length > 1 && (
+                            <button className="more_images_button" onClick={() => setShowImages(true)}>
+                                +{tour.images.length - 2} more
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+            {showImages && (
+                <div className="image_modal_overlay">
+                    <div className="image_modal">
+                        <button className="close_button" onClick={() => setShowImages(false)}>
+                            ×
                         </button>
-                    )}
+                        <Swiper
+                            style={{
+                                '--swiper-navigation-color': '#fff',
+                                '--swiper-pagination-color': '#fff',
+                            }}
+                            loop={true}
+                            spaceBetween={10}
+                            navigation={true}
+                            thumbs={{swiper: thumbsSwiper}}
+                            modules={[FreeMode, Navigation, Thumbs]}
+                            className="mySwiper2"
+                        >
+                            {tour.images.map((image, index) => (
+                                <SwiperSlide key={index}>
+                                    <img src={image} alt={`Tour Image ${index + 1}`} className="modal_image"/>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                        <Swiper
+                            onSwiper={setThumbsSwiper}
+                            loop={true}
+                            spaceBetween={10}
+                            slidesPerView={4}
+                            freeMode={true}
+                            watchSlidesProgress={true}
+                            modules={[FreeMode, Navigation, Thumbs]}
+                            className="mySwiper"
+                        >
+                            {tour.images.map((image, index) => (
+                                <SwiperSlide key={index}>
+                                    <img src={image} alt={`Thumbnail ${index + 1}`} className="thumbnail_image"/>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </div>
                 </div>
-            </div>
-        </div>
-        {showImages && (
-            <div className="image_modal_overlay">
-                <div className="image_modal">
-                    <button className="close_button" onClick={() => setShowImages(false)}>
-                        ×
-                    </button>
-                    <Swiper spaceBetween={10} slidesPerView={1} navigation pagination={{ clickable: true }}
-                        modules={[Navigation, Pagination]}>
-                        {tour.images.map((image, index) => (
-                            <SwiperSlide key={index}>
-                                <img src={image} alt={`Tour Image ${index + 1}`} className="modal_image" />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </div>
-            </div>
-        )}
-        <div className="top_infor">
-            <div className="review">{randomImage && <img src={randomImage} alt="Image Tour" />}</div>
-            <div className="content">
-                <div className="details_review">
-                    <span>{tour.averageRating.toFixed(1)}</span>
-                    <i className="fa-solid fa-star text-yellow-600"></i>
-                    <span>
+            )}
+            <div className="top_infor">
+                <div className="review">{randomImage && <img src={randomImage} alt="Image Tour"/>}</div>
+                <div className="content">
+                    <div className="details_review">
+                        <span>{tour.averageRating.toFixed(1)}</span>
+                        <i className="fa-solid fa-star text-yellow-600"></i>
+                        <span>
                         - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
                     </span>
-                </div>
-                <h2 id="name">{tour.title}</h2>
-                <div className="details">
-                    <label>
-                        <span>Tour Code:</span>
-                        <a href="#" id="tcode">{tour.tourCode}</a>
-                    </label>
-                    <label>
-                        <span>Duration:</span>
-                        <a href="#" id="dura">{tour.duration}</a>
-                    </label>
-                    <label>
-                        <span>Place of departure:</span>
-                        <a href="#" id="place">{tour.placeOfDeparture}</a>
-                    </label>
-                    <label>
-                        <span>Current seat:</span>
-                        <a href="#">{tour.currentParticipants} / {tour.maxParticipants}</a>
-                    </label>
+                    </div>
+                    <h2 id="name">{tour.title}</h2>
+                    <div className="details">
+                        <label>
+                            <span>Tour Code:</span>
+                            <a href="#" id="tcode">{tour.tourCode}</a>
+                        </label>
+                        <label>
+                            <span>Duration:</span>
+                            <a href="#" id="dura">{tour.duration}</a>
+                        </label>
+                        <label>
+                            <span>Place of departure:</span>
+                            <a href="#" id="place">{tour.placeOfDeparture}</a>
+                        </label>
+                        <label>
+                            <span>Current seat:</span>
+                            <a href="#">{tour.currentParticipants} / {tour.maxParticipants}</a>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    )
+};
 
 // Sub-component for Booking Form (unchanged)
 const BookingForm = ({
-    tour,
-    adults,
-    setAdults,
-    children,
-    setChildren,
-    babies,
-    setBabies,
-    discountCode,
-    setDiscountCode,
-    totalPrice,
-    handleSubmit,
-    checkGiamGia,
-    totalPassengers,
-    isBooking
-}) => {
+                         tour,
+                         adults,
+                         setAdults,
+                         children,
+                         setChildren,
+                         babies,
+                         setBabies,
+                         discountCode,
+                         setDiscountCode,
+                         totalPrice,
+                         handleSubmit,
+                         checkGiamGia,
+                         totalPassengers,
+                         isBooking
+                     }) => {
     const availableSeats = tour.maxParticipants - tour.currentParticipants;
 
     const handlePassengerChange = (type, value) => {
@@ -150,7 +183,7 @@ const BookingForm = ({
             <div className="book_now">
                 <h2 className="font-bold text-primary">Trip summary</h2>
                 <div className="infor_book">
-                    <img src={tour.thumbnail} alt="" />
+                    <img src={tour.thumbnail} alt=""/>
                     <p>{tour.title}</p>
                 </div>
                 <div className="schedule">
@@ -174,30 +207,30 @@ const BookingForm = ({
                         <h4>Adult</h4>
                         <div className="discrea">
                             <i className="fa-solid fa-minus"
-                                onClick={() => handlePassengerChange("adults", Math.max(0, adults - 1))}></i>
+                               onClick={() => handlePassengerChange("adults", Math.max(0, adults - 1))}></i>
                             <span>{adults}</span>
                             <i className="fa-solid fa-plus"
-                                onClick={() => handlePassengerChange("adults", adults + 1)}></i>
+                               onClick={() => handlePassengerChange("adults", adults + 1)}></i>
                         </div>
                     </label>
                     <label>
                         <h4>Children</h4>
                         <div className="discrea">
                             <i className="fa-solid fa-minus"
-                                onClick={() => handlePassengerChange("children", Math.max(0, children - 1))}></i>
+                               onClick={() => handlePassengerChange("children", Math.max(0, children - 1))}></i>
                             <span>{children}</span>
                             <i className="fa-solid fa-plus"
-                                onClick={() => handlePassengerChange("children", children + 1)}></i>
+                               onClick={() => handlePassengerChange("children", children + 1)}></i>
                         </div>
                     </label>
                     <label>
                         <h4>Baby</h4>
                         <div className="discrea">
                             <i className="fa-solid fa-minus"
-                                onClick={() => handlePassengerChange("babies", Math.max(0, babies - 1))}></i>
+                               onClick={() => handlePassengerChange("babies", Math.max(0, babies - 1))}></i>
                             <span>{babies}</span>
                             <i className="fa-solid fa-plus"
-                                onClick={() => handlePassengerChange("babies", babies + 1)}></i>
+                               onClick={() => handlePassengerChange("babies", babies + 1)}></i>
                         </div>
                     </label>
                     <label className="discount">
@@ -234,25 +267,25 @@ const BookingForm = ({
 
 // Updated ReviewSection with Star Rating, Image Upload, and Modal
 const ReviewSection = ({
-    reviews,
-    user,
-    newReview,
-    setNewReview,
-    rating,
-    setRating,
-    images,
-    setImages,
-    handleReviewSubmit,
-    toggleReplies,
-    handleReplySubmit,
-    newReply,
-    setNewReply,
-    loadMoreReviews,
-    hasMore,
-    tour,
-    allReviews,
-    setModalIsOpen
-}) => {
+                           reviews,
+                           user,
+                           newReview,
+                           setNewReview,
+                           rating,
+                           setRating,
+                           images,
+                           setImages,
+                           handleReviewSubmit,
+                           toggleReplies,
+                           handleReplySubmit,
+                           newReply,
+                           setNewReply,
+                           loadMoreReviews,
+                           hasMore,
+                           tour,
+                           allReviews,
+                           setModalIsOpen
+                       }) => {
     const [modalIsOpen, setModalIsOpenLocal] = useState(false);
 
     // Sync local modal state with parent
@@ -306,7 +339,7 @@ const ReviewSection = ({
         <div className="review flex-col" key={`${review.id}-${index}`}>
             <div className="review_header">
                 <div className="review_avt">
-                    <img src={review.avatar || "https://picsum.photos/600"} alt="avt-user" />
+                    <img src={review.avatar || "https://picsum.photos/600"} alt="avt-user"/>
                 </div>
                 <div className="review_infor flex items-center justify-between">
                     <div>
@@ -335,14 +368,14 @@ const ReviewSection = ({
                 )}
                 <div className="review_icon">
                     <div className="review_icon_like">
-                        <i className="fa-solid fa-thumbs-up"></i>
-                        <i className="fa-solid fa-thumbs-down"></i>
+                        {/*<i className="fa-solid fa-thumbs-up"></i>*/}
+                        {/*<i className="fa-solid fa-thumbs-down"></i>*/}
                     </div>
                     <div className="items-center">
                         <button onClick={() => toggleReplies(review.id)}>
                             {review.replies ? "Hide" : `Reply (${review.countReplies || 0})`}
                         </button>
-                        <i className="fa-solid fa-ellipsis-vertical ml-3"></i>
+                        {/*<i className="fa-solid fa-ellipsis-vertical ml-3"></i>*/}
                     </div>
                 </div>
                 {review.replies && (
@@ -428,7 +461,7 @@ const ReviewSection = ({
                         {images.map((image, index) => (
                             <div key={index} className="relative">
                                 <img src={image.preview} alt={`Preview ${index}`}
-                                    className="w-24 h-24 object-cover rounded" />
+                                     className="w-24 h-24 object-cover rounded"/>
                                 <button
                                     className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
                                     onClick={() => removeImage(index)}
@@ -493,7 +526,7 @@ const ReviewSection = ({
                     <h2 className="font-bold text-xl ml-[40px]">All Reviews ({allReviews.length})</h2>
                     <button
                         onClick={() => handleModalToggle(false)}
-                        style={{ fontSize: "1.5rem", cursor: "pointer" }}
+                        style={{fontSize: "1.5rem", cursor: "pointer"}}
                     >
                         ✕
                     </button>
@@ -512,7 +545,7 @@ const ReviewSection = ({
 
 // Main Component
 const DetailTour = () => {
-    const { id } = useParams();
+    const {id} = useParams();
     const navigate = useNavigate();
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -538,6 +571,8 @@ const DetailTour = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [allReviews, setAllReviews] = useState([]);
     const [isBooking, setIsBooking] = useState(false);
+
+
     // Fetch user
     useEffect(() => {
         const fetchUser = async () => {
@@ -623,10 +658,10 @@ const DetailTour = () => {
                         let userDetails = userCache[review.userId];
                         if (!userDetails) {
                             userDetails = await getUserById(review.userId);
-                            setUserCache((prev) => ({ ...prev, [review.userId]: userDetails }));
+                            setUserCache((prev) => ({...prev, [review.userId]: userDetails}));
                         }
                         const countReplies = await getCountReplies(review.id);
-                        return { ...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies };
+                        return {...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies};
                     })
                 );
 
@@ -675,10 +710,10 @@ const DetailTour = () => {
                         let userDetails = userCache[review.userId];
                         if (!userDetails) {
                             userDetails = await getUserById(review.userId);
-                            setUserCache((prev) => ({ ...prev, [review.userId]: userDetails }));
+                            setUserCache((prev) => ({...prev, [review.userId]: userDetails}));
                         }
                         const countReplies = await getCountReplies(review.id);
-                        return { ...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies };
+                        return {...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies};
                     })
                 );
 
@@ -691,6 +726,14 @@ const DetailTour = () => {
 
         fetchAllReviews();
     }, [modalIsOpen, id, tour, userCache]);
+
+    useEffect(() => {
+        // Reset reviews state when tour ID changes
+        setReviews([]);
+        setPage(0);
+        setHasMore(true);
+        setAllReviews([]);
+    }, [id]);
 
     // Handle review submission
     const handleReviewSubmit = useCallback(async () => {
@@ -725,7 +768,7 @@ const DetailTour = () => {
 
             // Step 4: Update reviews list with images
             const userDetails = userCache[user.id] || (await getUserById(user.id));
-            setUserCache((prev) => ({ ...prev, [user.id]: userDetails }));
+            setUserCache((prev) => ({...prev, [user.id]: userDetails}));
 
             const newReviewWithDetails = {
                 ...createdReview,
@@ -771,17 +814,16 @@ const DetailTour = () => {
         try {
             const user = await verifyUser();
             const notesString = selectedNotes.join(",");
-            console.log("notesString",notesString);
-            console.log("selectedNotes",selectedNotes);
+            // console.log("notesString", notesString);
+            console.log("selectedNotes", selectedNotes);
 
             navigate("/confirmbooking", {
-                state: { tour, adults, children, babies, totalPrice, discountCode, userId: user.id, notes: notesString },
+                state: {tour, adults, children, babies, totalPrice, discountCode, userId: user.id, notes: notesString},
             });
         } catch (error) {
             console.error("User not authenticated:", error);
-            navigate("/auth/sign_in", { state: { from: `/tour/${id}` } });
-        }
-        finally {
+            navigate("/auth/sign_in", {state: {from: `/tour/${id}`}});
+        } finally {
             setIsBooking(false);
         }
     }, [tour, adults, children, babies, totalPrice, discountCode, id, navigate, selectedNotes]);
@@ -803,20 +845,20 @@ const DetailTour = () => {
                         let userDetails = userCache[reply.userId];
                         if (!userDetails) {
                             userDetails = await getUserById(reply.userId);
-                            setUserCache((prev) => ({ ...prev, [reply.userId]: userDetails }));
+                            setUserCache((prev) => ({...prev, [reply.userId]: userDetails}));
                         }
-                        return { ...reply, userName: userDetails.userName };
+                        return {...reply, userName: userDetails.userName};
                     })
                 );
 
                 setReviews((prevReviews) =>
                     prevReviews.map((review) =>
-                        review.id === reviewId ? { ...review, replies: repliesWithUserDetails } : review
+                        review.id === reviewId ? {...review, replies: repliesWithUserDetails} : review
                     )
                 );
                 setAllReviews((prevAllReviews) =>
                     prevAllReviews.map((review) =>
-                        review.id === reviewId ? { ...review, replies: repliesWithUserDetails } : review
+                        review.id === reviewId ? {...review, replies: repliesWithUserDetails} : review
                     )
                 );
             } catch (error) {
@@ -842,9 +884,9 @@ const DetailTour = () => {
                 };
                 const createdReply = await addReply(replyData);
                 const userDetails = userCache[user.id] || (await getUserById(user.id));
-                setUserCache((prev) => ({ ...prev, [user.id]: userDetails }));
+                setUserCache((prev) => ({...prev, [user.id]: userDetails}));
 
-                const newReplyWithUser = { ...createdReply, userName: userDetails.userName };
+                const newReplyWithUser = {...createdReply, userName: userDetails.userName};
 
                 setReviews((prevReviews) =>
                     prevReviews.map((review) =>
@@ -868,7 +910,7 @@ const DetailTour = () => {
                             : review
                     )
                 );
-                setNewReply((prev) => ({ ...prev, [reviewId]: "" }));
+                setNewReply((prev) => ({...prev, [reviewId]: ""}));
                 toast.success("Reply posted!");
             } catch (error) {
                 console.error("Error submitting reply:", error);
@@ -883,12 +925,12 @@ const DetailTour = () => {
         (reviewId) => {
             setReviews((prevReviews) =>
                 prevReviews.map((review) =>
-                    review.id === reviewId ? { ...review, replies: review.replies ? null : [] } : review
+                    review.id === reviewId ? {...review, replies: review.replies ? null : []} : review
                 )
             );
             setAllReviews((prevAllReviews) =>
                 prevAllReviews.map((review) =>
-                    review.id === reviewId ? { ...review, replies: review.replies ? null : [] } : review
+                    review.id === reviewId ? {...review, replies: review.replies ? null : []} : review
                 )
             );
 
@@ -902,8 +944,10 @@ const DetailTour = () => {
 
     // Load more reviews
     const loadMoreReviews = useCallback(() => {
-        if (hasMore) setPage((prevPage) => prevPage + 1);
-    }, [hasMore]);
+        if (hasMore) {
+            setPage((prevPage) => prevPage + 1);
+        }
+    }, [hasMore, id]);
 
     if (loading) {
         return <div className="detail_container">Loading tour details...</div>;
@@ -919,22 +963,22 @@ const DetailTour = () => {
                 <div className="title_content">
                     <h2>Trip information</h2>
                 </div>
-                <TourInfo tour={tour} randomImage={randomImage} showImages={showImages} setShowImages={setShowImages} />
+                <TourInfo tour={tour} randomImage={randomImage} showImages={showImages} setShowImages={setShowImages}/>
                 <div className="mid_details">
                     <div className="details_left">
                         <div className="infor_travel">
                             <div className="infor_header">
-                                <h2>Description</h2>
+                                <h2 className="font-bold text-blue-700">Description</h2>
                             </div>
-                            <div className="intro" dangerouslySetInnerHTML={{ __html: tour.highlights }} />
+                            <div className="intro" dangerouslySetInnerHTML={{__html: tour.description}}/>
                         </div>
                         <div className="highlight">
-                            <h2 className="text-blue-700">Highlight</h2>
-                            <div className="mt-[10px] pl-[40px] leading-5"
-                                dangerouslySetInnerHTML={{ __html: tour.highlights }} />
+                            <h2 className="text-blue-700 font-bold">Highlight</h2>
+                            <div className="mt-[10px]"
+                                 dangerouslySetInnerHTML={{__html: tour.highlights}}/>
                         </div>
                         <div className="notes">
-                            <h3>If you have any notes, please tell us!</h3>
+                            <h2 className="font-bold text-blue-700">If you have any notes, please tell us!</h2>
                             <div className="select_notes">
                                 {["Smoke", "High Floor Room", "Hyperactive children", "Vegetarian", "There are people with disabilities", "Pregnant women"].map((note) => (
                                     <label key={note}>
@@ -980,7 +1024,7 @@ const DetailTour = () => {
                         />
                         {relatedTours.length > 0 && (
                             <div className="related_tours">
-                                <HorizontalLayout tours={relatedTours} title="Related tour" isShowDescCard={true} />
+                                <HorizontalLayout tours={relatedTours} title="Related tour" isShowDescCard={true}/>
                             </div>
                         )}
                     </div>
