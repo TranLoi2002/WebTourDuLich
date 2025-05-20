@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import AdminNavbar from '../../components/admin/AdminNavbar';
-import BookingTable from '../../components/admin/booking/BookingTable';
-import TourTable from '../../components/admin/tour/TourTable';
-import UserTable from '../../components/admin/user/UserTable';
-import SettingModal from '../../components/admin/SettingModal';
-import AdminSidebar from '../../components/admin/AdminSidebar';
+import AdminNavbar from '../../components/admin/adminNavbar';
+import BookingTable from '../../components/admin/booking/bookingTable';
+import TourTable from '../../components/admin/tour/tourTable';
+import UserTable from '../../components/admin/user/userTable';
+import SettingModal from '../../components/admin/settingModal';
+import AdminSidebar from '../../components/admin/adminSidebar';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LocationTable from '../../components/admin/type_and_location/LocationTable';
 import TypeTable from '../../components/admin/type_and_location/TypeTable';
+import ActivityTypeTable from '../../components/admin/type_and_location/activityTypeTable';
+import Reports from '../../components/admin/reports';
+import PaymentPage from '../../components/admin/payments';
 
 function DashBoard() {
   const [activeTab, setActiveTab] = useState('booking');
@@ -21,14 +24,16 @@ function DashBoard() {
         return <TourTable />;
       case 'location':
         return <LocationTable/>;
-        case 'type':
+      case 'type':
         return <TypeTable/>;
-      case 'user':
+      case 'activity':
+        return <ActivityTypeTable/>;
+      case 'user':  
         return <UserTable />;
       case 'reports':
-        return <div className="p-4">Reports Content (Placeholder)</div>;
+        return <Reports/>;
       case 'payments':
-        return <div className="p-4">Payments Content (Placeholder)</div>;
+        return <PaymentPage />;
       default:
         return <BookingTable />;
     }

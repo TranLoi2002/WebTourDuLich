@@ -66,6 +66,7 @@ public class PaymentControler {
 
 
     // mới thêm
+
     @PutMapping("/update-cancel-status/{id}")
     public ResponseEntity<Void> updatePaymentToCancel(@PathVariable Long id) {
         Payment p = paymentRepository.findById(id).orElseThrow(()
@@ -79,6 +80,31 @@ public class PaymentControler {
         Payment p = paymentRepository.findById(id).orElseThrow(()
                 -> new IllegalArgumentException("Payment not found"));
         p.setStatus("INITIATED");
+        paymentRepository.save(p);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update-completed-status/{id}")
+    public ResponseEntity<Void> updatePaymentToComplete(@PathVariable Long id) {
+        Payment p = paymentRepository.findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Payment not found"));
+        p.setStatus("COMPLETED");
+        paymentRepository.save(p);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/update-approve-status/{id}")
+    public ResponseEntity<Void> updatePaymentToApprove(@PathVariable Long id) {
+        Payment p = paymentRepository.findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Payment not found"));
+        p.setStatus("APPROVED");
+        paymentRepository.save(p);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/update-reject-status/{id}")
+    public ResponseEntity<Void> updatePaymentToReject(@PathVariable Long id) {
+        Payment p = paymentRepository.findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Payment not found"));
+        p.setStatus("REJECTED");
         paymentRepository.save(p);
         return ResponseEntity.ok().build();
     }

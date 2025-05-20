@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -78,7 +79,6 @@ public class Tour extends BaseEntity {
 //    @Positive(message = "Current participants must be positive number")
     private Integer currentParticipants;
 
-    @NotNull(message = "Rating is required")
     @Pattern(regexp = "^(http|https)://.*$", message = "Thumbnail must be a valid URL.")
     private String thumbnail;
 

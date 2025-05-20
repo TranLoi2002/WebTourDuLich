@@ -18,7 +18,7 @@ public class TourDTO {
     @NotBlank(message = "Title is required")
     private String title;
 
-    @JsonIgnore
+//    @JsonIgnore
 //    @NotBlank(message = "Tour code is required")
     private String tourCode;
 
@@ -37,7 +37,7 @@ public class TourDTO {
     @NotNull(message = "Price is required")
     private Double price;
 
-    @JsonIgnore
+//    @JsonIgnore
 //    @NotBlank(message = "Duration is required")
     private String duration;
 

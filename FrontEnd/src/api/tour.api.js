@@ -24,6 +24,7 @@ export const getDetailTour = async (id) => {
     }
 }
 
+
 // http://localhost:8080/api/catalog/tours/activitytour/Nightlife
 export const getTourByActivityType = async (activityType) => {
     try {
@@ -90,7 +91,7 @@ export const createTour = async (tourData) => {
 // update tour
 export const updateTour = async (id, tourData) => {
     try {
-       
+
         if (!(tourData instanceof FormData)) {
             throw new Error("tourData must be a FormData object");
         }

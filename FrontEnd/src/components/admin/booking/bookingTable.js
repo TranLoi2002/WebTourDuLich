@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllBookings, updateBookingStatus, cancelBooking } from '../../../api/booking.api';
-import BookingFilters from './BookingFilters';
-import BookingList from './BookingList';
-import BookingDetailsModal from './BookingDetailsModal';
-import CancelBookingModal from './CancelBookingModal';
+import BookingFilters from './bookingFilters';
+import BookingList from './bookingList';
+import BookingDetailsModal from './bookingDetailsModal';
+import CancelBookingModal from './cancelBookingModal';
 import { useWebSocket } from './useWebSocket';
-import { PAGE_SIZE, CANCEL_REASONS } from './Constants';
+import { PAGE_SIZE, CANCEL_REASONS } from './constants';
 
 const BookingTable = () => {
   const [bookings, setBookings] = useState([]);
@@ -28,14 +28,19 @@ const BookingTable = () => {
 
   // WebSocket handlers
   const handleNewBooking = useCallback((newBooking) => {
-    setBookings((prev) => {
-      if (!prev.some((b) => b.id === newBooking.id)) {
-        return [newBooking, ...prev].slice(0, PAGE_SIZE);
+    const fetchBookings = async () => {
+      try {
+        const response = await getAllBookings(currentPage, PAGE_SIZE);
+        const { content, totalPages, totalElements } = response.data;
+        setBookings(content || []);
+        setTotalPages(totalPages || 1);
+        setTotalElements(totalElements || 0);
+      } catch (error) {
+        console.error('Error refreshing bookings:', error);
       }
-      return prev;
-    });
-    setTotalElements((prev) => prev + 1);
-  }, []);
+    };
+    fetchBookings();
+  }, [currentPage]);
 
   const handleBookingUpdate = useCallback((updatedBooking) => {
     setBookings((prev) =>
@@ -51,6 +56,7 @@ const BookingTable = () => {
       setIsLoading(true);
       try {
         const response = await getAllBookings(currentPage, PAGE_SIZE);
+        console.log('API response:', response.data);
         const { content, totalPages, totalElements } = response.data;
         setBookings(content || []);
         setTotalPages(totalPages || 1);
@@ -65,8 +71,8 @@ const BookingTable = () => {
     fetchBookings();
   }, [currentPage]);
 
-  // Filter bookings
-  const filteredBookings = useMemo(() => {
+  // Update totalElements and totalPages based on filtered bookings
+  useEffect(() => {
     let results = bookings;
 
     if (searchTerm) {
@@ -89,9 +95,56 @@ const BookingTable = () => {
       );
     }
 
-    return results;
+    setTotalElements(results.length);
+    setTotalPages(Math.ceil(results.length / PAGE_SIZE));
+    console.log('Updated totalElements:', results.length, 'totalPages:', Math.ceil(results.length / PAGE_SIZE));
   }, [bookings, searchTerm, statusFilter, paymentFilter]);
 
+const filteredBookings = useMemo(() => {
+  let results = [...bookings]; 
+
+  // Sắp xếp theo bookingDate giảm dần
+  results.sort((a, b) => {
+    try {
+      const dateA = new Date(a.bookingDate);
+      const dateB = new Date(b.bookingDate);
+      if (isNaN(dateA) || isNaN(dateB)) {
+        console.error('Invalid date format:', a.bookingDate, b.bookingDate);
+        return 0; // If dates are invalid, maintain order
+      }
+      return dateB - dateA;
+    } catch (error) {
+      console.error('Error parsing dates:', error);
+      return 0; // Fallback to maintain order
+    }
+  });
+
+  if (searchTerm) {
+    results = results.filter((booking) =>
+      [
+        booking.user?.fullName?.toLowerCase(),
+        booking.user?.email?.toLowerCase(),
+        booking.bookingCode?.toLowerCase(),
+      ].some((field) => field?.includes(searchTerm.toLowerCase()))
+    );
+  }
+
+  if (statusFilter !== 'ALL') {
+    results = results.filter((booking) => booking.bookingStatus === statusFilter);
+  }
+
+  if (paymentFilter !== 'ALL') {
+    results = results.filter((booking) =>
+      paymentFilter === 'PENDING' ? booking.paymentDueTimeRelevant : !booking.paymentDueTimeRelevant
+    );
+  }
+
+  const startIndex = currentPage * PAGE_SIZE;
+  const paginatedResults = results.slice(startIndex, startIndex + PAGE_SIZE);
+
+  console.log('Filtered and paginated bookings:', paginatedResults);
+  return paginatedResults;
+}, [bookings, searchTerm, statusFilter, paymentFilter, currentPage]);
   // Handlers
   const handleBookingClick = useCallback((booking) => {
     setSelectedBooking(booking);
@@ -157,6 +210,11 @@ const BookingTable = () => {
 
   return (
     <div className="p-4">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Booking Management</h1>
+        <p className="text-sm text-gray-600">Manage Booking System</p>
+      </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <BookingFilters
         searchTerm={searchTerm}

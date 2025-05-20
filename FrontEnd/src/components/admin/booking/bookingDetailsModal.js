@@ -1,6 +1,6 @@
 import React from 'react';
-import StatusBadge from './StatusBadge';
-import PaymentStatus from './PaymentStatus';
+import StatusBadge from './statusBadge';
+import PaymentStatus from './paymentStatus';
 import { formatPrice } from './utils';
 
 const BookingDetailsModal = ({ isOpen, onClose, selectedBooking }) => {

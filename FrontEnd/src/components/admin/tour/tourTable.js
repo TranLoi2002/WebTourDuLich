@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TourFilters from './TourFilters';
-import TourList from './TourList';
-import TourDetailsModal from './TourDetailsModal';
-import AddTourModal from './AddTourModal';
+import TourFilters from './tourFilters';
+import TourList from './tourList';
+import TourDetailsModal from './tourDetailsModal';
+import AddTourModal from './addTourModal';
 import { getAllTour, getDetailTour, createTour, updateTour, updateTourStatuses } from '../../../api/tour.api';
 import { getAllTourType } from '../../../api/tourtype.api';
 import { getAllLocation } from '../../../api/location.api';
@@ -69,13 +69,17 @@ function TourTable() {
         const { content: locationsContent } = locationsResponse;
         const { content: activityTypesContent } = activityTypesResponse;
 
+        const filterTourType = (tourTypesContent || []).filter(f => f.active === true);
+        const filterActivities = (activityTypesContent || []).filter(f => f.active === true);
+        const filterLocations = (locationsContent || []).filter(f => f.active === true);
+
         setTours(toursContent || []);
         setFilteredTours(toursContent || []);
         setTotalPages(totalPages || 1);
         setTotalElements(totalItems || 0);
-        setTourTypes(tourTypesContent || []);
-        setLocations(locationsContent || []);
-        setActivityTypes(activityTypesContent || []);
+        setTourTypes(filterTourType || []);
+        setLocations(filterLocations || []);
+        setActivityTypes(filterActivities || []);
       } catch (error) {
         toast.error('Failed to load data: ' + (error.message || 'Unknown error'));
         console.error(error);
@@ -367,6 +371,11 @@ function TourTable() {
 
   return (
     <div className="p-4">
+       {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Tour Management</h1>
+        <p className="text-sm text-gray-600">Manage Tour System</p>
+      </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <TourFilters
         searchTerm={searchTerm}

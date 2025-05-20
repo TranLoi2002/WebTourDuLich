@@ -17,4 +17,5 @@ public class RefundResponseDTO {
     private String status;
     private String reason;
     private LocalDateTime createdAt;
+    private Long bookingId;
 }

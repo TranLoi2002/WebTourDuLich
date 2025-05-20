@@ -70,6 +70,12 @@ spring:
             - Path=/api/blog/**
           filters:
             - StripPrefix=1
+        - id: chatbot-service
+          uri: lb://CHATBOT-SERVICE
+          predicates:
+            - Path=/api/chat/**
+          filters:
+            - StripPrefix=1
     loadbalancer:
       health-check:
         interval: 5s

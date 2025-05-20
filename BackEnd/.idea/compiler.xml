@@ -11,7 +11,7 @@
         <module name="api_gateway" />
         <module name="discovery_service" />
       </profile>
-      <profile name="Annotation profile for user_service" enabled="true">
+      <profile name="Annotation profile for payment_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -19,15 +19,26 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="blog_service" />
-        <module name="user_service" />
+        <module name="ChatbotService" />
         <module name="payment_service" />
         <module name="catalog_service" />
         <module name="review_service" />
+      </profile>
+      <profile name="Annotation profile for user_service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="user_service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ChatbotService" options="-parameters" />
       <module name="api_gateway" options="-parameters" />
       <module name="blog_service" options="-parameters" />
       <module name="booking_service" options="-parameters" />

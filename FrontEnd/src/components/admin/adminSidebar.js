@@ -66,72 +66,88 @@ function AdminSidebar({ activeTab, setActiveTab, openSetting, isSidebarOpen, set
               </button>
               {/* Dropdown Items */}
               {isCatalogOpen && (
-                <ul className="pl-6 space-y-2 mt-2">
-                  <li>
-                    <button
-                      type="button"
-                      className={`flex items-center w-full p-2 rounded-lg transition-colors ${
-                        activeTab === 'tour'
-                          ? 'bg-gray-700 text-white'
-                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                      }`}
-                      onClick={() => {
-                        setActiveTab('tour');
-                        if (window.innerWidth < 640) setIsSidebarOpen(false);
-                      }}
-                    >
-                      <span className="flex-1 whitespace-nowrap text-left">Tour</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      type="button"
-                      className={`flex items-center w-full p-2 rounded-lg transition-colors ${
-                        activeTab === 'location'
-                          ? 'bg-gray-700 text-white'
-                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                      }`}
-                      onClick={() => {
-                        setActiveTab('location');
-                        if (window.innerWidth < 640) setIsSidebarOpen(false);
-                      }}
-                    >
-                      <span className="flex-1 whitespace-nowrap text-left">Location</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      type="button"
-                      className={`flex items-center w-full p-2 rounded-lg transition-colors ${
-                        activeTab === 'type'
-                          ? 'bg-gray-700 text-white'
-                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                      }`}
-                      onClick={() => {
-                        setActiveTab('type');
-                        if (window.innerWidth < 640) setIsSidebarOpen(false);
-                      }}
-                    >
-                      <span className="flex-1 whitespace-nowrap text-left">Type</span>
-                    </button>
-                  </li>
-                </ul>
+                  <ul className="pl-6 space-y-2 mt-2">
+                    <li>
+                      <button
+                          type="button"
+                          className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                              activeTab === 'tour'
+                                  ? 'bg-gray-700 text-white'
+                                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          }`}
+                          onClick={() => {
+                            setActiveTab('tour');
+                            if (window.innerWidth < 640) setIsSidebarOpen(false);
+                          }}
+                      >
+                        <span className="flex-1 whitespace-nowrap text-left">Tour</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                          type="button"
+                          className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                              activeTab === 'location'
+                                  ? 'bg-gray-700 text-white'
+                                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          }`}
+                          onClick={() => {
+                            setActiveTab('location');
+                            if (window.innerWidth < 640) setIsSidebarOpen(false);
+                          }}
+                      >
+                        <span className="flex-1 whitespace-nowrap text-left">Location</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                          type="button"
+                          className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                              activeTab === 'type'
+                                  ? 'bg-gray-700 text-white'
+                                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          }`}
+                          onClick={() => {
+                            setActiveTab('type');
+                            if (window.innerWidth < 640) setIsSidebarOpen(false);
+                          }}
+                      >
+                        <span className="flex-1 whitespace-nowrap text-left">Type</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                          type="button"
+                          className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                              activeTab === 'activity'
+                                  ? 'bg-gray-700 text-white'
+                                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          }`}
+                          onClick={() => {
+                            setActiveTab('activity');
+                            if (window.innerWidth < 640) setIsSidebarOpen(false);
+                          }}
+                      >
+                        <span className="flex-1 whitespace-nowrap text-left">Activity</span>
+                      </button>
+                    </li>
+                  </ul>
               )}
             </li>
             <li>
               <button
-                type="button"
-                className={`flex items-center w-full p-2 rounded-lg transition-colors ${
-                  activeTab === 'user'
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                }`}
-                onClick={() => {
-                  setActiveTab('user');
-                  if (window.innerWidth < 640) setIsSidebarOpen(false);
-                }}
+                  type="button"
+                  className={`flex items-center w-full p-2 rounded-lg transition-colors ${
+                      activeTab === 'user'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  }`}
+                  onClick={() => {
+                    setActiveTab('user');
+                    if (window.innerWidth < 640) setIsSidebarOpen(false);
+                  }}
               >
-                <UsersIcon className="w-5 h-5" />
+                <UsersIcon className="w-5 h-5"/>
                 <span className="flex-1 ml-3 whitespace-nowrap text-left">User</span>
               </button>
             </li>

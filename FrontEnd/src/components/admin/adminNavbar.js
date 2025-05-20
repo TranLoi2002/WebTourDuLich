@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { verifyUser, logout } from '../../api/auth.api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
-import SettingModal from './SettingModal';
+import SettingModal from './settingModal'
 
 const AdminNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { handleApiError, formatSuccessResponse } from '../utils/apiErrorHandler';
 const apiURL = `${process.env.REACT_APP_API_BASE_URL}/catalog/tour-types`;
 
 
@@ -25,5 +25,29 @@ export const getTourByTourTypeId = async (tourTypeId) => {
     }catch(error){
         console.error("Error fetching tours by tour type ID:", error);
         throw error;
+    }
+};
+export const createTourType = async (data) => {
+    try {
+        const response = await axios.post(`${apiURL}`, data);
+        return formatSuccessResponse(response);
+    } catch (error) {
+        return handleApiError(error);
+    }
+};
+export const updateTourType = async (id,newData) => {
+    try {
+        const response = await axios.put(`${apiURL}/update/${id}`, newData);
+        return formatSuccessResponse(response);
+    } catch (error) {
+        return handleApiError(error);
+    }
+};
+export const toggleTourTypeStatus = async (id) => {
+    try {
+        const response = await axios.delete(`${apiURL}/${id}`);
+        return formatSuccessResponse(response);
+    } catch (error) {
+        return handleApiError(error);
     }
 };

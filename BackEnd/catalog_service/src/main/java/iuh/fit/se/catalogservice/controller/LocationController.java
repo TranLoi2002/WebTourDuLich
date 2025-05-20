@@ -2,9 +2,13 @@ package iuh.fit.se.catalogservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import iuh.fit.se.catalogservice.dto.LocationDTO;
+import iuh.fit.se.catalogservice.dto.TourDTO;
 import iuh.fit.se.catalogservice.model.Location;
+import iuh.fit.se.catalogservice.model.Tour;
+import iuh.fit.se.catalogservice.repository.LocationRepository;
 import iuh.fit.se.catalogservice.service.LocationService;
 import iuh.fit.se.catalogservice.service.impl.CloudinaryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

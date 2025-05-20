@@ -2,8 +2,10 @@ import {Link, useNavigate} from "react-router-dom";
 import React, {useState, useEffect} from "react";
 import {toast} from "react-toastify";
 import {addFavouriteTourByUserId, getFavouriteTourByUserId, removeFavouriteTourByUserId} from "../api/user.api";
+import {getTourByLocationId} from "../api/tour.api";
 
 const CardTour = ({tour, isShowDesc, containerStyle}) => {
+    const navigate = useNavigate();
 
     const [isLiked, setIsLiked] = useState(false);
 
@@ -55,6 +57,15 @@ const CardTour = ({tour, isShowDesc, containerStyle}) => {
         }
     };
 
+    const handleLocationClick = async (locationId) => {
+        try {
+            const tours = await getTourByLocationId(locationId);
+            navigate('/tours/location-tours', { state: { tours } });
+        } catch (error) {
+            console.error("Error fetching tours for location:", error);
+        }
+    };
+
 
     // console.log("Tour data:", tour);
 
@@ -91,9 +102,10 @@ const CardTour = ({tour, isShowDesc, containerStyle}) => {
             <Link to={`/tours/detailtour/${tour.id}`} className="text-base font-semibold mb-2 h-[48px] overflow-hidden">
                 {tour.title.length <= 40 ? tour.title : tour.title.substring(0, 40) + "..."}
             </Link>
-            <span>
+            <span className="cursor-pointer" onClick={() => handleLocationClick(tour.location.id)}>
                 <i className="fa-solid fa-location-dot text-gray-500 mr-2"></i>
-                {tour.location.name}</span>
+                {tour.location.name}
+            </span>
             {isShowDesc && (
                 <div>
                     <div className="review flex flex-wrap justify-between items-center text-sm mb-3">
