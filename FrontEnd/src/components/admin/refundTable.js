@@ -63,8 +63,9 @@ const RefundTable = () => {
             }
 
             const url = `http://localhost:8080/api/payment/refunds/${id}/${action}`;
-            await axios.post(url, action === 'reject' ? { reason: 'Không hợp lệ' } : {});
+            await axios.post(url, action === 'reject' ? { reason: 'KHONG HOP LE' } : {});
             setRefunds((prev) => prev.filter((r) => r.id !== id));
+            fetchRefunds();
         } catch (err) {
             setError(`Không thể ${action === 'approve' ? 'duyệt' : 'từ chối'} yêu cầu hoàn tiền.`);
             console.error(err);

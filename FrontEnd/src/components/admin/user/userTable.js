@@ -177,6 +177,11 @@ function UserTable() {
 
   return (
     <div className="p-4">
+       {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
+        <p className="text-sm text-gray-600">Manage User System</p>
+      </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <UserFilters
         searchTerm={searchTerm}

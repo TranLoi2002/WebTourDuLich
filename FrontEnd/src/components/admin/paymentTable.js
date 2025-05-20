@@ -89,7 +89,7 @@ const PaymentTable = () => {
                 // Step 2: Create a new refund record
                 await axios.post(`http://localhost:8080/api/payment/refunds`, {
                     paymentId,
-                    reason:'Admin muốn hoàn trả',
+                    reason:'REFUND BY ADMIN',
                 });
                 alert('Đã tạo hoàn tiền thành công!');
                 fetchPayments();

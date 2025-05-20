@@ -7,8 +7,8 @@ import SettingModal from '../../components/admin/settingModal';
 import AdminSidebar from '../../components/admin/adminSidebar';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LocationTable from '../../components/admin/type_and_location/locationTable';
-import TypeTable from '../../components/admin/type_and_location/typeTable';
+import LocationTable from '../../components/admin/type_and_location/LocationTable';
+import TypeTable from '../../components/admin/type_and_location/TypeTable';
 import ActivityTypeTable from '../../components/admin/type_and_location/activityTypeTable';
 import Reports from '../../components/admin/reports';
 import PaymentPage from '../../components/admin/payments';
@@ -32,7 +32,6 @@ function DashBoard() {
         return <UserTable />;
       case 'reports':
         return <Reports/>;
-
       case 'payments':
         return <PaymentPage />;
       default:

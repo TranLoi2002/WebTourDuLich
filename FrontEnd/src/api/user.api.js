@@ -23,14 +23,14 @@ export const getUserById = async (userId) => {
     }
 };
 export const updateUser = async (userId, userData) => {
-    // try {
-    //   const response = await axios.patch(`${API_BASE_URL}/user/${userId}`, userData, {
-    //     withCredentials: true,
-    //   });
-    //   return response.data;
-    // } catch (error) {
-    //   throw error.response?.data || { error: "Something went wrong" };
-    // }
+    try {
+      const response = await axios.put(`${API_BASE_URL}/user/${userId}`, userData, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: "Something went wrong" };
+    }
 };
 
 // get favourite tour by user id

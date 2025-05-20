@@ -56,7 +56,7 @@ import Account from "./pages/account";
 import FAQ from "./pages/FAQ";
 import Help from "./pages/help";
 import BlogDetail from "./pages/blog/detail";
-import Dashboard from "./pages/admin/Dashboard";
+import Dashboard from "./pages/admin/dashboard";
 import PrivateRoute from "./routes/PrivateRoute";
 import VerifyOTP from "./pages/auth/verifyOTP";
 import ChangePasswordModal from "./pages/auth/ChangePasswordModal";

@@ -371,6 +371,11 @@ function TourTable() {
 
   return (
     <div className="p-4">
+       {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Tour Management</h1>
+        <p className="text-sm text-gray-600">Manage Tour System</p>
+      </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <TourFilters
         searchTerm={searchTerm}
