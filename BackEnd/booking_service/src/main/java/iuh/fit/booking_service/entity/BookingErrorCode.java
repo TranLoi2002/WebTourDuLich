@@ -34,7 +34,7 @@ public enum BookingErrorCode {
     INVALID_PENDING_TO_COMPLETED("BOOKING_031", "Cannot transition status from PENDING to COMPLETED"),
     CANCELLED_STATUS_TRANSITION("BOOKING_032", "Cannot transition status when CANCELLED"),
     INVALID_PARTICIPANT_COUNT("BOOKING_033", "Invalid participant count after cancellation"),
-    UPDATE_PARTICIPANTS_FAILED("BOOKING_034", "Failed to update participant count"),
+    UPDATE_PARTICIPANTS_FAILED("BOOKING_034", "The tour is not full for your number of participants."),
     MISSING_CANCEL_REASON("BOOKING_036", "Reason is required when cancelling a confirmed booking"),
     COMPLETED_BOOKING_CANCEL("BOOKING_038", "Cannot cancel a completed booking"),
     UNAUTHORIZED_CANCEL("BOOKING_039", "You are not authorized to cancel this booking"),

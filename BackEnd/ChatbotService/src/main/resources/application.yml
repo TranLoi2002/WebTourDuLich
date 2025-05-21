@@ -30,7 +30,8 @@ logging:
     org.hibernate: DEBUG
 
 # config connect rasa
-rasa:
+chatbox:
   server:
-    url: http://localhost:5000/query
+    url: http://host.docker.internal:5000/query
+
 

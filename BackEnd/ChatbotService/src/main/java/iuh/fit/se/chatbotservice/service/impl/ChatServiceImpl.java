@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 @Service
 public class ChatServiceImpl implements ChatService {
 
-    @Value("${chatbot.server.url:http://localhost:5000/query}")
+    @Value("${chatbot.server.url:http://host.docker.internal:5000/query}")
     private String chatbotServerUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
