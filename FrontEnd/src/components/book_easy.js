@@ -59,6 +59,11 @@ const BookEasy = () => {
         </button>
     );
 
+    const imgUrl = [
+        "https://plus.unsplash.com/premium_photo-1663076518116-0f0637626edf?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1571752044228-011abf70a791?q=80&w=1980&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+
 
     const settings = {
         // dots: true,
@@ -74,80 +79,109 @@ const BookEasy = () => {
         <div className="flex items-center justify-evenly gap-[40px] px-[100px] py-[80px]">
             {/*data-aos="fade-up-right"*/}
             <div className="relative w-1/2 overflow-hidden">
-                {Slider && (
-                    <Slider {...settings}>
-                        {tours.map((tour, index) => (
-                            <div
-                                key={tour.id}
-                                className="flex relative bg-orange-200 py-[20px] px-[50px] rounded-2xl flex-col overflow-hidden">
-                                <div
-                                    className="relative rounded-2xl py-[20px] px-[50px]"
-                                    style={{
-                                        background: `linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7)), url(${tour.thumbnail})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                    }}
-                                >
-                                    <div className="relative z-10">
-                                        <h3 className="text-white text-xl">Enjoy Your Trip</h3>
-                                        <h4 className="leading-[50px] font-bold text-white">Set up
-                                            trip: {tour.title}</h4>
-                                        <label htmlFor="" className="flex items-center">
-                                            <Link
-                                                to={`/tours/detailtour/${tour.id}`}
-                                                className=" rounded-lg overflow-hidden w-full border-0 bg-white flex items-center gap-[10px] text-primary font-bold justify-between hover:bg-primary hover:text-white transition-all duration-300"
-                                            >
+                {!tours || tours.length === 0 ? (
+                    <>
+                        {Slider && (
+                            <Slider {...settings}>
+                                {imgUrl.map((img, index) => (
+                                    <div
+                                        key={img.id}
+                                        className="flex relative py-[20px] px-[50px] rounded-2xl flex-col overflow-hidden">
+                                        <div
+                                            className="py-[20px] px-[50px]"
+                                            style={{
+                                            }}
+                                        >
+                                            <div className="w-full h-[500px] overflow-hidden rounded-2xl">
+                                                <img className="w-full h-full object-cover" src={img} alt=""/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
 
-                                                <p className="flex items-center gap-1 justify-center flex-row w-[60%] text-center">
-                                                    <i>Plan trip now</i><i
-                                                    className="fa-solid fa-hand-pointer text-2xl"></i></p>
-                                                <span
-                                                    className="flex items-center bg-primary text-white p-[20px] w-[40%]">
+                            </Slider>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        {Slider && (
+                            <Slider {...settings}>
+                                {tours.map((tour, index) => (
+                                    <div
+                                        key={tour.id}
+                                        className="flex relative bg-orange-200 py-[20px] px-[50px] rounded-2xl flex-col overflow-hidden">
+                                        <div
+                                            className="relative rounded-2xl py-[20px] px-[50px]"
+                                            style={{
+                                                background: `linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7)), url(${tour.thumbnail})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                            }}
+                                        >
+                                            <div className="relative z-10">
+                                                <h3 className="text-white text-xl">Enjoy Your Trip</h3>
+                                                <h4 className="leading-[50px] font-bold text-white">Set up
+                                                    trip: {tour.title}</h4>
+                                                <label htmlFor="" className="flex items-center">
+                                                    <Link
+                                                        to={`/tours/detailtour/${tour.id}`}
+                                                        className=" rounded-lg overflow-hidden w-full border-0 bg-white flex items-center gap-[10px] text-primary font-bold justify-between hover:bg-primary hover:text-white transition-all duration-300"
+                                                    >
+
+                                                        <p className="flex items-center gap-1 justify-center flex-row w-[60%] text-center">
+                                                            <i>Plan trip now</i><i
+                                                            className="fa-solid fa-hand-pointer text-2xl"></i></p>
+                                                        <span
+                                                            className="flex items-center bg-primary text-white p-[20px] w-[40%]">
                                                     $ {tour.price} / per Trip
                                                 </span>
 
-                                            </Link>
+                                                    </Link>
 
-                                        </label>
-                                        <div className="flex mt-[20px] text-white">
-                                            <ul className="relative">
-                                                <li className="mt-[10px]">
-                                                    <label htmlFor="" className="flex items-center gap-[10px]">
-                                                        <i className="fa-solid fa-circle-dot text-white"></i>
-                                                        <span className="font-bold">Set Up Your Account</span>
-                                                    </label>
-                                                    <p className="ml-[25px] opacity-[0.8] leading-[30px]">
-                                                        Your legal information is a benefit when check in
-                                                    </p>
-                                                </li>
-                                                <li className="mt-[10px]">
-                                                    <label htmlFor="" className="flex items-center gap-[10px]">
-                                                        <i className="fa-solid fa-circle-dot text-white"></i>
-                                                        <span className="font-bold">Respond to private request</span>
-                                                    </label>
-                                                    <p className="ml-[25px] opacity-[0.8] leading-[30px]">
-                                                        Your request is capacity for tours of us
-                                                    </p>
-                                                </li>
-                                                <li className="mt-[10px]">
-                                                    <label htmlFor="" className="flex items-center gap-[10px]">
-                                                        <i className="fa-solid fa-circle-dot text-white"></i>
-                                                        <span className="font-bold">Conduct booking</span>
-                                                    </label>
-                                                    <p className="ml-[25px] opacity-[0.8] leading-[30px]">
-                                                        Book your best experience
-                                                    </p>
-                                                </li>
-                                            </ul>
+                                                </label>
+                                                <div className="flex mt-[20px] text-white">
+                                                    <ul className="relative">
+                                                        <li className="mt-[10px]">
+                                                            <label htmlFor="" className="flex items-center gap-[10px]">
+                                                                <i className="fa-solid fa-circle-dot text-white"></i>
+                                                                <span className="font-bold">Set Up Your Account</span>
+                                                            </label>
+                                                            <p className="ml-[25px] opacity-[0.8] leading-[30px]">
+                                                                Your legal information is a benefit when check in
+                                                            </p>
+                                                        </li>
+                                                        <li className="mt-[10px]">
+                                                            <label htmlFor="" className="flex items-center gap-[10px]">
+                                                                <i className="fa-solid fa-circle-dot text-white"></i>
+                                                                <span
+                                                                    className="font-bold">Respond to private request</span>
+                                                            </label>
+                                                            <p className="ml-[25px] opacity-[0.8] leading-[30px]">
+                                                                Your request is capacity for tours of us
+                                                            </p>
+                                                        </li>
+                                                        <li className="mt-[10px]">
+                                                            <label htmlFor="" className="flex items-center gap-[10px]">
+                                                                <i className="fa-solid fa-circle-dot text-white"></i>
+                                                                <span className="font-bold">Conduct booking</span>
+                                                            </label>
+                                                            <p className="ml-[25px] opacity-[0.8] leading-[30px]">
+                                                                Book your best experience
+                                                            </p>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                            </div>
                                         </div>
-
                                     </div>
-                                </div>
-                            </div>
-                        ))}
+                                ))}
 
-                    </Slider>
-                )}
+                            </Slider>
+                        )}
+                    </>
+                )
+                }
             </div>
 
             <div className="flex flex-col gap-[20px] w-1/2" data-aos="fade-left">

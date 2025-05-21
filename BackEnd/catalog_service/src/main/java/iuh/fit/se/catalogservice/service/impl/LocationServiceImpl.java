@@ -2,7 +2,9 @@ package iuh.fit.se.catalogservice.service.impl;
 
 import iuh.fit.se.catalogservice.dto.LocationDTO;
 import iuh.fit.se.catalogservice.mapper.LocationMapper;
+import iuh.fit.se.catalogservice.mapper.TourMapper;
 import iuh.fit.se.catalogservice.model.Location;
+import iuh.fit.se.catalogservice.model.Tour;
 import iuh.fit.se.catalogservice.repository.LocationRepository;
 import iuh.fit.se.catalogservice.service.LocationService;
 import iuh.fit.se.catalogservice.util.PaginationUtil;
@@ -65,7 +67,11 @@ public class LocationServiceImpl implements LocationService {
     public void deleteLocation(Long id) {
         Location location = getLocationById(id);
         if(location != null){
-            location.setActive(false);
+            if(location.isActive()) {
+                location.setActive(false);
+            } else {
+                location.setActive(true);
+            }
             locationRepository.save(location);
         }
     }

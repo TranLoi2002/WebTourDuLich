@@ -6,15 +6,17 @@ import ActivityTourCard from "./ActivityTourCard";
 const TourList = ({ tours, title, filtersEnabled = true }) => {
     const [filteredTours, setFilteredTours] = useState(tours);
     const [location, setLocation] = useState("");
-    const [budget, setBudget] = useState(500);
+    const [budget, setBudget] = useState(0);
 
     useEffect(() => {
         if (filtersEnabled) {
+            const keyword = location.toLowerCase().trim();
             const applyFilters = () => {
                 const newFilteredTours = tours.filter((tour) => {
                     const isBudgetMatch = budget ? tour.price <= budget : true;
-                    const isLocationMatch = location
-                        ? tour.location.name.toLowerCase().includes(location.toLowerCase())
+                    const isLocationMatch = keyword
+                        ? tour.location.name.toLowerCase().includes(keyword) ||
+                        tour.title.toLowerCase().includes(keyword)
                         : true;
 
                     return isBudgetMatch && isLocationMatch;
@@ -38,7 +40,7 @@ const TourList = ({ tours, title, filtersEnabled = true }) => {
                     <Typography variant="h6" sx={{ fontWeight: "bold", paddingBottom: "20px" }}>Filters by:</Typography>
                     <TextField
                         fullWidth
-                        label="Location"
+                        label="Destination"
                         variant="outlined"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}

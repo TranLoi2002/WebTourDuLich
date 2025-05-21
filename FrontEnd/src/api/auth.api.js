@@ -43,13 +43,29 @@ export const login = async (loginData) => {
 export const logout = async () => {
     try {
         const response = await axios.post(`${API_BASE_URL}/auth/logout`, {}, {
-            withCredentials: true,
+            withCredentials: true, // gửi cookies như JWT hoặc session ID
         });
+
+        // Nếu logout thành công, xóa dữ liệu phía client
+        localStorage.removeItem('user'); // hoặc tên key mà bạn đang lưu user
         return response.data;
     } catch (error) {
+        // Nếu lỗi 403 (token không hợp lệ hoặc hết hạn) : XÓA THỦ CÔNG
+        if (error.response?.status === 403) {
+            // Xoá localStorage
+            localStorage.removeItem('user');
+
+            document.cookie = 'jwtToken=; Max-Age=0; path=/';
+            document.cookie = 'refreshToken=; Max-Age=0; path=/';
+
+            return { message: "Phiên đăng nhập đã hết hạn. Đã tự động đăng xuất." };
+        }
+
+        // Các lỗi khác
         throw error.response?.data || { error: "Something went wrong" };
     }
 };
+
 
 // VERIFY USER
 export const verifyUser = async () => {
@@ -110,3 +126,4 @@ export const changePassword = async (data) => {
         }
     );
 };
+

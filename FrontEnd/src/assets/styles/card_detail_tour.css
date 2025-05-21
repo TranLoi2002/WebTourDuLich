@@ -6,6 +6,12 @@
     padding: 5rem 5rem 0 5rem;
 }
 
+.swiper-wrapper{
+    width: 400px !important;
+
+}
+
+
 .title {
     margin-top: 128px;
     line-height: 45px;
@@ -295,7 +301,7 @@
 }
 
 .infor_travel .intro {
-    margin-top: 20px;
+    margin: 20px;
     /* line-height: 25px; */
 }
 
@@ -324,7 +330,7 @@
 
 .infor_travel h2 {
     margin-top: 20px;
-    color: rgb(12, 12, 159);
+    /*color: rgb(12, 12, 159);*/
     padding-left: 20px;
 }
 
@@ -401,8 +407,9 @@
 
 .modal_image {
     width: 100%;
-    height: 70vh;
+    height: 55vh;
     border-radius: 10px;
+    object-fit: contain;
 }
 
 .highlight {
@@ -424,8 +431,7 @@
 }
 
 .highlight ul li {
-    line-height: 50px;
-
+    line-height: 25px;
 }
 
 .highlight h4 {

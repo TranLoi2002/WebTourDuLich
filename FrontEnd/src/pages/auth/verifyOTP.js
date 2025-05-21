@@ -8,6 +8,7 @@ const VerifyOTP = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Lấy email từ state truyền qua navigate trong trang đăng ký
     const emailFromRegister = location.state?.email || "";
     const [email, setEmail] = useState(emailFromRegister);
     const [otp, setOTP] = useState("");
@@ -15,6 +16,7 @@ const VerifyOTP = () => {
 
     useEffect(() => {
         if (!emailFromRegister) {
+            // Nếu không có email được truyền sang => quay lại trang đăng ký
             toast.info("Email is required for verification");
             navigate("/auth/sign_up");
         }

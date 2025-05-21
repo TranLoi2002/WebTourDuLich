@@ -1,171 +1,157 @@
-import {Link} from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { getCategories, getBlogsByCategoryId, getBlogs } from '../../api/blog.api';
+import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
+import BlogSwiper from "../../components/BlogSwiper";
 
+const BlogCard = ({ date, title, description, image, link }) => (
+    <div className="flex flex-col hover:-translate-y-1 transition-transform duration-300">
+        <img src={image} alt={title} className="w-full h-48 object-cover rounded-lg" />
+        <div className="mt-4">
+            <p className="text-sm text-gray-500">{date}</p>
+            <Link to={link} className="text-lg font-semibold">{title}</Link>
+            <p className="text-sm text-gray-600 line-clamp-3">{description}</p>
+        </div>
+    </div>
+);
 
-import adds_header from '../../assets/images/adds_header.jpg';
-import image_1 from '../../assets/images/image_1.jpg';
+const NewsCard = ({ date, title, description, link }) => (
+    <div className="mb-6">
+        <p className="text-sm text-gray-500">{date}</p>
+        <Link to={link} className="text-lg font-semibold">{title}</Link>
+        <p className="text-sm text-gray-600 mb-3">{description}</p>
+        <Link to={link} className="text-gray-400 border-2 rounded-full px-4 py-1 text-sm">{link}</Link>
+    </div>
+);
 
 const Show = () => {
+    const [categories, setCategories] = useState([]);
+    const [blogsByCategory, setBlogsByCategory] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [blogs, setBlogs] = useState([]);
+
+    const fetchAllPages = async (fetchFunction, size = 10, sortBy = 'id', sortDir = 'asc') => {
+        let allData = [];
+        let currentPage = 0;
+        let totalPages = 1;
+
+        while (currentPage < totalPages) {
+            const response = await fetchFunction(currentPage, size, sortBy, sortDir);
+            allData = [...allData, ...response.content];
+            currentPage = response.currentPage + 1;
+            totalPages = response.totalPages;
+        }
+
+        return allData;
+    };
+
+    const fetchBlogs = async () => {
+        try {
+            const allBlogs = await fetchAllPages(getBlogs);
+            setBlogs(allBlogs);
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+        }
+    };
+
+    const fetchCategoriesAndBlogs = async () => {
+        try {
+            setLoading(true);
+            const categoriesResponse = await getCategories(0, 10, 'id', 'asc');
+            const categoriesData = categoriesResponse.content;
+
+            const blogsData = {};
+            for (const category of categoriesData) {
+                const blogsResponse = await getBlogsByCategoryId(category.id, 0, 10, 'id', 'asc');
+                blogsData[category.name] = blogsResponse.content;
+            }
+
+            setCategories(categoriesData);
+            setBlogsByCategory(blogsData);
+        } catch (error) {
+            console.error("Error fetching categories and blogs:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBlogs();
+        fetchCategoriesAndBlogs();
+    }, []);
+
+    const formatDate = (dateString) => {
+        return format(new Date(dateString), 'MMMM dd, yyyy');
+    };
+
+    // console.log("blogs , blogs")
+
     return (
-        <div className="tour-page">
-            <div className="flex flex-col mt-[100px] mx-[200px] justify-center">
-                <h3 className="text-[2em]">The Airtrav Blog</h3>
-                <h5 className="text-[#828080] leading-5 border-b-2 pb-[25px] text-[1.5em]">9 Ways to Flight Booking of
-                    the Airtrav website</h5>
-                <div className="flex justify-between my-[15px] mx-0">
-                    <h4 className="text-[#58c270] bg-[#EEF9F2] text-[0.8em] py-[8px] px-[10px] rounded-lg">Tour
-                        Planning</h4>
-                    <span className="text-[#9d9c9c] font-bold">Jun 20,2020</span>
-                </div>
-                <div className="flex flex-col">
-                    <div className="w-full h-[500px] rounded-2xl overflow-hidden">
-                        <img src={adds_header} alt="" className="object-cover w-full h-full"/>
+        <div className="pt-32">
+
+            <div className="max-w-6xl mx-auto pb-8 px-4">
+                {loading ? (
+                    <div className="flex justify-center items-center">
+                        <p>Loading...</p>
                     </div>
-
-                    {/*<img src="image/adds_header.jpg" alt=""/>*/}
-                    <p id="paragraph" className="leading-6 mt-[15px]">
-                        <b style={{fontSize: '1.3em'}}>Airtrav is a popular travel website that offers a wide range of
-                            flight booking options to its customers. Here are 9 ways to book flights on
-                            Airtrav:</b><br/>
-                        <br/><b>1. Book directly on the Airtrav website:</b> This is the most straightforward way to
-                        book flights on Airtrav. Customers can enter their travel details, including their destination,
-                        travel dates, and number of passengers, and then browse through the available flight options.
-                        <br/><b>2. Use the Airtrav mobile app:</b> Airtrav also offers a mobile app that customers can
-                        download and use to book flights. The app is available for both Android and iOS devices and
-                        offers all the same features as the website.
-                        <br/><b>3. Sign up for Airtrav's newsletter:</b> By signing up for Airtrav's newsletter,
-                        customers can stay up-to-date on the latest flight deals and promotions. They may also receive
-                        exclusive discounts and offers that are not available to the general public.
-                        <br/><b>4. Use Airtrav's flexible search feature:</b> Airtrav's flexible search feature allows
-                        customers to search for flights based on their budget, preferred airline, travel dates, and
-                        other factors. This can help customers find the best flights at the best prices.
-                        <br/><b>5. Book flights in advance:</b> Customers who book their flights well in advance of
-                        their travel dates may be able to find better deals and discounts. Airtrav allows customers to
-                        book flights up to 11 months in advance.
-                        <br/><b>6. Use Airtrav's price alerts:</b> Customers can set up price alerts on Airtrav to
-                        receive notifications when the price of a flight they are interested in drops. This can be a
-                        great way to save money on flights.
-                        <br/><b>7. Bundle flights with hotels and car rentals:</b> Airtrav also offers bundle packages
-                        that include flights, hotels, and car rentals. Customers can save money by booking all of these
-                        components together.
-                        <br/><b>8. Use Airtrav's loyalty program:</b> Airtrav's loyalty program rewards customers with
-                        points for every flight they book through the website. These points can be redeemed for future
-                        flight bookings or other rewards.
-                        <br/><b>9. Contact Airtrav's customer service:</b> If customers have any questions or need help
-                        booking their flights, they can contact Airtrav's customer service team. The team is available
-                        24/7 and can assist customers with any issues or concerns they may have.
-                    </p>
-                </div>
-
-                <div className="flex gap-4">
-                    <div className="flex flex-col gap-[25px] mt-[50px] w-[70%]">
-                        <div className="flex gap-[20px] border-b-2 pb-[30px]">
-                            <div className="w-[30%] h-[200px] rounded-lg overflow-hidden">
-                                <img src={image_1} alt="" className="w-full h-full object-cover"/>
-                            </div>
-                            <div className="flex flex-col items-start flex-1 w-[70%]">
-                                <div className="flex items-center">
-                                <span
-                                    className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Hotel Booking</span>
-                                    <h4 className="text-[#9d9c9c] font-bold">Jun 20,2021</h4>
-                                </div>
-                                <h2 className="leading-6">
-                                    <Link to="/blogs/detail_blog" className="text-gray-400">
-                                        Top 20 Trip Planning System By Airtrav
-                                    </Link>
-                                </h2>
-                                <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility
-                                    to
-                                    understand the needs of
-                                    industries have different types of workforce, but they do have one thing in common -
-                                    business travel.</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-[20px] border-b-2 pb-[30px]">
-                            <div className="w-[30%] h-[200px] rounded-lg overflow-hidden">
-                                <img src={image_1} alt="" className="w-full h-full object-cover"/>
-                            </div>
-                            <div className="flex flex-col items-start flex-1 w-[70%]">
-                                <div className="flex items-center">
-                                <span
-                                    className="text-[#FA8F54] bg-[#FEE9DD] text-[0.8em] py-[8px] px-[10px] rounded-lg">Car Booking</span>
-                                    <h4 className="text-[#9d9c9c] font-bold">Dec 20,2020</h4>
-                                </div>
-                                <h2>
-                                    <Link className="text-gray-400" to="/blogs/detail_blog" >
-                                        Booking System By Airtrav Website
-                                    </Link>
-                                </h2>
-                                <p className="mt-4 leading-4">Being a Human Resource Manager, it is your responsibility
-                                    to
-                                    understand the needs of
-                                    industries have different types of workforce, but they do have one thing in common -
-                                    business travel.</p>
-                            </div>
-                        </div>
-
-
-                    </div>
-                    <div className="flex flex-col gap-[25px] mt-[50px] w-[30%] ml-16">
-                        <h2 className="text-xl font-bold ">Blog communicate</h2>
+                ) : (
+                    <>
                         <div>
-                            <div className="flex gap-[20px] border-b-2 pb-[30px]">
-                                <div className="flex flex-col items-start flex-1 w-[70%]">
-                                    <div className="flex items-center">
-                                        <h4 className="text-[#9d9c9c] font-bold">Jun 20,2021</h4>
-                                    </div>
-                                    <h2 className="leading-6">
-                                        <Link target="_blank"
-                                              to="https://www.smartertravel.com/best-travel-planning-apps/"
-                                              rel="noopener" className="text-gray-400">
-                                            Top 20 Trip Planning System By Airtrav
-                                        </Link>
-                                    </h2>
-                                    <p className="mt-4 leading-4">Being a Human Resource Manager, it is your
-                                        responsibility
-                                        to
-                                        understand the needs of
-                                        industries have different types of workforce, but they do have one thing in
-                                        common -
-                                        business travel.</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-[20px] border-b-2 pb-[30px]">
-
-                                <div className="flex flex-col items-start flex-1 w-[70%]">
-                                    <div className="flex items-center">
-                                        <h4 className="text-[#9d9c9c] font-bold">Dec 20,2020</h4>
-                                    </div>
-                                    <h2>
-                                        <Link className="text-gray-400" target="_blank"
-                                              to="https://www.travelandleisure.com/travel-tips" rel="noopener">
-                                            Booking System By Airtrav Website
-                                        </Link>
-                                    </h2>
-                                    <p className="mt-4 leading-4">Being a Human Resource Manager, it is your
-                                        responsibility
-                                        to
-                                        understand the needs of
-                                        industries have different types of workforce, but they do have one thing in
-                                        common -
-                                        business travel.</p>
-                                </div>
-                            </div>
+                            <BlogSwiper blogs={blogs} />
                         </div>
+                        {categories.map((category) => {
+                            if (category.name === "News") return null; // Skip "News" for now
 
+                            const blogs = blogsByCategory[category.name] || [];
+                            return (
+                                <div key={category.id} className="mt-8">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-2xl font-bold">{category.name}</h2>
+                                        <Link
+                                            to={`/blogs/category/${category.id}`}
+                                            className="text-blue-500 text-sm"
+                                        >
+                                            View All
+                                        </Link>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        {blogs.slice(0, 3).map((blog) => (
+                                            <BlogCard
+                                                key={blog.id}
+                                                date={formatDate(blog.createdAt)}
+                                                title={blog.title || "Untitled"}
+                                                description={blog.content || "No description available"}
+                                                image={blog.thumbnail || "https://via.placeholder.com/300x200?text=Blog+Image"}
+                                                link={`/blogs/detailblog/${blog.id}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
 
-                    </div>
-                </div>
-
-            </div>
-
-            <div className="flex items-center justify-center">
-                <button type="button" id="seeMore"
-                        className="py-[15px] px-[30px] outline-none border-none bg-primary text-white rounded-2xl w-[180px] text-xl mt-[50px]">See
-                    more
-                </button>
+                        {/* News Section */}
+                        <div className="mt-8">
+                            <h2 className="text-2xl font-bold mb-4">In the News</h2>
+                            {blogsByCategory["News"] && blogsByCategory["News"].length > 0 ? (
+                                blogsByCategory["News"].map((blog) => (
+                                    <NewsCard
+                                        key={blog.id}
+                                        date={formatDate(blog.createdAt)}
+                                        title={blog.title || "Untitled"}
+                                        description={blog.content || "No description available"}
+                                        link={blog.external_url || "#"}
+                                    />
+                                ))
+                            ) : (
+                                <p>No News blogs available.</p>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Show;

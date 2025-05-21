@@ -25,9 +25,15 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     }
 
     // Validate new password length
-    if (newPass.length < 6) {
-        toast.info("New password must be at least 6 characters long");
+    if (newPass.length < 8) {
+        toast.info("New password must be at least 8 characters long");
         setLoading(false);
+        return;
+    }
+
+    const pattern = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+    if (!pattern.test(newPass)) {
+        toast.info("Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character, minimum 8 characters");
         return;
     }
 

@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllUsers, updateUser } from '../../../api/user.api';
-import UserFilters from './UserFilters';
-import UserList from './UserList';
-import UserDetailsModal from './UserDetailsModal';
+import UserFilters from './userFilters';
+import UserList from './userList';
+import UserDetailsModal from './userDetailsModal';
 
 const PAGE_SIZE = 5;
 
@@ -28,7 +28,8 @@ function UserTable() {
       setIsLoading(true);
       try {
         const usersData = await getAllUsers();
-        setAllUsers(usersData);
+
+        setAllUsers(usersData.data || []);
         setTotalPages(Math.ceil(usersData.length / PAGE_SIZE) || 1);
       } catch (err) {
         toast.error('Failed to load users. Please try again.');
@@ -77,7 +78,9 @@ function UserTable() {
     // Apply pagination
     const startIndex = currentPage * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
-    const usersForPage = filteredResults.slice(startIndex, endIndex);
+    const usersForPage = Array.isArray(filteredResults)
+        ? filteredResults.slice(startIndex, endIndex)
+        : [];
     setDisplayedUsers(usersForPage);
 
     // Update total pages based on filtered data
@@ -174,6 +177,11 @@ function UserTable() {
 
   return (
     <div className="p-4">
+       {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
+        <p className="text-sm text-gray-600">Manage User System</p>
+      </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <UserFilters
         searchTerm={searchTerm}

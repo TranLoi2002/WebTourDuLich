@@ -1,5 +1,4 @@
-package iuh.fit.booking_service.scheduler;
-
+package iuh.fit.booking_service.service;
 import iuh.fit.booking_service.entity.Booking;
 import iuh.fit.booking_service.entity.BookingStatus;
 import iuh.fit.booking_service.repository.BookingRepository;

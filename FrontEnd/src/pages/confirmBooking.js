@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
     Box,
     Typography,
@@ -14,13 +14,13 @@ import {
     Alert,
     CircularProgress,
 } from "@mui/material";
-import { format } from "date-fns";
-import { CreditCard, LocalAtm, Close as CloseIcon } from "@mui/icons-material";
-import { createBooking } from "../api/booking.api";
-import { getAllPaymentMethod } from "../api/payment.api";
+import {format} from "date-fns";
+import {CreditCard, LocalAtm, Close as CloseIcon} from "@mui/icons-material";
+import {createBooking} from "../api/booking.api";
+import {getAllPaymentMethod} from "../api/payment.api";
 
 const ConfirmBooking = () => {
-    const { state } = useLocation();
+    const {state} = useLocation();
     const navigate = useNavigate();
     const [selectBtnPayment, setSelectBtnPayment] = useState(null);
     const [paymentMethods, setPaymentMethods] = useState([]);
@@ -32,6 +32,8 @@ const ConfirmBooking = () => {
     });
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    console.log("state", state);
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -98,12 +100,12 @@ const ConfirmBooking = () => {
 
     const handleParticipantChange = (index, field, value) => {
         setParticipants((prev) =>
-            prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
+            prev.map((p, i) => (i === index ? {...p, [field]: value} : p))
         );
     };
 
     const handleCloseNotification = () => {
-        setNotification({ ...notification, open: false });
+        setNotification({...notification, open: false});
     };
 
     const handleConfirmBooking = async () => {
@@ -141,9 +143,14 @@ const ConfirmBooking = () => {
                 totalPrice: state.totalPrice,
                 notes: state.notes,
             };
-          
+
+            console.log("bookingData", bookingData);
+
+
             const response = await createBooking(bookingData);
-            console.log(response);
+            console.log("Response from createBooking API:", response);
+
+
             if (response.success) {
                 setNotification({
                     open: true,
@@ -151,7 +158,7 @@ const ConfirmBooking = () => {
                     severity: "success",
                 });
                 navigate(`/payment/${response.data.id}`, {
-                    state: { isAuthorized: true,totalPrice: state.totalPrice },
+                    state: {isAuthorized: true, totalPrice: state.totalPrice},
                 });
             } else {
                 setNotification({
@@ -181,7 +188,7 @@ const ConfirmBooking = () => {
                 open={notification.open}
                 autoHideDuration={9000}
                 onClose={handleCloseNotification}
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                anchorOrigin={{vertical: "top", horizontal: "right"}}
                 sx={{
                     "& .MuiSnackbarContent-root": {
                         borderRadius: "8px",
@@ -210,7 +217,7 @@ const ConfirmBooking = () => {
                             color="inherit"
                             onClick={handleCloseNotification}
                         >
-                            <CloseIcon fontSize="small" />
+                            <CloseIcon fontSize="small"/>
                         </IconButton>
                     }
                 >
@@ -243,41 +250,52 @@ const ConfirmBooking = () => {
                         },
                     }}
                 >
-                    <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#1a3c34" }}>
+                    <Typography variant="h5" sx={{mb: 2, fontWeight: "bold", color: "#1a3c34"}}>
                         Tour Information
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
-                        <img src={state.tour.images[0]} alt={state.tour.title} />
+                    <Typography sx={{
+                        mb: 3,
+                        color: "#555",
+                        borderRadius: "10px",
+                        boxShadow: "0 5px 10px black",
+                        overflow: 'hidden'
+                    }}>
+                        <img src={state.tour.thumbnail} alt={state.tour.title}/>
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>Name:</strong> {state.tour.title}
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>Start Date:</strong>{" "}
                         {state.tour.startDate
                             ? format(new Date(state.tour.startDate), "MMMM, dd yyyy")
                             : "N/A"}
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>End Date:</strong>{" "}
                         {state.tour.endDate
                             ? format(new Date(state.tour.endDate), "MMMM, dd yyyy")
                             : "N/A"}
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>Adults:</strong> {state.adults}
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>Children:</strong> {state.children}
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>Babies:</strong> {state.babies}
                     </Typography>
-                    <Typography sx={{ mb: 1, color: "#555" }}>
+
+                    <Typography sx={{mb: 1, color: "#555"}}>
+                        <strong>Notes:</strong> {state.notes || "N/A"}
+                    </Typography>
+
+                    <Typography sx={{mb: 1, color: "#555"}}>
                         <strong>Total Price:</strong> ${state.totalPrice.toFixed(2)}
                     </Typography>
                     {state.discountCode && (
-                        <Typography sx={{ mb: 1, color: "#555" }}>
+                        <Typography sx={{mb: 1, color: "#555"}}>
                             <strong>Discount Code:</strong> {state.discountCode}
                         </Typography>
                     )}
@@ -301,42 +319,42 @@ const ConfirmBooking = () => {
                         },
                     }}
                 >
-                    <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#1a3c34" }}>
+                    <Typography variant="h5" sx={{mb: 2, fontWeight: "bold", color: "#1a3c34"}}>
                         User Information
                     </Typography>
                     {user ? (
-                        <Box sx={{ mb: 3 }}>
+                        <Box sx={{mb: 3}}>
                             <TextField
                                 fullWidth
                                 label="Name"
                                 variant="outlined"
                                 value={user.fullName || "N/A"}
-                                sx={{ mb: 2, bgcolor: "#fff" }}
+                                sx={{mb: 2, bgcolor: "#fff"}}
                             />
                             <TextField
                                 fullWidth
                                 label="Email"
                                 variant="outlined"
                                 value={user.email || "N/A"}
-                                sx={{ mb: 2, bgcolor: "#fff" }}
+                                sx={{mb: 2, bgcolor: "#fff"}}
                             />
                             <TextField
                                 fullWidth
                                 label="Phone"
                                 variant="outlined"
                                 value={user.phoneNumber || "N/A"}
-                                sx={{ mb: 2, bgcolor: "#fff" }}
+                                sx={{mb: 2, bgcolor: "#fff"}}
                             />
                         </Box>
                     ) : (
-                        <Typography sx={{ mb: 3, color: "#555" }}>
+                        <Typography sx={{mb: 3, color: "#555"}}>
                             No user information available
                         </Typography>
                     )}
                     <Typography
                         variant="h5"
-                        sx={{ mb: 2, mt: 3, fontWeight: "bold", color: "#1a3c34" }}
-                        HP                   >
+                        sx={{mb: 2, mt: 3, fontWeight: "bold", color: "#1a3c34"}}
+                        HP>
                         Participant Information
                     </Typography>
                     {participants.map((participant, index) => (
@@ -350,7 +368,7 @@ const ConfirmBooking = () => {
                                 bgcolor: "#f9f9f9",
                             }}
                         >
-                            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: "medium" }}>
+                            <Typography variant="subtitle1" sx={{mb: 2, fontWeight: "medium"}}>
                                 Participant {index + 1} ({participant.ageType})
                             </Typography>
                             <TextField
@@ -361,10 +379,10 @@ const ConfirmBooking = () => {
                                 onChange={(e) =>
                                     handleParticipantChange(index, "fullName", e.target.value)
                                 }
-                                sx={{ mb: 2, bgcolor: "white" }}
+                                sx={{mb: 2, bgcolor: "white"}}
                                 disabled={loading}
                             />
-                            <FormControl fullWidth sx={{ mb: 2 }}>
+                            <FormControl fullWidth sx={{mb: 2}}>
                                 <InputLabel>Gender</InputLabel>
                                 <Select
                                     value={participant.gender}
@@ -372,7 +390,7 @@ const ConfirmBooking = () => {
                                         handleParticipantChange(index, "gender", e.target.value)
                                     }
                                     label="Gender"
-                                    sx={{ bgcolor: "white" }}
+                                    sx={{bgcolor: "white"}}
                                     disabled={loading}
                                 >
                                     <MenuItem value="MALE">Male</MenuItem>
@@ -381,7 +399,7 @@ const ConfirmBooking = () => {
                             </FormControl>
                         </Box>
                     ))}
-                    <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#1a3c34" }}>
+                    <Typography variant="h5" sx={{mb: 2, fontWeight: "bold", color: "#1a3c34"}}>
                         Payment Method
                     </Typography>
                     <Box
@@ -399,9 +417,9 @@ const ConfirmBooking = () => {
                                     variant="outlined"
                                     startIcon={
                                         method.name.toLowerCase().includes("cash") ? (
-                                            <LocalAtm />
+                                            <LocalAtm/>
                                         ) : (
-                                            <CreditCard />
+                                            <CreditCard/>
                                         )
                                     }
                                     sx={{
@@ -426,7 +444,7 @@ const ConfirmBooking = () => {
                                 </Button>
                             ))
                         ) : (
-                            <Typography sx={{ color: "#555" }}>
+                            <Typography sx={{color: "#555"}}>
                                 No payment methods available
                             </Typography>
                         )}
@@ -454,7 +472,7 @@ const ConfirmBooking = () => {
                         }}
                     >
                         {loading ? (
-                            <CircularProgress size={24} color="inherit" />
+                            <CircularProgress size={24} color="inherit"/>
                         ) : (
                             "Confirm Booking"
                         )}

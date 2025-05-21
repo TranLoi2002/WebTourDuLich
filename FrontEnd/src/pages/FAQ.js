@@ -12,9 +12,9 @@ const FAQ = () => {
             <div className="flex flex-col gap-[25px] my-[100px] mx-[200px]">
                 <div className="flex items-center justify-between">
                     <h2 className="text-3xl mb-[30px] font-bold">Frequently Asked Questions</h2>
-                    <button onClick={() => setModalIsOpen(true)} className="bg-primary rounded-lg py-[14px] px-[22px] text-white cursor-pointer outline-none border-none">
-                        <i className="fa-solid fa-plus"></i> Add Question
-                    </button>
+                    {/*<button onClick={() => setModalIsOpen(true)} className="bg-primary rounded-lg py-[14px] px-[22px] text-white cursor-pointer outline-none border-none">*/}
+                    {/*    <i className="fa-solid fa-plus"></i> Add Question*/}
+                    {/*</button>*/}
                 </div>
 
                 <Modal

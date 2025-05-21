@@ -544,16 +544,8 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    @Cacheable(value = "tours", key = "#tourId")
     public LightTourDTO fetchTour(Long tourId) {
         logger.info("Fetching tour with id: {}", tourId);
-        if (tourId == null) {
-            throw new BookingException(
-                    BookingErrorCode.INVALID_TOUR_ID.getMessage(),
-                    HttpStatus.BAD_REQUEST,
-                    BookingErrorCode.INVALID_TOUR_ID.getCode()
-            );
-        }
         try {
             LightTourDTO tour = catalogClient.getTourById(tourId);
             if (tour == null) {
@@ -577,13 +569,6 @@ public class BookingServiceImpl implements BookingService {
     @Cacheable(value = "users", key = "#userId")
     public UserDTO fetchUser(Long userId) {
         logger.info("Fetching user with id: {}", userId);
-        if (userId == null) {
-            throw new BookingException(
-                    "User ID is required",
-                    HttpStatus.BAD_REQUEST,
-                    "BOOKING_024"
-            );
-        }
         try {
             UserDTO user = userClient.getUserById(userId);
             if (user == null) {

@@ -12,8 +12,9 @@ const HorizontalLayout = ({ tours, title, isShowDescCard }) => {
                 <h3 className="font-bold text-2xl ">{title}</h3>
             </div>
             <Swiper
+                key={tours.length}
                 spaceBetween={30}
-                slidesPerView="auto" // Display 5 tours at a time
+                slidesPerView="auto" // Show as many slides as possible
                 slidesPerGroup={1} // Slide one tour at a time
                 navigation={true}
                 modules={[Navigation]}
@@ -25,8 +26,6 @@ const HorizontalLayout = ({ tours, title, isShowDescCard }) => {
                             <CardTour tour={tour} isShowDesc={isShowDescCard} containerStyle="w-[300px]"/>
                         </SwiperSlide>
                     ))}
-
-
             </Swiper>
         </div>
     );

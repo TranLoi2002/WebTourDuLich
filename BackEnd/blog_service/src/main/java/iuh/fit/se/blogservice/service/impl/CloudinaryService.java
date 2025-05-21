@@ -1,4 +1,4 @@
-package iuh.fit.se.blogservice.service;
+package iuh.fit.se.blogservice.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

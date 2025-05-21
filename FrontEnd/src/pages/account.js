@@ -1,12 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { TextField, MenuItem } from '@mui/material';
-import { getUserById, verifyUser } from '../api/auth.api';
+import { getUserById, verifyUser, changePassword } from '../api/auth.api';
 import { getFavouriteTourByUserId, removeFavouriteTourByUserId, updateUserProfile } from '../api/user.api';
-import { Link } from 'react-router-dom';
+import { Link , Navigate} from 'react-router-dom';
 import { toast } from 'react-toastify';
-import MyTour from '../components/MyTour';
 import ChangePasswordModal from "../pages/auth/ChangePasswordModal";
+import MyTour from "../components/MyTour";
+import FavouriteTours from "../components/FavouriteTours";
 
 
 const formatDateToYMD = (isoDate) => {
@@ -53,6 +55,16 @@ const Account = () => {
         fetchUserDetails();
     }, []);
 
+
+    // if (!user) {
+    //     return <Navigate to="/auth/sign_in" replace />;
+    // }
+    //
+    // if (user.role?.roleName === "ADMIN") {
+    //     return <Navigate to="/admin" replace />;
+    //     // Hoặc: return <div>Trang này chỉ dành cho người dùng thông thường</div>;
+    // }
+
     // Fetch favorite tours
     useEffect(() => {
         const fetchFavouritesTour = async () => {
@@ -86,11 +98,11 @@ const Account = () => {
     };
 
     // Handle remove file
-    const handleRemoveFile = () => {
-        setImage(null);
-        setFile(null);
-        setError('');
-    };
+    // const handleRemoveFile = () => {
+    //     setImage(null);
+    //     setFile(null);
+    //     setError('');
+    // };
 
     // Handle save changes
     const handleSaveChanges = async () => {
@@ -151,7 +163,7 @@ const Account = () => {
                             {[
                                 { id: 'account', icon: 'user', label: 'Account Setting' },
                                 { id: 'security', icon: 'lock', label: 'Privacy & Security' },
-                                { id: 'mytour', icon: 'plane', label: 'My tour' },
+                                { id: 'mytour', icon: 'plane', label: 'My Booking' },
                                 { id: 'favourites', icon: 'heart', label: 'Favourite tour' },
                             ].map((section) => (
                                 <label
@@ -195,6 +207,13 @@ const Account = () => {
                                                 >
                                                     Upload file
                                                 </label>
+                                                {/*<button*/}
+                                                {/*    className='outline-none border-2 border-[#F65540] text-[#F65540] rounded-lg bg-white py-[5px] px-[30px]'*/}
+                                                {/*    type='button'*/}
+                                                {/*    onClick={handleRemoveFile}*/}
+                                                {/*>*/}
+                                                {/*    Remove*/}
+                                                {/*</button>*/}
                                             </form>
                                             {error && <p className='text-red-500'>{error}</p>}
                                             <h4 className='font-normal text-[#b7b1b1] leading-5'>
@@ -288,62 +307,64 @@ const Account = () => {
 
                         {activeSection === 'security' && (
                             <div className='relative'>
-                                <h2 className='text-2xl text-center font-bold mb-[30px]'>Security</h2>
+                                <div className="mb-[30px]">
+                                    <h2 className="text-2xl text-center font-bold">Security</h2>
+                                </div>
                                 <div className='flex flex-col gap-[1rem]'>
                                     <div>
                                         <details>
-                                            <summary>Login</summary>
-                                            <div className='flex items-center justify-between my-[10px]'>
-                                                <div>
+                                            <summary> Login</summary>
+                                            <div className="flex items-center justify-between my-[10px]">
+                                                <div className="">
                                                     <h3>Password</h3>
-                                                    <span className='text-[0.8em] text-gray-400 leading-3'>Last updated 1 month ago</span>
+                                                    <span className="text-[0.8em] text-gray-400 leading-3">Last updated 1 month ago</span>
                                                 </div>
-                                                <button
-                                                    className='border-2 rounded-lg py-[8px] px-[10px] text-[#777E90]'
-                                                    onClick={() => setModalIsOpen(true)}
-                                                >
-                                                    Update password
-                                                </button>
+                                                <div
+                                                    className="border-2 rounded-lg py-[8px] px-[10px] text-[#777E90]"
+                                                    id="myBtn"
+                                                    onClick={() => setModalIsOpen(true)}>
+                                                    <span>Update password</span>
+                                                </div>
                                             </div>
                                         </details>
-                                    
+
                                         {/* Modal tách riêng */}
                                         <ChangePasswordModal
                                             isOpen={modalIsOpen}
                                             onClose={() => setModalIsOpen(false)}
-                                        /> 
+                                        />
                                     </div>
-                                    <details>
-                                        <summary>Device History</summary>
-                                        <p className='mt-5'>Your access has not been processed yet!</p>
-                                    </details>
-                                    <details>
-                                        <summary>Where You're Logged in?</summary>
-                                        <p className='mt-5'>Your access has not been processed yet!</p>
-                                    </details>
-                                    <details>
-                                        <summary>Socials accounts</summary>
-                                        <h3>My Data Account</h3>
-                                        <p>You can manage your social media accounts here. Choose the method of account you wish to use.</p>
-                                        <div className='data_select'>
-                                            <div className='gmail'>
-                                                <span>My account data linked to your Google account</span>
-                                                <i className='fa-solid fa-circle-check'></i>
-                                            </div>
-                                            {['Facebook', 'Twitter', 'LinkedIn'].map((social) => (
-                                                <div key={social} className={social.toLowerCase()}>
-                                                    {social}: <a href='/profile-page/index.html#socials_link'>unlinked</a>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </details>
-                                    <details>
-                                        <summary>Privacy and Security Information</summary>
-                                        <p>
-                                            {/* Privacy policy content remains unchanged */}
-                                        </p>
-                                    </details>
                                 </div>
+                                <details>
+                                    <summary>Device History</summary>
+                                    <p className='mt-5'>Your access has not been processed yet!</p>
+                                </details>
+                                <details>
+                                    <summary>Where You're Logged in?</summary>
+                                    <p className='mt-5'>Your access has not been processed yet!</p>
+                                </details>
+                                <details>
+                                    <summary>Socials accounts</summary>
+                                    <h3>My Data Account</h3>
+                                    <p>You can manage your social media accounts here. Choose the method of account you wish to use.</p>
+                                    <div className='data_select'>
+                                        <div className='gmail'>
+                                            <span>My account data linked to your Google account</span>
+                                            <i className='fa-solid fa-circle-check'></i>
+                                        </div>
+                                        {['Facebook', 'Twitter', 'LinkedIn'].map((social) => (
+                                            <div key={social} className={social.toLowerCase()}>
+                                                {social}: <a href='/profile-page/index.html#socials_link'>unlinked</a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </details>
+                                <details>
+                                    <summary>Privacy and Security Information</summary>
+                                    <p>
+                                        {/* Privacy policy content remains unchanged */}
+                                    </p>
+                                </details>
                             </div>
                         )}
 
@@ -352,45 +373,47 @@ const Account = () => {
                         )}
 
                         {activeSection === 'favourites' && (
-                            <div id='tbl'>
-                                <h2 className='text-2xl text-center font-bold mb-[30px]'>My favourite tours</h2>
-                                <table className='bg-[#fafafa] border-collapse border-spacing-0 rounded-lg text-center shadow-xl mt-[2rem] w-full'>
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Tour Code</th>
-                                        <th>Place of Departure</th>
-                                        <th>Price</th>
-                                        <th>Detail</th>
-                                        <th>Remove</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {favouritesTour.map((tour) => (
-                                        <tr key={tour.id}>
-                                            <td>{tour.title}</td>
-                                            <td>{tour.tourCode}</td>
-                                            <td>{tour.placeOfDeparture}</td>
-                                            <td>{tour.price}</td>
-                                            <td>
-                                                <Link to={`/tours/detailtour/${tour.id}`} className='text-primary underline'>
-                                                    More
-                                                </Link>
-                                            </td>
-                                            <td>
-                                                <i
-                                                    className='fa-solid fa-trash-can text-red-600 cursor-pointer'
-                                                    onClick={() => handleRemoveFavouriteTour(tour.id)}
-                                                />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                                <button className='mt-[15px] border-none rounded-lg py-[10px] px-[20px] shadow-xl block text-sm bg-red-600 text-white'>
-                                    Delete All
-                                </button>
-                            </div>
+                            // <div id='tbl'>
+                            //     <h2 className='text-2xl text-center font-bold mb-[30px]'>My favourite tours</h2>
+                            //     <table className='bg-[#fafafa] border-collapse border-spacing-0 rounded-lg text-center shadow-xl mt-[2rem] w-full'>
+                            //         <thead>
+                            //         <tr>
+                            //             <th>Name</th>
+                            //             <th>Tour Code</th>
+                            //             <th>Place of Departure</th>
+                            //             <th>Price</th>
+                            //             <th>Detail</th>
+                            //             <th>Remove</th>
+                            //         </tr>
+                            //         </thead>
+                            //         <tbody>
+                            //         {favouritesTour.map((tour) => (
+                            //             <tr key={tour.id}>
+                            //                 <td>{tour.title}</td>
+                            //                 <td>{tour.tourCode}</td>
+                            //                 <td>{tour.placeOfDeparture}</td>
+                            //                 <td>{tour.price}</td>
+                            //                 <td>
+                            //                     <Link to={`/tours/detailtour/${tour.id}`} className='text-primary underline'>
+                            //                         More
+                            //                     </Link>
+                            //                 </td>
+                            //                 <td>
+                            //                     <i
+                            //                         className='fa-solid fa-trash-can text-red-600 cursor-pointer'
+                            //                         onClick={() => handleRemoveFavouriteTour(tour.id)}
+                            //                     />
+                            //                 </td>
+                            //             </tr>
+                            //         ))}
+                            //         </tbody>
+                            //     </table>
+                            //     <button className='mt-[15px] border-none rounded-lg py-[10px] px-[20px] shadow-xl block text-sm bg-red-600 text-white'>
+                            //         Delete All
+                            //     </button>
+                            // </div>
+
+                            <FavouriteTours/>
                         )}
                     </div>
                 </div>

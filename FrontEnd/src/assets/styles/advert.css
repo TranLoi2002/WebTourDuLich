@@ -1,14 +1,14 @@
-.slider-container::after {
-    content: "";
-    position: absolute;
-    bottom: 60px;
-    left: 0;
-    width: 100%;
-    height: 60%; /* Điều chỉnh chiều cao của gradient */
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
-    pointer-events: none; /* Đảm bảo không ảnh hưởng đến thao tác click */
-    z-index:99;
-}
+/*.slider-container::after {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    bottom: 60px;*/
+/*    left: 0;*/
+/*    width: 100%;*/
+/*    height: 60%; !* Điều chỉnh chiều cao của gradient *!*/
+/*    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));*/
+/*    pointer-events: none; !* Đảm bảo không ảnh hưởng đến thao tác click *!*/
+/*    z-index:99;*/
+/*}*/
 
 .header_infor_details{
     position : absolute;

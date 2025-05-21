@@ -3,7 +3,7 @@ import Masonry from 'react-masonry-css';
 import { useNavigate } from 'react-router-dom';
 import { getTourByLocationId } from "../api/tour.api";
 
-const MasonryLayout = ({ locations, title }) => {
+const MasonryLayout = ({ locations, title, indexSlice }) => {
     const navigate = useNavigate();
     const [tourCounts, setTourCounts] = useState({}); // Object to store tour counts by locationId
 
@@ -28,7 +28,9 @@ const MasonryLayout = ({ locations, title }) => {
 
     const handleLocationClick = async (locationId) => {
         try {
-            const tours = await getTourByLocationId(locationId);
+            const locationTours = await getTourByLocationId(locationId);
+            const tours = locationTours.filter(f => f.active === true);
+
             navigate('/tours/location-tours', { state: { tours } });
         } catch (error) {
             console.error("Error fetching tours for location:", error);
@@ -43,7 +45,7 @@ const MasonryLayout = ({ locations, title }) => {
     };
 
     const handleViewAll = () => {
-        navigate('/locations');
+        navigate('/tours/locations/viewall');
     };
 
     return (
@@ -56,7 +58,7 @@ const MasonryLayout = ({ locations, title }) => {
                 className="flex w-auto -ml-4"
                 columnClassName="pl-4 bg-clip-padding"
             >
-                {locations.slice(0, 7).map((location, index) => (
+                {locations.slice(0, indexSlice).map((location, index) => (
                     <div
                         key={index}
                         className="mb-4 relative cursor-pointer"
@@ -73,13 +75,13 @@ const MasonryLayout = ({ locations, title }) => {
                     </div>
                 ))}
 
-                {locations.length > 7 && (
+                {locations.length > indexSlice && (
                     <div className="mb-4 relative cursor-pointer" onClick={handleViewAll}>
                         <img src={locations[7].imageUrl} alt="View All" className="w-full h-auto rounded-lg" />
                         <div
                             className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                             <span
-                                className="text-center text-lg font-bold text-white">+{locations.length - 7} more</span>
+                                className="text-center text-lg font-bold text-white">+{locations.length - indexSlice} more</span>
                         </div>
                     </div>
                 )}

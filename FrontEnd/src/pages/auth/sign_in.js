@@ -16,6 +16,7 @@ const Sign_In = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Xử lý thay đổi input
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -43,9 +44,18 @@ const Sign_In = () => {
                 navigate("/");
             }
         } catch (err) {
-            console.error("Login error", err);
-            const message = err.response?.data?.error || "Login failed. Please try again.";
-            toast.error(message);
+            console.error("Full error:", err.response?.data);
+
+            const data = err.response?.data;
+
+            if (data && typeof data === "object") {
+                // Duyệt qua từng lỗi trong object
+                Object.values(data).forEach((msg) => {
+                    toast.error(msg);
+                });
+            } else {
+                toast.error("Login failed. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
