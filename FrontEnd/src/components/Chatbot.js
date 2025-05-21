@@ -21,7 +21,6 @@ const Chatbot = () => {
         "I want to see tours in Colombia",
         "Làm thế nào để đặt một tour?",
     ];
-
     const MAX_MESSAGES = 100; // Giới hạn số tin nhắn để tránh vượt quota localStorage
 
     const scrollToBottom = () => {

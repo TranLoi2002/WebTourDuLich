@@ -5,7 +5,7 @@ import logo from '../assets/images/logo.png';
 import defaultAvatar from '../assets/images/user_header.png';
 import { logout } from '../api/auth.api';
 import { toast } from 'react-toastify';
-
+import Cookies from "js-cookie";
 const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
@@ -67,6 +67,8 @@ const Header = () => {
             setShowUserMenu(false);
             setUser(null);
             localStorage.removeItem('user');
+            localStorage.removeItem('chatbotMessages');
+            Cookies.remove()
             toast.info('Logout successfully.');
             navigate('/auth/sign_in');
         } catch (error) {
