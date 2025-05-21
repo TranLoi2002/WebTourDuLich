@@ -49,13 +49,23 @@ public class LikeServiceImpl implements LikeService {
         likeDTO.setId(like.getId());
         likeDTO.setUserId(like.getUserId());
 
-        try {
-            UserResponse user = userServiceClient.getUserById(like.getUserId());
-            likeDTO.setUserName(user.getFullName());
-        } catch (Exception e) {
-            likeDTO.setUserName("Unknown User");
-        }
+//        try {
+//            UserResponse user = userServiceClient.getUserById(like.getUserId());
+//            likeDTO.setUserName(user.getFullName());
+//        } catch (Exception e) {
+//            likeDTO.setUserName("Unknown User");
+//        }
 
         return likeDTO;
+    }
+
+    @Override
+    public void deleteLike(Long blogId, Long userId) {
+        // Kiểm tra xem Like có tồn tại không
+        Like like = likeRepository.findByBlogIdAndUserId(blogId, userId)
+                .orElseThrow(() -> new RuntimeException("Like not found for blogId: " + blogId + " and userId: " + userId));
+
+        // Xóa Like
+        likeRepository.delete(like);
     }
 }

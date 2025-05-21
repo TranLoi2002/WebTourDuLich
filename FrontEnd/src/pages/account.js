@@ -97,14 +97,6 @@ const Account = () => {
         }
     };
 
-    // Handle remove file
-    // const handleRemoveFile = () => {
-    //     setImage(null);
-    //     setFile(null);
-    //     setError('');
-    // };
-
-    // Handle save changes
     const handleSaveChanges = async () => {
         if (!user) return;
 
@@ -118,6 +110,9 @@ const Account = () => {
         try {
             const updatedUser = await updateUserProfile(user.id, formData);
             setUser(updatedUser);
+            localStorage.removeItem("user");
+            localStorage.setItem("user", JSON.stringify(user));
+            window.location.reload();
             toast.success('Profile updated successfully!');
         } catch (error) {
             toast.error('Failed to update profile: ' + (error?.message || 'Something went wrong'));

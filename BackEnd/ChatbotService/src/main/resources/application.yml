@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:mariadb://localhost:3306/chatbot_db?createDatabaseIfNotExist=true
     username: ${DB_USERNAME}
-    password: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -32,5 +32,5 @@ logging:
 # config connect rasa
 rasa:
   server:
-    url: http://localhost:5005/webhooks/rest/webhook
+    url: http://localhost:5000/query
 

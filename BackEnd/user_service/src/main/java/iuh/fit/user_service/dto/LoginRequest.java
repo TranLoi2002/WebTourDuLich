@@ -13,6 +13,6 @@ public class LoginRequest {
     private String email;
 
     @NotBlank(message = "Password không được để trống")
-    @Size(min = 6, max = 100, message = "Password phải có độ dài từ 6 đến 100 ký tự")
+    @Size(min = 8, max = 100, message = "Password phải có độ dài từ 8 đến 100 ký tự")
     private String passWord;
 }

@@ -1,16 +1,15 @@
-import React, {useState, useEffect, useCallback} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {getDetailTour, getRelatedTourByLocationId} from "../../api/tour.api";
-import {Swiper, SwiperSlide} from "swiper/react";
-import {Navigation, FreeMode, Thumbs} from "swiper/modules";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getDetailTour, getRelatedTourByLocationId } from "../../api/tour.api";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, FreeMode, Thumbs } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import 'swiper/css/free-mode';
 import 'swiper/css/thumbs';
-
-import {format} from "date-fns";
-import {verifyUser} from "../../api/auth.api";
+import { format } from "date-fns";
+import { verifyUser } from "../../api/auth.api";
 import {
     createReview,
     getReviewOfTour,
@@ -19,16 +18,17 @@ import {
     uploadImages,
     getCountReplies
 } from "../../api/review.api";
-import {getUserById} from "../../api/user.api";
-import {toast} from "react-toastify";
+import { getUserById } from "../../api/user.api";
+import { toast } from "react-toastify";
 import HorizontalLayout from "../../components/horizontalLayout";
 import Modal from "react-modal";
+import { Button, CircularProgress } from "@mui/material";
 
 // Bind modal to app element for accessibility
 Modal.setAppElement("#root");
 
-// Sub-component for Tour Information (unchanged)
-const TourInfo = ({tour, randomImage, showImages, setShowImages}) => {
+// Sub-component for Tour Information (không thay đổi)
+const TourInfo = ({ tour, randomImage, showImages, setShowImages }) => {
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
     return (
         <div className="trip_main">
@@ -79,7 +79,7 @@ const TourInfo = ({tour, randomImage, showImages, setShowImages}) => {
                             loop={true}
                             spaceBetween={10}
                             navigation={true}
-                            thumbs={{swiper: thumbsSwiper}}
+                            thumbs={{ swiper: thumbsSwiper }}
                             modules={[FreeMode, Navigation, Thumbs]}
                             className="mySwiper2"
                         >
@@ -115,8 +115,8 @@ const TourInfo = ({tour, randomImage, showImages, setShowImages}) => {
                         <span>{tour.averageRating.toFixed(1)}</span>
                         <i className="fa-solid fa-star text-yellow-600"></i>
                         <span>
-                        - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
-                    </span>
+                            - ({tour.totalReviews} <i className="fa-solid fa-people-group"></i>)
+                        </span>
                     </div>
                     <h2 id="name">{tour.title}</h2>
                     <div className="details">
@@ -140,42 +140,47 @@ const TourInfo = ({tour, randomImage, showImages, setShowImages}) => {
                 </div>
             </div>
         </div>
-    )
+    );
 };
 
-// Sub-component for Booking Form (unchanged)
+
 const BookingForm = ({
-                         tour,
-                         adults,
-                         setAdults,
-                         children,
-                         setChildren,
-                         babies,
-                         setBabies,
-                         discountCode,
-                         setDiscountCode,
-                         totalPrice,
-                         handleSubmit,
-                         checkGiamGia,
-                         totalPassengers,
-                         isBooking
-                     }) => {
+    tour,
+    adults,
+    setAdults,
+    children,
+    setChildren,
+    babies,
+    setBabies,
+    discountCode,
+    setDiscountCode,
+    totalPrice,
+    handleSubmit,
+    checkGiamGia,
+    totalPassengers,
+    isBooking,
+    isApplyingDiscount // Thêm prop mới
+}) => {
     const availableSeats = tour.maxParticipants - tour.currentParticipants;
 
     const handlePassengerChange = (type, value) => {
-        const newTotalPassengers =
-            (type === "adults" ? value : adults) +
-            (type === "children" ? value : children) +
-            (type === "babies" ? value : babies);
+        try {
+            const newTotalPassengers =
+                (type === "adults" ? value : adults) +
+                (type === "children" ? value : children) +
+                (type === "babies" ? value : babies);
 
-        if (newTotalPassengers > availableSeats) {
-            toast.error("The number of passengers exceeds the available seats!");
-            return;
+            if (newTotalPassengers > availableSeats) {
+                toast.error("The number of passengers exceeds the available seats!");
+                return;
+            }
+
+            if (type === "adults") setAdults(value);
+            if (type === "children") setChildren(value);
+            if (type === "babies") setBabies(value);
+        } catch (err) {
+            toast.error("Networking Error!");
         }
-
-        if (type === "adults") setAdults(value);
-        if (type === "children") setChildren(value);
-        if (type === "babies") setBabies(value);
     };
 
     return (
@@ -243,7 +248,28 @@ const BookingForm = ({
                                 className="border-2 rounded px-2 py-4"
                                 onChange={(e) => setDiscountCode(e.target.value)}
                             />
-                            <button onClick={checkGiamGia}>Apply</button>
+                            <Button
+                                variant="contained"
+                                onClick={checkGiamGia}
+                                disabled={isApplyingDiscount}
+                                sx={{
+                                    background: "linear-gradient(90deg, #1a73e8 0%, #4285f4 100%)",
+                                    color: "white",
+                                    fontWeight: "bold",
+                                    textTransform: "none",
+                                    padding: "8px 16px",
+                                    borderRadius: "8px",
+                                    "&:hover": {
+                                        background: "linear-gradient(90deg, #4285f4 0%, #1a73e8 100%)",
+                                    },
+                                    "&:disabled": {
+                                        background: "linear-gradient(90deg, #90caf9 0%, #b0bec5 100%)",
+                                        cursor: "not-allowed",
+                                    },
+                                }}
+                            >
+                                {isApplyingDiscount ? <CircularProgress size={24} color="inherit" /> : "Apply"}
+                            </Button>
                         </div>
                     </label>
                     <label className="total">
@@ -252,43 +278,63 @@ const BookingForm = ({
                             <span>${totalPrice.toFixed(2)}</span>
                         </div>
                     </label>
-                    <button
-                        disabled={adults < 1 || isBooking}
-                        className={`book_submit ${adults < 1 || isBooking ? "opacity-50 cursor-not-allowed" : ""}`}
+                    <Button
+                        variant="contained"
+                        fullWidth
                         onClick={handleSubmit}
+                        disabled={adults < 1 || isBooking}
+                        sx={{
+                            background: "linear-gradient(90deg, #1a73e8 0%, #4285f4 100%)",
+                            color: "white",
+                            fontWeight: "bold",
+                            textTransform: "none",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            "&:hover": {
+                                background: "linear-gradient(90deg, #4285f4 0%, #1a73e8 100%)",
+                            },
+                            "&:disabled": {
+                                background: "linear-gradient(90deg, #90caf9 0%, #b0bec5 100%)",
+                                cursor: "not-allowed",
+                            },
+                        }}
                     >
-                        {isBooking ? "Booking..." : "BOOK NOW"}
-                    </button>
+                        {isBooking ? <CircularProgress size={24} color="inherit" /> : "BOOK NOW"}
+                    </Button>
                 </div>
             </div>
         </div>
     );
 };
 
-// Updated ReviewSection with Star Rating, Image Upload, and Modal
+
 const ReviewSection = ({
-                           reviews,
-                           user,
-                           newReview,
-                           setNewReview,
-                           rating,
-                           setRating,
-                           images,
-                           setImages,
-                           handleReviewSubmit,
-                           toggleReplies,
-                           handleReplySubmit,
-                           newReply,
-                           setNewReply,
-                           loadMoreReviews,
-                           hasMore,
-                           tour,
-                           allReviews,
-                           setModalIsOpen
-                       }) => {
+    reviews,
+    user,
+    newReview,
+    setNewReview,
+    rating,
+    setRating,
+    images,
+    setImages,
+    handleReviewSubmit,
+    toggleReplies,
+    handleReplySubmit,
+    newReply,
+    setNewReply,
+    loadMoreReviews,
+    hasMore,
+    tour,
+    allReviews,
+    setModalIsOpen,
+    isSubmittingReview, 
+    isSubmittingReply,
+    isLoadingMoreReviews, 
+    isLoadingReplies 
+}) => {
     const [modalIsOpen, setModalIsOpenLocal] = useState(false);
 
-    // Sync local modal state with parent
+  
     const handleModalToggle = (isOpen) => {
         setModalIsOpenLocal(isOpen);
         setModalIsOpen(isOpen);
@@ -334,7 +380,7 @@ const ReviewSection = ({
         return stars;
     };
 
-    // Render a single review (reused in main section and modal)
+    // Render a single review
     const renderReview = (review, index) => (
         <div className="review flex-col" key={`${review.id}-${index}`}>
             <div className="review_header">
@@ -372,10 +418,28 @@ const ReviewSection = ({
                         {/*<i className="fa-solid fa-thumbs-down"></i>*/}
                     </div>
                     <div className="items-center">
-                        <button onClick={() => toggleReplies(review.id)}>
-                            {review.replies ? "Hide" : `Reply (${review.countReplies || 0})`}
-                        </button>
-                        {/*<i className="fa-solid fa-ellipsis-vertical ml-3"></i>*/}
+                        <Button
+                            variant="text"
+                            onClick={() => toggleReplies(review.id)}
+                            disabled={isLoadingReplies[review.id]}
+                            sx={{
+                                color: "#1a73e8",
+                                textTransform: "none",
+                                "&:hover": {
+                                    color: "#4285f4",
+                                },
+                                "&:disabled": {
+                                    color: "#b0bec5",
+                                    cursor: "not-allowed",
+                                },
+                            }}
+                        >
+                            {isLoadingReplies[review.id] ? (
+                                <CircularProgress size={20} color="inherit" />
+                            ) : (
+                                review.replies ? `Hide` : `Reply (${review.countReplies || 0})`
+                            )}
+                        </Button>
                     </div>
                 </div>
                 {review.replies && (
@@ -403,12 +467,28 @@ const ReviewSection = ({
                             }
                             placeholder="Write a reply..."
                         />
-                        <button
-                            className="bg-primary text-white px-4 py-2 rounded"
+                        <Button
+                            variant="contained"
                             onClick={() => handleReplySubmit(review.id)}
+                            disabled={!newReply[review.id] || isSubmittingReply[review.id]}
+                            sx={{
+                                background: "linear-gradient(90deg, #1a73e8 0%, #4285f4 100%)",
+                                color: "white",
+                                fontWeight: "bold",
+                                textTransform: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                                "&:hover": {
+                                    background: "linear-gradient(90deg, #4285f4 0%, #1a73e8 100%)",
+                                },
+                                "&:disabled": {
+                                    background: "linear-gradient(90deg, #90caf9 0%, #b0bec5 100%)",
+                                    cursor: "not-allowed",
+                                },
+                            }}
                         >
-                            Answer
-                        </button>
+                            {isSubmittingReply[review.id] ? <CircularProgress size={24} color="inherit" /> : "Answer"}
+                        </Button>
                     </div>
                 )}
             </div>
@@ -472,13 +552,28 @@ const ReviewSection = ({
                         ))}
                     </div>
                 )}
-                <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                <Button
+                    variant="contained"
                     onClick={handleReviewSubmit}
-                    disabled={!newReview || rating === 0}
+                    disabled={!newReview || rating === 0 || isSubmittingReview}
+                    sx={{
+                        background: "linear-gradient(90deg, #1a73e8 0%, #4285f4 100%)",
+                        color: "white",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        padding: "8px 16px",
+                        borderRadius: "8px",
+                        "&:hover": {
+                            background: "linear-gradient(90deg, #4285f4 0%, #1a73e8 100%)",
+                        },
+                        "&:disabled": {
+                            background: "linear-gradient(90deg, #90caf9 0%, #b0bec5 100%)",
+                            cursor: "not-allowed",
+                        },
+                    }}
                 >
-                    Submit
-                </button>
+                    {isSubmittingReview ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+                </Button>
             </div>
 
             {reviews.length > 0 ? (
@@ -489,9 +584,28 @@ const ReviewSection = ({
                 </div>
             )}
             {hasMore && (
-                <button onClick={loadMoreReviews} className="load-more-button">
-                    Load More Reviews
-                </button>
+                <Button
+                    variant="contained"
+                    onClick={loadMoreReviews}
+                    disabled={isLoadingMoreReviews}
+                    sx={{
+                        background: "linear-gradient(90deg, #1a73e8 0%, #4285f4 100%)",
+                        color: "white",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        padding: "8px 16px",
+                        borderRadius: "8px",
+                        "&:hover": {
+                            background: "linear-gradient(90deg, #4285f4 0%, #1a73e8 100%)",
+                        },
+                        "&:disabled": {
+                            background: "linear-gradient(90deg, #90caf9 0%, #b0bec5 100%)",
+                            cursor: "not-allowed",
+                        },
+                    }}
+                >
+                    {isLoadingMoreReviews ? <CircularProgress size={24} color="inherit" /> : "Load More Reviews"}
+                </Button>
             )}
 
             <Modal
@@ -505,7 +619,6 @@ const ReviewSection = ({
                         bottom: "0",
                         width: "50vw",
                         height: "100vh",
-                        // padding: "20px",
                         paddingTop: "40px !important",
                         overflow: "auto",
                         backgroundColor: "#fff",
@@ -526,7 +639,7 @@ const ReviewSection = ({
                     <h2 className="font-bold text-xl ml-[40px]">All Reviews ({allReviews.length})</h2>
                     <button
                         onClick={() => handleModalToggle(false)}
-                        style={{fontSize: "1.5rem", cursor: "pointer"}}
+                        style={{ fontSize: "1.5rem", cursor: "pointer" }}
                     >
                         ✕
                     </button>
@@ -545,7 +658,7 @@ const ReviewSection = ({
 
 // Main Component
 const DetailTour = () => {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -569,9 +682,13 @@ const DetailTour = () => {
     const [relatedTours, setRelatedTours] = useState([]);
     const [userCache, setUserCache] = useState({});
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [allReviews, setAllReviews] = useState([]);
     const [isBooking, setIsBooking] = useState(false);
-
+    const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+    const [isSubmittingReply, setIsSubmittingReply] = useState({});
+    const [isLoadingMoreReviews, setIsLoadingMoreReviews] = useState(false);
+    const [isLoadingReplies, setIsLoadingReplies] = useState({});
+    const [allReviews, setAllReviews] = useState({});
 
     // Fetch user
     useEffect(() => {
@@ -587,8 +704,7 @@ const DetailTour = () => {
     }, []);
 
     // Fetch tour details
-    useEffect(() => {
-        const fetchTourDetails = async () => {
+       const fetchTourDetails = async () => {
             if (!id) {
                 setError("Invalid tour ID");
                 setLoading(false);
@@ -620,6 +736,8 @@ const DetailTour = () => {
             }
         };
 
+    useEffect(() => {
+     
         fetchTourDetails();
     }, [id]);
 
@@ -658,10 +776,10 @@ const DetailTour = () => {
                         let userDetails = userCache[review.userId];
                         if (!userDetails) {
                             userDetails = await getUserById(review.userId);
-                            setUserCache((prev) => ({...prev, [review.userId]: userDetails}));
+                            setUserCache((prev) => ({ ...prev, [review.userId]: userDetails }));
                         }
                         const countReplies = await getCountReplies(review.id);
-                        return {...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies};
+                        return { ...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies };
                     })
                 );
 
@@ -687,20 +805,18 @@ const DetailTour = () => {
             if (!modalIsOpen || !id || !tour?.totalReviews) return;
 
             try {
-                // Try fetching all reviews with tour.totalReviews as size
                 const response = await getReviewOfTour(id, 0, tour.totalReviews);
                 let allFetchedReviews = response.content || [];
 
-                // If the response doesn't contain all reviews, fetch iteratively
                 if (allFetchedReviews.length < tour.totalReviews) {
                     let currentPage = 0;
-                    const pageSize = 10; // Adjust based on backend limits
+                    const pageSize = 10;
                     allFetchedReviews = [];
 
                     while (allFetchedReviews.length < tour.totalReviews) {
                         const pageResponse = await getReviewOfTour(id, currentPage, pageSize);
                         allFetchedReviews = [...allFetchedReviews, ...(pageResponse.content || [])];
-                        if (pageResponse.content.length < pageSize) break; // No more reviews
+                        if (pageResponse.content.length < pageSize) break;
                         currentPage++;
                     }
                 }
@@ -710,10 +826,10 @@ const DetailTour = () => {
                         let userDetails = userCache[review.userId];
                         if (!userDetails) {
                             userDetails = await getUserById(review.userId);
-                            setUserCache((prev) => ({...prev, [review.userId]: userDetails}));
+                            setUserCache((prev) => ({ ...prev, [review.userId]: userDetails }));
                         }
                         const countReplies = await getCountReplies(review.id);
-                        return {...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies};
+                        return { ...review, userName: userDetails.userName, avatar: userDetails.avatar, countReplies };
                     })
                 );
 
@@ -728,12 +844,29 @@ const DetailTour = () => {
     }, [modalIsOpen, id, tour, userCache]);
 
     useEffect(() => {
-        // Reset reviews state when tour ID changes
         setReviews([]);
         setPage(0);
         setHasMore(true);
         setAllReviews([]);
     }, [id]);
+
+    // Check discount code
+    const checkGiamGia = useCallback(async () => {
+        setIsApplyingDiscount(true);
+        try {
+            if (discountCode === "DISCOUNT10") {
+                setTotalPrice((prev) => prev * 0.9);
+                toast.success("Discount applied!");
+            } else {
+                toast.error("Invalid discount code");
+            }
+        } catch (error) {
+            console.error("Error applying discount:", error);
+            toast.error("Failed to apply discount");
+        } finally {
+            setIsApplyingDiscount(false);
+        }
+    }, [discountCode]);
 
     // Handle review submission
     const handleReviewSubmit = useCallback(async () => {
@@ -742,8 +875,8 @@ const DetailTour = () => {
             return;
         }
 
+        setIsSubmittingReview(true);
         try {
-            // Step 1: Create review without images
             const reviewData = {
                 tourId: id,
                 userId: user.id,
@@ -752,11 +885,8 @@ const DetailTour = () => {
                 images: [],
             };
             const createdReview = await createReview(reviewData);
-
-            // Step 2: Get reviewId from the created review
             const reviewId = createdReview.id;
 
-            // Step 3: Upload images if any
             let uploadedImageUrls = [];
             if (images.length > 0) {
                 const formData = new FormData();
@@ -766,9 +896,8 @@ const DetailTour = () => {
                 uploadedImageUrls = await uploadImages(reviewId, formData);
             }
 
-            // Step 4: Update reviews list with images
             const userDetails = userCache[user.id] || (await getUserById(user.id));
-            setUserCache((prev) => ({...prev, [user.id]: userDetails}));
+            setUserCache((prev) => ({ ...prev, [user.id]: userDetails }));
 
             const newReviewWithDetails = {
                 ...createdReview,
@@ -780,7 +909,6 @@ const DetailTour = () => {
 
             setReviews((prevReviews) => [newReviewWithDetails, ...prevReviews]);
             setAllReviews((prevAllReviews) => [newReviewWithDetails, ...prevAllReviews]);
-
             toast.success("Review posted! Thank you for your feedback.");
             setNewReview("");
             setRating(0);
@@ -788,21 +916,14 @@ const DetailTour = () => {
                 prev.forEach((image) => URL.revokeObjectURL(image.preview));
                 return [];
             });
+            fetchTourDetails();
         } catch (error) {
             console.error("Error submitting review:", error);
             toast.error("Failed to submit review");
+        } finally {
+            setIsSubmittingReview(false);
         }
     }, [user, id, newReview, rating, images, userCache]);
-
-    // Check discount code
-    const checkGiamGia = useCallback(() => {
-        if (discountCode === "DISCOUNT10") {
-            setTotalPrice((prev) => prev * 0.9);
-            toast.success("Discount applied!");
-        } else {
-            toast.error("Invalid discount code");
-        }
-    }, [discountCode]);
 
     // Handle booking submission
     const handleSubmit = useCallback(async () => {
@@ -814,15 +935,12 @@ const DetailTour = () => {
         try {
             const user = await verifyUser();
             const notesString = selectedNotes.join(",");
-            // console.log("notesString", notesString);
-            console.log("selectedNotes", selectedNotes);
-
             navigate("/confirmbooking", {
-                state: {tour, adults, children, babies, totalPrice, discountCode, userId: user.id, notes: notesString},
+                state: { tour, adults, children, babies, totalPrice, discountCode, userId: user.id, notes: notesString },
             });
         } catch (error) {
             console.error("User not authenticated:", error);
-            navigate("/auth/sign_in", {state: {from: `/tour/${id}`}});
+            navigate("/auth/sign_in", { state: { from: `/tour/${id}` } });
         } finally {
             setIsBooking(false);
         }
@@ -838,6 +956,7 @@ const DetailTour = () => {
     // Fetch replies
     const fetchReplies = useCallback(
         async (reviewId) => {
+            setIsLoadingReplies((prev) => ({ ...prev, [reviewId]: true }));
             try {
                 const fetchedReplies = await getRepliesByReviewId(reviewId);
                 const repliesWithUserDetails = await Promise.all(
@@ -845,24 +964,27 @@ const DetailTour = () => {
                         let userDetails = userCache[reply.userId];
                         if (!userDetails) {
                             userDetails = await getUserById(reply.userId);
-                            setUserCache((prev) => ({...prev, [reply.userId]: userDetails}));
+                            setUserCache((prev) => ({ ...prev, [reply.userId]: userDetails }));
                         }
-                        return {...reply, userName: userDetails.userName};
+                        return { ...reply, userName: userDetails.userName };
                     })
                 );
 
                 setReviews((prevReviews) =>
                     prevReviews.map((review) =>
-                        review.id === reviewId ? {...review, replies: repliesWithUserDetails} : review
+                        review.id === reviewId ? { ...review, replies: repliesWithUserDetails } : review
                     )
                 );
                 setAllReviews((prevAllReviews) =>
                     prevAllReviews.map((review) =>
-                        review.id === reviewId ? {...review, replies: repliesWithUserDetails} : review
+                        review.id === reviewId ? { ...review, replies: repliesWithUserDetails } : review
                     )
                 );
             } catch (error) {
                 console.error("Error fetching replies:", error);
+                toast.error("Failed to load replies");
+            } finally {
+                setIsLoadingReplies((prev) => ({ ...prev, [reviewId]: false }));
             }
         },
         [userCache]
@@ -876,6 +998,7 @@ const DetailTour = () => {
                 return;
             }
 
+            setIsSubmittingReply((prev) => ({ ...prev, [reviewId]: true }));
             try {
                 const replyData = {
                     reviewId,
@@ -884,18 +1007,18 @@ const DetailTour = () => {
                 };
                 const createdReply = await addReply(replyData);
                 const userDetails = userCache[user.id] || (await getUserById(user.id));
-                setUserCache((prev) => ({...prev, [user.id]: userDetails}));
+                setUserCache((prev) => ({ ...prev, [user.id]: userDetails }));
 
-                const newReplyWithUser = {...createdReply, userName: userDetails.userName};
+                const newReplyWithUser = { ...createdReply, userName: userDetails.userName };
 
                 setReviews((prevReviews) =>
                     prevReviews.map((review) =>
                         review.id === reviewId
                             ? {
-                                ...review,
-                                replies: [...(review.replies || []), newReplyWithUser],
-                                countReplies: (review.countReplies || 0) + 1,
-                            }
+                                  ...review,
+                                  replies: [...(review.replies || []), newReplyWithUser],
+                                  countReplies: (review.countReplies || 0) + 1,
+                              }
                             : review
                     )
                 );
@@ -903,18 +1026,20 @@ const DetailTour = () => {
                     prevAllReviews.map((review) =>
                         review.id === reviewId
                             ? {
-                                ...review,
-                                replies: [...(review.replies || []), newReplyWithUser],
-                                countReplies: (review.countReplies || 0) + 1,
-                            }
+                                  ...review,
+                                  replies: [...(review.replies || []), newReplyWithUser],
+                                  countReplies: (review.countReplies || 0) + 1,
+                              }
                             : review
                     )
                 );
-                setNewReply((prev) => ({...prev, [reviewId]: ""}));
+                setNewReply((prev) => ({ ...prev, [reviewId]: "" }));
                 toast.success("Reply posted!");
             } catch (error) {
                 console.error("Error submitting reply:", error);
                 toast.error("Failed to submit reply");
+            } finally {
+                setIsSubmittingReply((prev) => ({ ...prev, [reviewId]: false }));
             }
         },
         [user, newReply, userCache]
@@ -925,12 +1050,12 @@ const DetailTour = () => {
         (reviewId) => {
             setReviews((prevReviews) =>
                 prevReviews.map((review) =>
-                    review.id === reviewId ? {...review, replies: review.replies ? null : []} : review
+                    review.id === reviewId ? { ...review, replies: review.replies ? null : [] } : review
                 )
             );
             setAllReviews((prevAllReviews) =>
                 prevAllReviews.map((review) =>
-                    review.id === reviewId ? {...review, replies: review.replies ? null : []} : review
+                    review.id === reviewId ? { ...review, replies: review.replies ? null : [] } : review
                 )
             );
 
@@ -945,9 +1070,18 @@ const DetailTour = () => {
     // Load more reviews
     const loadMoreReviews = useCallback(() => {
         if (hasMore) {
-            setPage((prevPage) => prevPage + 1);
+            setIsLoadingMoreReviews(true);
+            setPage((prevPage) => {
+                const newPage = prevPage + 1;
+                return newPage;
+            });
         }
-    }, [hasMore, id]);
+    }, [hasMore]);
+
+    // Update page effect to reset loading state
+    useEffect(() => {
+        setIsLoadingMoreReviews(false);
+    }, [reviews]);
 
     if (loading) {
         return <div className="detail_container">Loading tour details...</div>;
@@ -970,12 +1104,12 @@ const DetailTour = () => {
                             <div className="infor_header">
                                 <h2 className="font-bold text-blue-700">Description</h2>
                             </div>
-                            <div className="intro" dangerouslySetInnerHTML={{__html: tour.description}}/>
+                            <div className="intro" dangerouslySetInnerHTML={{ __html: tour.description }}/>
                         </div>
                         <div className="highlight">
                             <h2 className="text-blue-700 font-bold">Highlight</h2>
                             <div className="mt-[10px]"
-                                 dangerouslySetInnerHTML={{__html: tour.highlights}}/>
+                                 dangerouslySetInnerHTML={{ __html: tour.highlights }}/>
                         </div>
                         <div className="notes">
                             <h2 className="font-bold text-blue-700">If you have any notes, please tell us!</h2>
@@ -991,16 +1125,6 @@ const DetailTour = () => {
                                     </label>
                                 ))}
                             </div>
-                            <div className="mess_add">
-                                <textarea
-                                    name=""
-                                    id=""
-                                    cols="30"
-                                    rows="10"
-                                    placeholder="Please enter your messages"
-                                    className="border-2 rounded"
-                                ></textarea>
-                            </div>
                         </div>
                         <ReviewSection
                             reviews={reviews}
@@ -1010,7 +1134,7 @@ const DetailTour = () => {
                             rating={rating}
                             setRating={setRating}
                             images={images}
-                            setImages={setImages} // Fixed typo: setsmages -> setImages
+                            setImages={setImages}
                             handleReviewSubmit={handleReviewSubmit}
                             toggleReplies={toggleReplies}
                             handleReplySubmit={handleReplySubmit}
@@ -1021,6 +1145,10 @@ const DetailTour = () => {
                             tour={tour}
                             allReviews={allReviews}
                             setModalIsOpen={setModalIsOpen}
+                            isSubmittingReview={isSubmittingReview}
+                            isSubmittingReply={isSubmittingReply}
+                            isLoadingMoreReviews={isLoadingMoreReviews}
+                            isLoadingReplies={isLoadingReplies}
                         />
                         {relatedTours.length > 0 && (
                             <div className="related_tours">
@@ -1043,6 +1171,7 @@ const DetailTour = () => {
                         checkGiamGia={checkGiamGia}
                         totalPassengers={`${adults + children + babies} passengers`}
                         isBooking={isBooking}
+                        isApplyingDiscount={isApplyingDiscount}
                     />
                 </div>
             </div>

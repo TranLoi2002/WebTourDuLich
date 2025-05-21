@@ -17,4 +17,8 @@ public interface BlogRepository extends JpaRepository<Blog , Long> {
 
     @Query("SELECT b FROM Blog b WHERE b.id = :id AND b.isActive = true")
     Optional<Blog> findByIdAndActive(@Param("id") Long id);
+
+    // get blogs by category id
+    @Query("SELECT b FROM Blog b WHERE b.category.id = :categoryId")
+    Page<Blog> findByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 }

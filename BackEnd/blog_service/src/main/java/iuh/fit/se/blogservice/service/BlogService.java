@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface BlogService {
     Map<String, Object> getAllBlogs(Map<String , String> params);
-    Blog getBlogById(Long id);
+    BlogDTO getBlogById(Long id);
     BlogDTO createBlog(BlogDTO blogDTO);
     BlogDTO updateBlog(Long id, BlogDTO blogDTO);
     void deleteBlog(Long id);
@@ -18,5 +18,8 @@ public interface BlogService {
 
     // get blog by user liked
     Map<String, Object> getBlogsLikedByUserId(Long userId, Map<String, String> params);
+
+    // get blogs by category id
+    Map<String, Object> getBlogsByCategoryId(Long categoryId, Map<String, String> params);
 
 }

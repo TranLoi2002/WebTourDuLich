@@ -1,6 +1,9 @@
 # Ignore environment files
 .env
 
+# Ignore Node.js dependencies
+/chatbot-server/node_modules
+
 # Ignore IDE settings
 .idea/
 *.iml
@@ -15,9 +18,3 @@
 # Ignore OS files
 .DS_Store
 Thumbs.db
-
-# remove push pycache folder
-rasa/venv
-rasa/rasa_env
-__pycache__/
-

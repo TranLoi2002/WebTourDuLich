@@ -11,6 +11,11 @@ import iuh.fit.se.blogservice.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class CommentServiceImpl implements CommentService {
     @Autowired
@@ -27,37 +32,47 @@ public class CommentServiceImpl implements CommentService {
         Blog blog = blogRepository.findById(blogId)
                 .orElseThrow(() -> new RuntimeException("Blog not found with id: " + blogId));
 
-        // Validation
-        if (commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("Content is required");
+        Comment parentComment = null;
+        if (commentDTO.getParentId() != null) {
+            parentComment = commentRepository.findById(commentDTO.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found with id: " + commentDTO.getParentId()));
         }
 
-        // Tạo Comment entity
         Comment comment = new Comment();
         comment.setContent(commentDTO.getContent());
-        comment.setUserId(commentDTO.getUserId());
         comment.setBlog(blog);
+        comment.setUserId(commentDTO.getUserId());
+        comment.setParent(parentComment);
 
-        // Lưu Comment
+        // Save the main comment
         Comment savedComment = commentRepository.save(comment);
 
-        // Ánh xạ sang CommentDTO
-        return mapToCommentDTO(savedComment);
-    }
-
-    private CommentDTO mapToCommentDTO(Comment comment) {
-        CommentDTO commentDTO = new CommentDTO();
-        commentDTO.setId(comment.getId());
-        commentDTO.setContent(comment.getContent());
-        commentDTO.setUserId(comment.getUserId());
-
-        try {
-            UserResponse user = userServiceClient.getUserById(comment.getUserId());
-            commentDTO.setUserName(user.getFullName());
-        } catch (Exception e) {
-            commentDTO.setUserName("Unknown User");
+        // Recursively save replies if they exist
+        if (commentDTO.getReplies() != null && !commentDTO.getReplies().isEmpty()) {
+            for (CommentDTO replyDTO : commentDTO.getReplies()) {
+                replyDTO.setParentId(savedComment.getId());
+                createComment(blogId, replyDTO);
+            }
         }
 
-        return commentDTO;
+        return new CommentDTO(savedComment);
+    }
+
+    @Override
+    public List<CommentDTO> getCommentsByBlogId(Long blogId) {
+        List<Comment> comments = commentRepository.findByBlogIdAndParentIdIsNull(blogId);
+        return comments.stream()
+                .map(this::mapToDTOWithReplies)
+                .collect(Collectors.toList());
+    }
+
+    private CommentDTO mapToDTOWithReplies(Comment comment) {
+        CommentDTO dto = new CommentDTO(comment);
+        dto.setReplies(Optional.ofNullable(comment.getReplies())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(this::mapToDTOWithReplies)
+                .collect(Collectors.toList()));
+        return dto;
     }
 }

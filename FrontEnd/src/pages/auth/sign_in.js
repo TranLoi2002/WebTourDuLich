@@ -1,51 +1,46 @@
-import {useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
     TextField,
     Box,
     Button,
     Checkbox,
     CircularProgress,
-    Alert,
 } from "@mui/material";
 import logo from "../../assets/images/logo.png";
-import {login} from "../../api/auth.api";
-import {toast} from "react-toastify";
+import { login } from "../../api/auth.api";
+import { toast } from "react-toastify";
 
 const Sign_In = () => {
-    const [formData, setFormData] = useState({email: "", passWord: ""});
+    const [formData, setFormData] = useState({ email: "", passWord: "" });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     // Xử lý thay đổi input
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Xử lý đăng nhập
     const handleLogin = async (e) => {
         e.preventDefault();
+        toast.dismiss();
         setLoading(true);
-        setError("");
 
-        // validate
         if (!formData.email || !formData.passWord) {
-            toast.info("Please fill in all fields");
+            toast.info("Please fill in all fields.");
             setLoading(false);
             return;
         }
 
         try {
-            const res = await login(formData); // Gọi API login
-            localStorage.setItem("user", JSON.stringify(res.user)); // Lưu thông tin người dùng vào localStorage
+            const res = await login(formData);
+            localStorage.setItem("user", JSON.stringify(res.user));
 
-            // Điều hướng dựa trên vai trò
             if (res.user?.role?.roleName === "ADMIN") {
-                toast.success("Login success with Admin.");
+                toast.success("Login successful. Welcome Admin!");
                 navigate("/admin");
             } else {
-                toast.success("Login successfully.");
+                toast.success("Login successful.");
                 navigate("/");
             }
         } catch (err) {
@@ -59,7 +54,7 @@ const Sign_In = () => {
                     toast.error(msg);
                 });
             } else {
-                toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
+                toast.error("Login failed. Please try again.");
             }
         } finally {
             setLoading(false);
@@ -71,13 +66,13 @@ const Sign_In = () => {
             <div className="sign-in-left">
                 <div className="sign-in-brand">
                     <Link to="/" title="Back Home">
-                        <img src={logo} alt="Logo" className="logo"/>
+                        <img src={logo} alt="Logo" className="logo" />
                         <span>Airtrav</span>
                     </Link>
                 </div>
 
                 <h2>Welcome Back</h2>
-                <h3 style={{fontSize: "1rem", fontWeight: "normal", color: "lightgray"}}>
+                <h3 style={{ fontSize: "1rem", fontWeight: "normal", color: "lightgray" }}>
                     Please enter your details.
                 </h3>
 
@@ -88,7 +83,7 @@ const Sign_In = () => {
                     noValidate
                 >
                     <TextField
-                        label="email"
+                        label="Email"
                         name="email"
                         variant="outlined"
                         fullWidth
@@ -110,40 +105,34 @@ const Sign_In = () => {
                     />
 
                     <div className="section_remem_forgot">
-                        {/*<label style={{ display: "flex", alignItems: "center" }}>*/}
-                        {/*    <Checkbox />*/}
-                        {/*    <span>Remember me</span>*/}
-                        {/*</label>*/}
+                        <label style={{ display: "flex", alignItems: "center" }}>
+                            <Checkbox />
+                            <span>Remember me</span>
+                        </label>
                         <Link
                             to="/auth/forgotpassword"
-                            style={{fontSize: "0.8rem", color: "#3B71FE"}}
+                            style={{ fontSize: "0.8rem", color: "#3B71FE" }}
                         >
                             Forgot your password?
                         </Link>
                     </div>
 
-                    {error && (
-                        <Alert severity="error" style={{marginTop: 10}}>
-                            {error}
-                        </Alert>
-                    )}
-
                     <Button
                         type="submit"
                         variant="contained"
                         fullWidth
-                        style={{marginTop: 20}}
+                        style={{ marginTop: 20 }}
                         disabled={loading}
                     >
                         {loading ? (
-                            <CircularProgress size={24} color="inherit"/>
+                            <CircularProgress size={24} color="inherit" />
                         ) : (
                             "LOGIN"
                         )}
                     </Button>
                 </Box>
 
-                <div className="sign-in-ques" style={{marginTop: 20}}>
+                <div className="sign-in-ques" style={{ marginTop: 20 }}>
                     <span>Don't have an account?</span>{" "}
                     <Link to="/auth/sign_up">Sign up</Link>
                 </div>

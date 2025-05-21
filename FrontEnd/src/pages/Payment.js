@@ -183,7 +183,7 @@ function Payment() {
   };
 
   const handleReturnHome = () => {
-    navigate('/');
+    navigate('/account');
   };
 
   if (isFetchingBooking) {
@@ -342,7 +342,7 @@ function Payment() {
                 },
               }}
             >
-              Return to Home
+              Booking history
             </Button>
           </Box>
         </Box>

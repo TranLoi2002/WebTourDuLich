@@ -12,6 +12,8 @@ import TypeTable from '../../components/admin/type_and_location/TypeTable';
 import ActivityTypeTable from '../../components/admin/type_and_location/activityTypeTable';
 import Reports from '../../components/admin/reports';
 import PaymentPage from '../../components/admin/payments';
+import BlogTable from '../../components/admin/blog/blogTable';
+import CategoryTable from "../../components/admin/blog/categoryTable";
 
 function DashBoard() {
   const [activeTab, setActiveTab] = useState('booking');
@@ -30,8 +32,13 @@ function DashBoard() {
         return <ActivityTypeTable/>;
       case 'user':  
         return <UserTable />;
+      case 'list':
+        return <BlogTable/>
+      case 'category':
+        return <CategoryTable/>
       case 'reports':
         return <Reports/>;
+
       case 'payments':
         return <PaymentPage />;
       default:

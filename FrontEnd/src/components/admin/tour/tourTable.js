@@ -63,7 +63,6 @@ function TourTable() {
           getAllLocation(0, 1000, 'id', 'asc'),
           getActivityType(0, 1000, 'id', 'asc'),
         ]);
-
         const { content: toursContent, totalPages, totalItems } = toursResponse;
         const { content: tourTypesContent } = tourTypesResponse;
         const { content: locationsContent } = locationsResponse;
@@ -72,7 +71,6 @@ function TourTable() {
         const filterTourType = (tourTypesContent || []).filter(f => f.active === true);
         const filterActivities = (activityTypesContent || []).filter(f => f.active === true);
         const filterLocations = (locationsContent || []).filter(f => f.active === true);
-
         setTours(toursContent || []);
         setFilteredTours(toursContent || []);
         setTotalPages(totalPages || 1);
@@ -219,6 +217,19 @@ function TourTable() {
     if (!selectedTour) return;
     setIsUpdating(true);
     try {
+      const startDate = new Date(tourForm.startDate);
+      const endDate = new Date(tourForm.endDate);
+      const currentDate = new Date();
+      const minStartDate = new Date(currentDate.setDate(currentDate.getDate()));
+
+      // Kiểm tra ràng buộc ngày
+      if (startDate > endDate) {
+        throw new Error('Start date must be less than or equal to end date');
+      }
+      if (startDate < minStartDate) {
+        throw new Error('Start date must be at least today');
+      }
+
       const tourData = {
         title: tourForm.title,
         description: tourForm.description || '',
@@ -229,13 +240,17 @@ function TourTable() {
         discount: Number(tourForm.discount),
         placeOfDeparture: tourForm.placeOfDeparture,
         duration: tourForm.duration,
-        startDate: new Date(tourForm.startDate).toISOString(),
-        endDate: new Date(tourForm.endDate).toISOString(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         maxParticipants: Number(tourForm.maxParticipants),
         currentParticipants: Number(tourForm.currentParticipants),
         locationId: Number(tourForm.locationId),
         tourTypeId: Number(tourForm.tourTypeId),
         tourCode: tourForm.tourCode,
+        thumbnail: tourForm.thumbnail instanceof File ? null : tourForm.thumbnail,
+        existingImages: tourForm.images
+          .filter((img) => !(img instanceof File))
+          .map((img) => img), 
       };
 
       const formData = new FormData();
@@ -248,6 +263,10 @@ function TourTable() {
           formData.append('images', img);
         }
       });
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ', ' + pair[1]);
+      }
 
       const response = await updateTour(selectedTour.id, formData);
       setTours((prev) =>
@@ -267,11 +286,21 @@ function TourTable() {
       setIsUpdating(false);
     }
   }, [selectedTour, tourForm]);
-
   // Thêm tour mới
   const handleAddTour = useCallback(async () => {
     setIsUpdating(true);
     try {
+      const startDate = new Date(tourForm.startDate);
+      const endDate = new Date(tourForm.endDate);
+      const currentDate = new Date();
+      const minStartDate = new Date(currentDate.setDate(currentDate.getDate()));
+      if (startDate > endDate) {
+        toast.error('Start date must be less than or equal to end date');
+      }
+      if (startDate < minStartDate) {
+        toast.error('Start date must be at least today');
+      }
+
       const tourData = {
         title: tourForm.title,
         description: tourForm.description || '',
@@ -282,8 +311,8 @@ function TourTable() {
         discount: Number(tourForm.discount),
         placeOfDeparture: tourForm.placeOfDeparture,
         duration: tourForm.duration,
-        startDate: new Date(tourForm.startDate).toISOString(),
-        endDate: new Date(tourForm.endDate).toISOString(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         maxParticipants: Number(tourForm.maxParticipants),
         currentParticipants: Number(tourForm.currentParticipants) || 0,
         locationId: Number(tourForm.locationId),
@@ -327,14 +356,13 @@ function TourTable() {
       });
       toast.success(`Tour ${response.tourCode} added successfully.`);
     } catch (error) {
-      toast.error('Failed to add new tour: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to load data: ' + (error.message || 'Unknown error'));
       console.error(error);
     } finally {
       setIsUpdating(false);
     }
   }, [tourForm]);
 
-  // Reset tourForm khi mở AddTourModal
   const handleOpenAddTourModal = useCallback(() => {
     setTourForm({
       tourCode: '',
@@ -371,7 +399,7 @@ function TourTable() {
 
   return (
     <div className="p-4">
-       {/* Header */}
+      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Tour Management</h1>
         <p className="text-sm text-gray-600">Manage Tour System</p>

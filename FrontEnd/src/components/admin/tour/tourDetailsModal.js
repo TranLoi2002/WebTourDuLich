@@ -135,6 +135,7 @@ const TourDetailsModal = ({
                                                 ))}
                                             </select>
                                         </div>
+                                        
                                     </div>
                                 </div>
 

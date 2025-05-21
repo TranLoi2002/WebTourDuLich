@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface LikeRepository extends JpaRepository<Like, Long>{
     @Query("SELECT b FROM Like l JOIN l.blog b WHERE l.userId = :userId AND l.isActive = true")
@@ -21,4 +23,8 @@ public interface LikeRepository extends JpaRepository<Like, Long>{
     // check user liked blog
     @Query("SELECT COUNT(l) > 0 FROM Like l WHERE l.blog.id = :blogId AND l.userId = :userId")
     boolean existsByBlogIdAndUserId(Long blogId, Long userId);
+
+    // find like by blogId and userId
+    @Query("SELECT l FROM Like l WHERE l.blog.id = :blogId AND l.userId = :userId")
+    Optional<Like> findByBlogIdAndUserId(@Param("blogId") Long blogId, @Param("userId") Long userId);
 }

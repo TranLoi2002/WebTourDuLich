@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "react-modal";
 import { TextField } from "@mui/material";
 import { changePassword } from "../../api/auth.api";
+import { toast } from "react-toastify";
 
 const ChangePasswordModal = ({ isOpen, onClose }) => {
     const [oldPass, setOldPass] = useState("");
@@ -12,46 +13,60 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     const [loading, setLoading] = useState(false);
 
     const handleChangePassword = async () => {
-        setLoading(true);
-        setError("");
-        setMessage("");
+    setLoading(true);
+    setError("");
+    setMessage("");
 
-        if (!oldPass || !newPass || !confirmPass) {
-            setError("Vui lòng điền đầy đủ thông tin.");
-            setLoading(false);
-            return;
+    // Validate all fields
+    if (!oldPass || !newPass || !confirmPass) {
+        toast.info("Please fill in all fields");
+        setLoading(false);
+        return;
+    }
+
+    // Validate new password length
+    if (newPass.length < 8) {
+        toast.info("New password must be at least 8 characters long");
+        setLoading(false);
+        return;
+    }
+
+    const pattern = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+    if (!pattern.test(newPass)) {
+        toast.info("Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character, minimum 8 characters");
+        return;
+    }
+
+    // Check confirm password
+    if (newPass !== confirmPass) {
+        toast.info("New password and confirmation do not match");
+        setLoading(false);
+        return;
+    }
+
+    try {
+        await changePassword({ oldPassword: oldPass, newPassword: newPass });
+
+        toast.success("Password changed successfully");
+        setOldPass("");
+        setNewPass("");
+        setConfirmPass("");
+
+        setTimeout(() => {
+            onClose();
+        }, 1500);
+    } catch (err) {
+        if (err?.response?.status === 401) {
+            toast.error("Session expired. Please log in again");
+        } else if (err?.response?.data) {
+            toast.error(err.response.data);
+        } else {
+            toast.error("An error occurred. Please try again");
         }
-
-        if (newPass !== confirmPass) {
-            setError("Mật khẩu xác nhận không khớp.");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            await changePassword({ oldPassword: oldPass, newPassword: newPass });
-
-            setMessage("Đổi mật khẩu thành công.");
-            setOldPass("");
-            setNewPass("");
-            setConfirmPass("");
-
-            setTimeout(() => {
-                setMessage("");
-                onClose();
-            }, 1500);
-        } catch (err) {
-            if (err?.response?.status === 401) {
-                setError("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-            } else if (err?.response?.data) {
-                setError(err.response.data);
-            } else {
-                setError("Đã xảy ra lỗi. Vui lòng thử lại.");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <Modal
@@ -69,7 +84,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
         >
             <div className="modal-content">
                 <div className="flex items-center justify-between">
-                    <h3>Đổi mật khẩu</h3>
+                    <h3>Change Password</h3>
                     <button
                         onClick={onClose}
                         className="bg-primary border-none py-[5px] px-[10px] outline-none text-white rounded-lg"
@@ -81,21 +96,21 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                 <div className="flex flex-col gap-[20px] mt-[20px]">
                     <TextField
                         className="w-full"
-                        label="Mật khẩu hiện tại"
+                        label="Current Password"
                         type="password"
                         value={oldPass}
                         onChange={(e) => setOldPass(e.target.value)}
                     />
                     <TextField
                         className="w-full"
-                        label="Mật khẩu mới"
+                        label="New Password"
                         type="password"
                         value={newPass}
                         onChange={(e) => setNewPass(e.target.value)}
                     />
                     <TextField
                         className="w-full"
-                        label="Xác nhận mật khẩu mới"
+                        label="Confirm New Password"
                         type="password"
                         value={confirmPass}
                         onChange={(e) => setConfirmPass(e.target.value)}
@@ -108,12 +123,13 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                         type="button"
                         onClick={handleChangePassword}
                     >
-                        {loading ? "Đang xử lý..." : "Lưu thay đổi"}
+                        {loading ? "Processing..." : "Save Changes"}
                     </button>
                 </div>
             </div>
         </Modal>
     );
+
 };
 
 export default ChangePasswordModal;

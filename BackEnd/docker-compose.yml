@@ -36,7 +36,7 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/booking_db
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/booking_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
@@ -54,7 +54,7 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/catalog_db
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/catalog_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
@@ -72,7 +72,7 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/review_db
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/review_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
@@ -90,11 +90,12 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/user_db
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/user_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
+
   payment-service:
     build:
       context: ./payment_service
@@ -107,11 +108,12 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/payment_db
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/payment_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
+
   blog-service:
     build:
       context: ./blog_service
@@ -124,11 +126,12 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/blog_db
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/blog_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
+
   chatbot-service:
     build:
       context: ./ChatbotService
@@ -141,12 +144,11 @@ services:
       - discovery-service
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3306/chatbot_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://host.docker.internal:3306/chatbot_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
-
 
 # Định nghĩa network để các container giao tiếp với nhau
 networks:

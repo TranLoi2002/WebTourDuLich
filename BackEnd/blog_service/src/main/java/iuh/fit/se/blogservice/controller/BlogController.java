@@ -12,9 +12,9 @@ import iuh.fit.se.blogservice.feign.UserServiceClient;
 import iuh.fit.se.blogservice.model.Blog;
 import iuh.fit.se.blogservice.repository.BlogRepository;
 import iuh.fit.se.blogservice.service.BlogService;
-import iuh.fit.se.blogservice.service.CloudinaryService;
 import iuh.fit.se.blogservice.service.CommentService;
 import iuh.fit.se.blogservice.service.LikeService;
+import iuh.fit.se.blogservice.service.impl.CloudinaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,21 +56,20 @@ public class BlogController {
         return ResponseEntity.ok(response);
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Blog> getBlogById(Long id) {
-//        return ResponseEntity.ok(blogService.getBlogById(id));
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<BlogDTO> getBlogById(@PathVariable Long id) {
+        BlogDTO blogDTO = blogService.getBlogById(id);
+        if (blogDTO == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(blogDTO);
+    }
 
     @PostMapping
     public ResponseEntity<BlogDTO> createBlog(
             @RequestParam("thumbnail") MultipartFile thumbnail,
             @RequestParam("blog") String blogJson,
             @RequestHeader("User-Id") Long userId) {
-
-        // Kiểm tra quyền admin
-        if (!"ADMIN".equals(userServiceClient.getUserRoleById(userId))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
 
         // Kiểm tra file thumbnail
         if (thumbnail == null || thumbnail.isEmpty()) {
@@ -112,17 +111,13 @@ public class BlogController {
         return ResponseEntity.ok(createdBlog);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<BlogDTO> updateBlog(
             @PathVariable Long id,
             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
             @RequestParam("blog") String blogJson,
             @RequestHeader("User-Id") Long userId) {
 
-        // Kiểm tra quyền admin
-        if (!"ADMIN".equals(userServiceClient.getUserRoleById(userId))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
 
         // Parse JSON thành BlogDTO
         BlogDTO blogDTO;
@@ -157,10 +152,8 @@ public class BlogController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBlog(@PathVariable Long id, @RequestHeader("User-Id") Long userId) {
-        if (!"ADMIN".equals(userServiceClient.getUserRoleById(userId))) {
-            throw new RuntimeException("You do not have permission to delete this blog");
-        }
+    public void deleteBlog(@PathVariable Long id) {
+
         blogService.deleteBlog(id);
     }
 
@@ -191,11 +184,28 @@ public class BlogController {
         return ResponseEntity.status(HttpStatus.CREATED).body(likeDTO);
     }
 
+    @DeleteMapping("/{blogId}/like")
+    public ResponseEntity<Void> deleteLike(
+            @PathVariable Long blogId,
+            @RequestHeader("User-Id") Long userId) {
+        likeService.deleteLike(blogId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
     // Lấy danh sách bài viết mà người dùng đã like
     @GetMapping("/liked")
     public Map<String, Object> getBlogsLikedByUser(
             @RequestHeader("User-Id") Long userId,
             @RequestParam Map<String, String> params) {
         return blogService.getBlogsLikedByUserId(userId, params);
+    }
+
+    // get blogs by category id
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<Map<String, Object>> getBlogsByCategoryId(
+            @PathVariable Long categoryId,
+            @RequestParam Map<String, String> params) {
+        Map<String, Object> response = blogService.getBlogsByCategoryId(categoryId, params);
+        return ResponseEntity.ok(response);
     }
 }

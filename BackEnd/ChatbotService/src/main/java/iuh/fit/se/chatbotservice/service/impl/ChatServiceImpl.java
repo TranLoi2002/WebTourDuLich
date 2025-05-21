@@ -5,9 +5,6 @@ import iuh.fit.se.chatbotservice.dto.ChatResponse;
 import iuh.fit.se.chatbotservice.entity.Message;
 import iuh.fit.se.chatbotservice.repository.MessageRepository;
 import iuh.fit.se.chatbotservice.service.ChatService;
-//import iuh.fit.se.chatbotservice.service.DatabaseService;
-//import iuh.fit.se.chatbotservice.util.QuestionClassifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,12 +14,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class ChatServiceImpl implements ChatService {
 
-    @Value("${rasa.server.url}")
-    private String rasaServerUrl;
+    @Value("${chatbot.server.url:http://localhost:5000/query}")
+    private String chatbotServerUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final MessageRepository messageRepository;
@@ -32,46 +31,101 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Message> sendMessageToRasa(ChatRequest chatRequest) {
-        // Create payload for Rasa
+    public List<Message> sendMessageToNodeServer(ChatRequest chatRequest) {
         Map<String, String> payload = new HashMap<>();
         payload.put("sender", chatRequest.getSender());
         payload.put("message", chatRequest.getMessage());
 
-        // Send POST request to Rasa
-        Map<String, Object>[] rasaResponse = restTemplate.postForObject(rasaServerUrl, payload, Map[].class);
+        Map<String, Object> nodeResponse = restTemplate.postForObject(chatbotServerUrl, payload, Map.class);
 
-        // Save user message
         Message userMessage = new Message();
         userMessage.setUserId(Long.parseLong(chatRequest.getSender()));
         userMessage.setMessage(chatRequest.getMessage());
         userMessage.setTimestamp(LocalDateTime.now());
         messageRepository.save(userMessage);
 
-        // Combine Rasa responses into a single message
-        StringBuilder combinedBotResponse = new StringBuilder();
-        if (rasaResponse != null) {
-            for (Map<String, Object> response : rasaResponse) {
-                String text = (String) response.get("text");
-                if (text != null && !text.isEmpty()) {
-                    if (combinedBotResponse.length() > 0) {
-                        combinedBotResponse.append("\n");
-                    }
-                    combinedBotResponse.append(text);
-                }
-            }
-        }
-
-        // Save and return combined response if it exists
         List<Message> messages = new ArrayList<>();
         messages.add(userMessage);
-        if (combinedBotResponse.length() > 0) {
-            Message botMessage = new Message();
-            botMessage.setUserId(Long.parseLong(chatRequest.getSender()));
-            botMessage.setMessage(combinedBotResponse.toString());
-            botMessage.setTimestamp(LocalDateTime.now());
-            messageRepository.save(botMessage);
-            messages.add(botMessage);
+
+        if (nodeResponse != null) {
+            String status = (String) nodeResponse.get("status");
+            if ("error".equals(status)) {
+                String error = (String) nodeResponse.get("error");
+                Message errorMessage = new Message();
+                errorMessage.setUserId(Long.parseLong(chatRequest.getSender()));
+                errorMessage.setMessage(error);
+                errorMessage.setTimestamp(LocalDateTime.now());
+                messageRepository.save(errorMessage);
+                messages.add(errorMessage);
+            } else {
+                List<Map<String, Object>> tours = (List<Map<String, Object>>) nodeResponse.get("tours");
+                List<String> suggestions = (List<String>) nodeResponse.get("suggestions");
+                String responseText = (String) nodeResponse.get("response");
+
+                StringBuilder combinedBotResponse = new StringBuilder();
+
+                if (tours != null && !tours.isEmpty()) {
+                    for (Map<String, Object> tour : tours) {
+                        double price;
+                        int duration;
+                        Object priceObj = tour.get("price");
+                        Object durationObj = tour.get("duration");
+
+                        if (priceObj instanceof Number) {
+                            price = ((Number) priceObj).doubleValue();
+                        } else {
+                            price = Double.parseDouble(priceObj.toString());
+                        }
+
+                        if (durationObj instanceof Number) {
+                            duration = ((Number) durationObj).intValue();
+                        } else {
+                            // Trích xuất số từ chuỗi như "5 days 4 nights"
+                            String durationStr = durationObj.toString();
+                            Pattern pattern = Pattern.compile("\\d+");
+                            Matcher matcher = pattern.matcher(durationStr);
+                            if (matcher.find()) {
+                                duration = Integer.parseInt(matcher.group());
+                            } else {
+                                duration = 0; // Giá trị mặc định nếu không tìm thấy số
+                            }
+                        }
+
+                        String tourText = String.format(
+                                "⭐ Tour: %s (ID: %d)\n📍 Địa điểm: %s\n💬 Mô tả: %s\n💵 Giá: %.2f\n🕒 Thời gian: %d\n📌 Loại tour: %s",
+                                tour.get("title"), tour.get("id"), tour.get("location"),
+                                tour.get("description"), price, duration, tour.get("tourType")
+                        );
+                        if (combinedBotResponse.length() > 0) {
+                            combinedBotResponse.append("\n\n");
+                        }
+                        combinedBotResponse.append(tourText);
+                    }
+                }
+
+                if (suggestions != null && !suggestions.isEmpty()) {
+                    if (combinedBotResponse.length() > 0) {
+                        combinedBotResponse.append("\n\n");
+                    }
+                    combinedBotResponse.append(String.join("\n", suggestions));
+                }
+
+                if (responseText != null && !responseText.isEmpty()) {
+                    if (combinedBotResponse.length() > 0) {
+                        combinedBotResponse.append("\n\n");
+                    }
+                    combinedBotResponse.append(responseText);
+                }
+
+                if (combinedBotResponse.length() > 0) {
+                    Message botMessage = new Message();
+                    botMessage.setUserId(Long.parseLong(chatRequest.getSender()));
+                    botMessage.setMessage(combinedBotResponse.toString());
+                    botMessage.setTimestamp(LocalDateTime.now());
+                    messageRepository.save(botMessage);
+                    messages.add(botMessage);
+                }
+            }
         }
 
         return messages;
@@ -79,14 +133,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatResponse handleChat(ChatRequest chatRequest) {
-        // All queries are now handled by Rasa, including database-related ones
-        List<Message> messages = sendMessageToRasa(chatRequest);
+        List<Message> messages = sendMessageToNodeServer(chatRequest);
 
-        // Consolidate all messages into a single response if multiple exist
         if (messages.size() > 1) {
             StringBuilder consolidatedResponse = new StringBuilder();
             for (Message msg : messages) {
-                if (!msg.getMessage().equals(chatRequest.getMessage())) { // Exclude user message
+                if (!msg.getMessage().equals(chatRequest.getMessage())) {
                     if (consolidatedResponse.length() > 0) {
                         consolidatedResponse.append("\n");
                     }
@@ -99,8 +151,8 @@ public class ChatServiceImpl implements ChatService {
                 consolidatedMessage.setMessage(consolidatedResponse.toString());
                 consolidatedMessage.setTimestamp(LocalDateTime.now());
                 messageRepository.save(consolidatedMessage);
-                messages.clear(); // Remove individual messages
-                messages.add(consolidatedMessage); // Add consolidated message
+                messages.clear();
+                messages.add(consolidatedMessage);
             }
         }
 
@@ -109,13 +161,11 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void resetTokens() {
-        // Call the custom reset endpoint on the Rasa action server
-        String resetTokensUrl = "http://localhost:5055/reset_tokens"; // Rasa action server port
+        String resetTokensUrl = "http://localhost:5000/reset_tokens";
         try {
             restTemplate.postForObject(resetTokensUrl, null, String.class);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to reset tokens on Rasa: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to reset tokens on Node.js server: " + e.getMessage(), e);
         }
     }
-
 }

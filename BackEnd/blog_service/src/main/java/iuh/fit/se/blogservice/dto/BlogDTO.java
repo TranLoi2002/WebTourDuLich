@@ -10,12 +10,14 @@ public class BlogDTO {
     private String title;
     private String content;
     private String thumbnail;
+    private String external_url;
     private Long authorId;
     private String authorName;
+    private String authorAvatar;
     private Long categoryId;
     private String categoryName;
     private String status;
-
+    private boolean isActive;
     private Long commentCount;
     private List<CommentDTO> comments;
     private Long likeCount;

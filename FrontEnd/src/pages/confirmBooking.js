@@ -186,9 +186,10 @@ const ConfirmBooking = () => {
         <>
             <Snackbar
                 open={notification.open}
-                autoHideDuration={9000}
+                autoHideDuration={2000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{vertical: "top", horizontal: "right"}}
+                style={{top:'100px'}}
                 sx={{
                     "& .MuiSnackbarContent-root": {
                         borderRadius: "8px",
@@ -201,14 +202,13 @@ const ConfirmBooking = () => {
                     onClose={handleCloseNotification}
                     severity={notification.severity}
                     sx={{
-                        top: "100px",
-                        width: "100%",
                         bgcolor:
                             notification.severity === "success" ? "#e0f7fa" : "#ffebee",
                         color: notification.severity === "success" ? "#00695c" : "#c62828",
                         "& .MuiAlert-icon": {
                             color: notification.severity === "success" ? "#00695c" : "#c62828",
                         },
+
                     }}
                     action={
                         <IconButton

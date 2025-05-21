@@ -6,5 +6,5 @@ import lombok.Data;
 public class LikeDTO {
     private Long id;
     private Long userId;
-    private String userName;
+//    private String userName;
 }

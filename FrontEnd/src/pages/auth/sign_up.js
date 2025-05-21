@@ -32,7 +32,7 @@ const Sign_Up = () => {
             toast.info("Please fill in all fields");
             return;
         }
-
+    
         // Validate email format
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(formData.email)) {
@@ -47,12 +47,19 @@ const Sign_Up = () => {
             return;
         }
 
-        // Validate password length
-        if (formData.passWord.length < 6) {
-            toast.info("Password must be at least 6 characters long");
+
+        // Kiểm tra độ dài trong khoảng 6 đến 100
+        if (formData.passWord.length < 8 || formData.passWord.length > 100) {
+            toast.info("Password must be between 8 and 100 characters long");
             return;
         }
 
+        // Kiểm tra pattern giống Java
+        const pattern = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+        if (!pattern.test(formData.passWord)) {
+            toast.info("Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character, minimum 8 characters");
+            return;
+        }
 
         // Validate password and confirmPassword
         if (formData.passWord !== formData.confirmPassword) {
@@ -63,6 +70,7 @@ const Sign_Up = () => {
         const user = {
             userName: formData.userName,
             email: formData.email,
+            fullName: formData.fullName,
             phoneNumber: formData.phoneNumber,
             passWord: formData.passWord,
             roleName: formData.roleName
@@ -70,7 +78,6 @@ const Sign_Up = () => {
 
         try {
             const res = await requestOTP(user); // Call the signup API
-
             toast.info("Register account success. Let's complete your sign in !!");
             navigate("/auth/verifyOTP", { state: { email: formData.email } });
         } catch (err) {

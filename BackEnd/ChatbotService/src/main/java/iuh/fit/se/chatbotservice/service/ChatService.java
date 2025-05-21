@@ -7,7 +7,7 @@ import iuh.fit.se.chatbotservice.entity.Message;
 import java.util.List;
 
 public interface ChatService {
-    List<Message> sendMessageToRasa(ChatRequest chatRequest);
+    List<Message> sendMessageToNodeServer(ChatRequest chatRequest);
 
     ChatResponse handleChat(ChatRequest chatRequest);
 

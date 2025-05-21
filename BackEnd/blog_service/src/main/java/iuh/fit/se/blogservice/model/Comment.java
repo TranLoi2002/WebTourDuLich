@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,6 +24,15 @@ public class Comment extends BaseEntity{
     private String content;
 
     private Long userId;
+//    private String userName;
+//    private String userAvatar;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Comment parent; // Comment cha (nếu có)
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> replies = new ArrayList<>(); // Danh sách reply
 
     @ManyToOne
     @JoinColumn(name = "blog_id", nullable = false)

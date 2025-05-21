@@ -1,13 +1,15 @@
 package iuh.fit.se.blogservice.service;
 
+import iuh.fit.se.blogservice.dto.CategoryDTO;
 import iuh.fit.se.blogservice.model.Category;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CategoryService {
-    List<Category> getAllCategories();
-    Category getCategoryById(Long id);
-    Category createCategory(Category category);
-    Category updateCategory(Long id, Category category);
+    Map<String, Object> getAllCategories(Map<String , String> params);
+    CategoryDTO getCategoryById(Long id);
+    CategoryDTO createCategory(CategoryDTO dto);
+    CategoryDTO updateCategory(Long id, CategoryDTO dto);
     void deleteCategory(Long id);
 }

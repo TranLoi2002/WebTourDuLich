@@ -29,6 +29,9 @@ public class Blog extends BaseEntity{
 
     private Long authorId;
 
+    // for category news
+    private String external_url;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 

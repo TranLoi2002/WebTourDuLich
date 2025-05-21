@@ -67,13 +67,13 @@ spring:
         - id: blog-service
           uri: lb://BLOG-SERVICE
           predicates:
-            - Path=/api/blog/**
+            - Path=/api/blog/**,/api/category/**
           filters:
             - StripPrefix=1
         - id: chatbot-service
           uri: lb://CHATBOT-SERVICE
           predicates:
-            - Path=/api/chat/**
+            - Path=/api/chatbot/**
           filters:
             - StripPrefix=1
     loadbalancer:
