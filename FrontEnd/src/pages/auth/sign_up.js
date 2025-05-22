@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from '../../assets/images/logo.png';
 import { Box, TextField, Button, Alert } from '@mui/material';
 import { requestOTP } from '../../api/auth.api';
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const Sign_Up = () => {
     const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const Sign_Up = () => {
             toast.info("Please fill in all fields");
             return;
         }
-    
+
         // Validate email format
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(formData.email)) {
@@ -47,8 +47,7 @@ const Sign_Up = () => {
             return;
         }
 
-
-        // Kiểm tra độ dài trong khoảng 6 đến 100
+        // Kiểm tra độ dài trong khoảng 8 đến 100
         if (formData.passWord.length < 8 || formData.passWord.length > 100) {
             toast.info("Password must be between 8 and 100 characters long");
             return;
@@ -77,9 +76,10 @@ const Sign_Up = () => {
         };
 
         try {
-            const res = await requestOTP(user); // Call the signup API
+            await requestOTP(user); // Call the signup API
             toast.info("Register account success. Let's complete your sign in !!");
-            navigate("/auth/verifyOTP", { state: { email: formData.email } });
+            // Pass the entire user object to VerifyOTP
+            navigate("/auth/verifyOTP", { state: { user } });
         } catch (err) {
             toast.error("Register account failed. Please try again !!");
         }
@@ -119,7 +119,6 @@ const Sign_Up = () => {
                             margin="dense"
                             value={formData.fullName}
                             onChange={handleChange}
-
                         />
                         <TextField
                             label="Email"

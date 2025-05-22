@@ -1,173 +1,126 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import logo from '../../assets/images/logo.png';
-import { Box, TextField, Button, Alert } from '@mui/material';
-import { requestOTP } from '../../api/auth.api';
-import {toast} from "react-toastify";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Box, TextField, Button, Typography } from "@mui/material";
+import { toast } from "react-toastify";
+import { verifyOTP, requestOTP } from "../../api/auth.api";
 
-const Sign_Up = () => {
-    const [formData, setFormData] = useState({
-        userName: "",
-        email: "",
-        fullName: "",
-        phoneNumber: "",
-        passWord: "",
-        confirmPassword: "",
-        roleName: "USER",
-    });
-
-    const [error, setError] = useState("");
+const VerifyOTP = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const handleChange = (e) => {
-        setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
+    // Lấy user object từ state truyền qua navigate trong trang đăng ký
+    const userFromRegister = location.state?.user || null;
+    const [email, setEmail] = useState(userFromRegister?.email || "");
+    const [otp, setOTP] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(60); // Initialize cooldown to 60s
+    const [resendLoading, setResendLoading] = useState(false);
+
+    useEffect(() => {
+        if (!userFromRegister) {
+            // Nếu không có user object được truyền sang => quay lại trang đăng ký
+            toast.info("User data is required for verification");
+            navigate("/auth/sign_up");
+        } else {
+            // Show toast notification when entering the page
+            toast.info("An OTP has been sent to your email");
+        }
+    }, [userFromRegister, navigate]);
+
+    // Handle countdown timer
+    useEffect(() => {
+        let timer;
+        if (resendCooldown > 0) {
+            timer = setInterval(() => {
+                setResendCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [resendCooldown]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
+        toast.dismiss();
 
-        // Validate form fields
-        if (!formData.userName || !formData.email || !formData.phoneNumber || !formData.passWord || !formData.confirmPassword) {
-            toast.info("Please fill in all fields");
-            return;
-        }
-    
-        // Validate email format
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(formData.email)) {
-            toast.info("Invalid email format");
+        if (!otp) {
+            toast.info("Please enter the OTP");
             return;
         }
 
-        // Validate phone number format (example: 10 digits)
-        const phonePattern = /^\d{10}$/;
-        if (!phonePattern.test(formData.phoneNumber)) {
-            toast.info("Invalid phone number format");
-            return;
-        }
-
-
-        // Kiểm tra độ dài trong khoảng 6 đến 100
-        if (formData.passWord.length < 8 || formData.passWord.length > 100) {
-            toast.info("Password must be between 8 and 100 characters long");
-            return;
-        }
-
-        // Kiểm tra pattern giống Java
-        const pattern = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-        if (!pattern.test(formData.passWord)) {
-            toast.info("Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character, minimum 8 characters");
-            return;
-        }
-
-        // Validate password and confirmPassword
-        if (formData.passWord !== formData.confirmPassword) {
-            toast.info("Password and Confirm Password do not match");
-            return;
-        }
-
-        const user = {
-            userName: formData.userName,
-            email: formData.email,
-            fullName: formData.fullName,
-            phoneNumber: formData.phoneNumber,
-            passWord: formData.passWord,
-            roleName: formData.roleName
-        };
+        setLoading(true);
 
         try {
-            const res = await requestOTP(user); // Call the signup API
-            toast.info("Register account success. Let's complete your sign in !!");
-            navigate("/auth/verifyOTP", { state: { email: formData.email } });
+            await verifyOTP(email, otp);
+            toast.success("OTP verified successfully. Redirecting to sign in...");
+            setTimeout(() => navigate("/auth/sign_in"), 2000);
         } catch (err) {
-            toast.error("Register account failed. Please try again !!");
+            toast.error(err?.response?.data?.error || "OTP verification failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendOTP = async () => {
+        setResendLoading(true);
+        toast.dismiss();
+
+        try {
+            // Use the full user object for resending OTP
+            await requestOTP(userFromRegister);
+            toast.success("New OTP sent successfully");
+            setResendCooldown(60); // Reset 60-second cooldown
+        } catch (err) {
+            toast.error(err?.response?.data?.error || "Failed to resend OTP");
+        } finally {
+            setResendLoading(false);
         }
     };
 
     return (
-        <>
-            <div className="image_main_signup" />
-            <div className="card_sign_up">
-                <div className="sign-up-left">
-                    <div className="logo_header">
-                        <Link to="/">
-                            <img src={logo} alt="" />
-                            <span>Airtrav</span>
-                        </Link>
-                    </div>
-                    <h2>Get Started</h2>
-                    <div className="forget">
-                        <p>Already have an account? <Link to='/auth/sign_in'>Sign in</Link></p>
-                    </div>
-
-                    <Box className="infor" component="form" onSubmit={handleSubmit}>
-                        <TextField
-                            label="Username"
-                            name="userName"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.userName}
-                            onChange={handleChange}
-                        />
-                        <TextField
-                            label="Full Name"
-                            name="fullName"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.fullName}
-                            onChange={handleChange}
-
-                        />
-                        <TextField
-                            label="Email"
-                            name="email"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.email}
-                            onChange={handleChange}
-                        />
-                        <TextField
-                            label="Phone Number"
-                            name="phoneNumber"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                        />
-                        <TextField
-                            label="Password"
-                            name="passWord"
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.passWord}
-                            onChange={handleChange}
-                        />
-                        <TextField
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            margin="dense"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                        />
-                        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-                        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            Sign Up
-                        </Button>
-                    </Box>
-                </div>
-            </div>
-        </>
+        <Box sx={{ maxWidth: 400, mx: "auto", mt: 30 }}>
+            <h2>OTP Verification</h2>
+            <Box component="form" onSubmit={handleSubmit}>
+                <TextField
+                    label="Email"
+                    type="email"
+                    fullWidth
+                    margin="normal"
+                    value={email}
+                    disabled
+                />
+                <TextField
+                    label="OTP"
+                    fullWidth
+                    margin="normal"
+                    value={otp}
+                    onChange={(e) => setOTP(e.target.value)}
+                />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    disabled={loading}
+                >
+                    {loading ? "Verifying..." : "Verify OTP"}
+                </Button>
+                <Button
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    onClick={handleResendOTP}
+                    disabled={resendLoading || resendCooldown > 0}
+                >
+                    {resendLoading ? "Sending..." : "Resend OTP"}
+                </Button>
+                {resendCooldown > 0 && (
+                    <Typography sx={{ mt: 1, textAlign: "center", color: "text.secondary" }}>
+                        Wait {resendCooldown} seconds to resend OTP
+                    </Typography>
+                )}
+            </Box>
+        </Box>
     );
 };
 
-export default Sign_Up;
+export default VerifyOTP;
