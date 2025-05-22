@@ -2,7 +2,7 @@
 .env
 
 # Ignore Node.js dependencies
-.chatbot-server/node_modules
+/chatbot-server/node_modules
 
 # Ignore IDE settings
 .idea/
