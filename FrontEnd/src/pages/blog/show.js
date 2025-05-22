@@ -10,7 +10,11 @@ const BlogCard = ({ date, title, description, image, link }) => (
         <div className="mt-4">
             <p className="text-sm text-gray-500">{date}</p>
             <Link to={link} className="text-lg font-semibold">{title}</Link>
-            <p className="text-sm text-gray-600 line-clamp-3">{description}</p>
+            <p className="text-sm text-gray-600 line-clamp-3" dangerouslySetInnerHTML={{
+                __html: description
+                    ? description.slice(0, 150) + '...'
+                    : '<p>No content available...</p>',
+            }}></p>
         </div>
     </div>
 );
